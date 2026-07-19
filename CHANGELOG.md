@@ -4,6 +4,19 @@ All notable changes to this repository are documented here. Package versions
 follow Semantic Versioning independently from the versioned Tool contract and
 event protocol.
 
+## 0.1.3 - 2026-07-20
+
+- Reissued the first public npm release from the immutable
+  `pi-leetcode-tools-v0.1.3` tag after the `v0.1.2` one-time bootstrap stopped
+  before publication. Version `0.1.2` remains an immutable source tag and
+  CandidateRecord audit trail; it was not published to npm.
+- Corrected the protected bootstrap and regular OIDC publish commands so npm
+  receives the exact verified local tarball instead of interpreting its
+  relative path as a Git locator, and added static plus real npm dry-run
+  regression coverage for both downloaded bundle layouts.
+- Preserved the `1.1.0` Tool contract, `1.0.0` RPC protocol, fourteen Pi tools,
+  and complete 24/24 pinned reference-interface coverage from `0.1.2`.
+
 ## 0.1.2 - 2026-07-19
 
 - Added fourteen model-facing `lc_*` Pi tools for LeetCode Global and CN,

@@ -80,7 +80,7 @@ jobs:
           --bundle .artifacts/bootstrap-bundle/tools
       - name: Exercise exact npm publish without changing the registry
         run: >-
-          npm publish ".artifacts/bootstrap-bundle/tools/pi-leetcode-tools-${RELEASE_VERSION}.tgz"
+          npm publish "./.artifacts/bootstrap-bundle/tools/pi-leetcode-tools-${RELEASE_VERSION}.tgz"
           --dry-run
           --tag next
           --access public
@@ -217,7 +217,7 @@ jobs:
           NPM_CONFIG_USERCONFIG="$isolated_userconfig" \
           NPM_CONFIG_GLOBALCONFIG="$isolated_globalconfig" \
           NPM_CONFIG_CACHE="$isolated_cache" \
-          npm publish "bootstrap-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz" \
+          npm publish "./bootstrap-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz" \
             --registry https://registry.npmjs.org/ \
             --tag next \
             --provenance \

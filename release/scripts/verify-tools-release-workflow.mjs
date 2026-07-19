@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const releaseWorkflowPath = join(repositoryRoot, ".github", "workflows", "release-tools.yml");
+const bootstrapWorkflowPath = join(repositoryRoot, ".github", "workflows", "bootstrap-tools.yml");
 const ciWorkflowPath = join(repositoryRoot, ".github", "workflows", "ci.yml");
 const workflowsDirectory = join(repositoryRoot, ".github", "workflows");
 const packagePath = join(repositoryRoot, "package.json");
@@ -227,6 +228,24 @@ function verifyPolicyEnforcement(validationSource, publishJobSource) {
   ]);
 }
 
+function verifyExactLocalTgzPublish(jobSource, label, expectedInput) {
+  const publishInputs = [...jobSource.matchAll(/\bnpm\s+publish\s+"([^"\r\n]+\.tgz)"/gu)]
+    .map((match) => match[1]);
+  assert(
+    publishInputs.length === 1,
+    `${label} must contain one quoted local tgz publish input; found ${publishInputs.length}`
+  );
+  const [publishInput] = publishInputs;
+  assert(
+    publishInput.startsWith("./"),
+    `${label} must use an explicit ./ local tgz path instead of an npm Git shorthand`
+  );
+  assert(
+    publishInput === expectedInput,
+    `${label} must publish ${expectedInput}; found ${publishInput}`
+  );
+}
+
 function verifyReleaseWorkflow(source, packageJson, validationSource) {
   const label = ".github/workflows/release-tools.yml";
   const { jobs } = parseWorkflowJobs(source, label);
@@ -252,12 +271,25 @@ function verifyReleaseWorkflow(source, packageJson, validationSource) {
   assert(!/\bnpm\s+(?:ci|install|install-ci-test|run)\b/iu.test(publishJob.source), "publish-next must not install dependencies or invoke npm scripts");
   const publishCount = [...publishJob.source.matchAll(/\bnpm\s+publish\b/giu)].length;
   assert(publishCount === 1, `publish-next must contain exactly one npm publish command; found ${publishCount}`);
+  verifyExactLocalTgzPublish(
+    publishJob.source,
+    "publish-next job",
+    "./release-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"
+  );
   requirePatterns(publishJob.source, "publish-next job", [
-    ["exact downloaded tgz publish input", /npm publish "release-bundle\/pi-leetcode-tools-\$\{RELEASE_VERSION\}\.tgz"/u],
+    ["downloaded bundle directory", /path:\s*release-bundle/u],
     ["next dist-tag", /--tag next/u],
     ["npm provenance", /--provenance/u],
     ["public access", /--access public/u],
     ["script suppression", /--ignore-scripts/u]
+  ]);
+  requirePatterns(validateJob.source, "validate-build job", [
+    [
+      "explicit local dry-run tgz input",
+      /npm publish "\.\/\.artifacts\/release-bundle\/tools\/pi-leetcode-tools-\$\{RELEASE_VERSION\}\.tgz"/u
+    ],
+    ["release bundle upload path", /path:\s*\.artifacts\/release-bundle\/tools\/\*\*/u],
+    ["dry-run publish guard", /--dry-run/u]
   ]);
 
   const packClosure = verifyNoRecordScriptGraph(packageJson, "pack:tools:no-record");
@@ -272,6 +304,77 @@ function verifyReleaseWorkflow(source, packageJson, validationSource) {
   }
 
   verifyPolicyEnforcement(validationSource, publishJob.source);
+  return { jobs: jobs.size, publishCount };
+}
+
+function verifyBootstrapWorkflow(source) {
+  const label = ".github/workflows/bootstrap-tools.yml";
+  const { jobs } = parseWorkflowJobs(source, label);
+  const validateJob = jobs.get("validate");
+  const publishJob = jobs.get("publish");
+  const verifyJob = jobs.get("verify");
+  assert(validateJob !== undefined, `${label} is missing validate`);
+  assert(publishJob !== undefined, `${label} is missing publish`);
+  assert(verifyJob !== undefined, `${label} is missing verify`);
+
+  const validatePermissions = parseJobPermissions(validateJob, label);
+  assert(
+    validatePermissions.get("contents") === "read" && validatePermissions.size === 1,
+    "bootstrap validate must keep only contents: read"
+  );
+  assert(!validatePermissions.has("id-token"), "bootstrap validate must not receive id-token permission");
+
+  const publishPermissions = parseJobPermissions(publishJob, label);
+  assert(
+    publishPermissions.get("id-token") === "write" && publishPermissions.size === 1,
+    "bootstrap publish must keep only id-token: write"
+  );
+  const publishUses = actionUses(publishJob.source, `${label} publish`);
+  assert(publishUses.length === 2, "bootstrap publish must use only setup-node and download-artifact");
+  assert(
+    publishUses.some(({ reference }) => reference.startsWith("actions/setup-node@")),
+    "bootstrap publish is missing setup-node"
+  );
+  assert(
+    publishUses.some(({ reference }) => reference.startsWith("actions/download-artifact@")),
+    "bootstrap publish is missing download-artifact"
+  );
+  assert(
+    !publishUses.some(({ reference }) => reference.startsWith("actions/checkout@")),
+    "bootstrap publish must not check out repository source"
+  );
+  assert(
+    !/\bnpm\s+(?:ci|install|install-ci-test|run)\b/iu.test(publishJob.source),
+    "bootstrap publish must not install dependencies or invoke npm scripts"
+  );
+  const publishCount = [...publishJob.source.matchAll(/\bnpm\s+publish\b/giu)].length;
+  assert(
+    publishCount === 1,
+    `bootstrap publish must contain exactly one npm publish command; found ${publishCount}`
+  );
+  verifyExactLocalTgzPublish(
+    publishJob.source,
+    "bootstrap publish job",
+    "./bootstrap-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"
+  );
+  requirePatterns(publishJob.source, "bootstrap publish job", [
+    ["protected bootstrap environment", /^\s*environment:\s*npm-tools-bootstrap\s*$/mu],
+    ["downloaded bundle directory", /path:\s*bootstrap-bundle/u],
+    ["protected npm token", /NPM_TOKEN:\s*\$\{\{ secrets\.NPM_TOKEN \}\}/u],
+    ["next dist-tag", /--tag next/u],
+    ["npm provenance", /--provenance/u],
+    ["public access", /--access public/u],
+    ["script suppression", /--ignore-scripts/u]
+  ]);
+  requirePatterns(validateJob.source, "bootstrap validate job", [
+    [
+      "explicit local dry-run tgz input",
+      /npm publish "\.\/\.artifacts\/bootstrap-bundle\/tools\/pi-leetcode-tools-\$\{RELEASE_VERSION\}\.tgz"/u
+    ],
+    ["bootstrap bundle upload path", /path:\s*\.artifacts\/bootstrap-bundle\/tools\/\*\*/u],
+    ["dry-run publish guard", /--dry-run/u]
+  ]);
+
   return { jobs: jobs.size, publishCount };
 }
 
@@ -387,7 +490,14 @@ function expectFailure(name, operation, expectedMessage) {
   throw new Error(`Negative self-test unexpectedly passed: ${name}`);
 }
 
-function runNegativeSelfTests({ releaseWorkflow, packageJson, policy, validationSource, provisionSource }) {
+function runNegativeSelfTests({
+  releaseWorkflow,
+  bootstrapWorkflow,
+  packageJson,
+  policy,
+  validationSource,
+  provisionSource
+}) {
   const tests = [];
   const negative = (name, operation, expectedMessage) => {
     expectFailure(name, operation, expectedMessage);
@@ -434,6 +544,30 @@ function runNegativeSelfTests({ releaseWorkflow, packageJson, policy, validation
       validationSource
     ),
     "exactly one npm publish"
+  );
+  negative(
+    "release local tgz prefix removed",
+    () => verifyReleaseWorkflow(
+      replaceOnce(
+        releaseWorkflow,
+        'npm publish "./release-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"',
+        'npm publish "release-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"',
+        "release local tgz input"
+      ),
+      packageJson,
+      validationSource
+    ),
+    "explicit ./ local tgz path"
+  );
+  negative(
+    "bootstrap local tgz prefix removed",
+    () => verifyBootstrapWorkflow(replaceOnce(
+      bootstrapWorkflow,
+      'npm publish "./bootstrap-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"',
+      'npm publish "bootstrap-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"',
+      "bootstrap local tgz input"
+    )),
+    "explicit ./ local tgz path"
   );
   negative(
     "OIDC added to validate-build",
@@ -490,8 +624,18 @@ function runNegativeSelfTests({ releaseWorkflow, packageJson, policy, validation
   return tests.length;
 }
 
-const [releaseWorkflow, ciWorkflow, packageText, policyText, validationSource, provisionSource, workflowEntries] = await Promise.all([
+const [
+  releaseWorkflow,
+  bootstrapWorkflow,
+  ciWorkflow,
+  packageText,
+  policyText,
+  validationSource,
+  provisionSource,
+  workflowEntries
+] = await Promise.all([
   readFile(releaseWorkflowPath, "utf8"),
+  readFile(bootstrapWorkflowPath, "utf8"),
   readFile(ciWorkflowPath, "utf8"),
   readFile(packagePath, "utf8"),
   readFile(policyPath, "utf8"),
@@ -514,6 +658,8 @@ let actionCount = 0;
 for (const workflowFile of workflowFiles) {
   const source = workflowFile === "release-tools.yml"
     ? releaseWorkflow
+    : workflowFile === "bootstrap-tools.yml"
+      ? bootstrapWorkflow
     : workflowFile === "ci.yml"
       ? ciWorkflow
       : await readFile(join(workflowsDirectory, workflowFile), "utf8");
@@ -521,6 +667,7 @@ for (const workflowFile of workflowFiles) {
 }
 
 const workflowResult = verifyReleaseWorkflow(releaseWorkflow, packageJson, validationSource);
+const bootstrapResult = verifyBootstrapWorkflow(bootstrapWorkflow);
 const policyResult = verifyReleasePolicy(policy);
 const upstreamPinCount = verifyUpstreamPins(provisionSource);
 const ciGateCommands = normalizedLines(ciWorkflow, ".github/workflows/ci.yml")
@@ -528,6 +675,7 @@ const ciGateCommands = normalizedLines(ciWorkflow, ".github/workflows/ci.yml")
 assert(ciGateCommands.length === 1, "CI must invoke verify:tools:release-workflow exactly once as a run step");
 const negativeChecks = runNegativeSelfTests({
   releaseWorkflow,
+  bootstrapWorkflow,
   packageJson,
   policy,
   validationSource,
@@ -537,9 +685,9 @@ const negativeChecks = runNegativeSelfTests({
 console.log(JSON.stringify({
   gate: "tools-release-workflow-static",
   workflows: workflowFiles.length,
-  jobs: workflowResult.jobs,
+  jobs: workflowResult.jobs + bootstrapResult.jobs,
   pinnedActions: actionCount,
-  publishCommands: workflowResult.publishCount,
+  publishCommands: workflowResult.publishCount + bootstrapResult.publishCount,
   upstreamPins: upstreamPinCount,
   currentPolicyBlockersWhenPackageAbsent: policyResult.blockers,
   negativeChecks,

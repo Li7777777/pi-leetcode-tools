@@ -4,7 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/pi-leetcode-tools?style=flat-square&logo=npm&logoColor=white)](https://www.npmjs.com/package/pi-leetcode-tools)
 [![CI](https://img.shields.io/github/actions/workflow/status/Li7777777/pi-leetcode-tools/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/Li7777777/pi-leetcode-tools/actions/workflows/ci.yml)
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22.19.0-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-[![Tests](https://img.shields.io/badge/tests-275%20passing-2ea44f?style=flat-square)](release/gate-matrix.json)
+[![Tests](https://img.shields.io/badge/tests-279%20passing-2ea44f?style=flat-square)](release/gate-matrix.json)
 [![MCP parity](https://img.shields.io/badge/MCP%20parity-24%2F24-7c3aed?style=flat-square)](packages/pi-leetcode-tools/README.md#reference-mcp-interface-parity)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Li7777777/pi-leetcode-tools?style=flat-square&logo=github)](https://github.com/Li7777777/pi-leetcode-tools/stargazers)
@@ -22,7 +22,7 @@ contains the package, its tests, and its release infrastructure.
 ## Installation
 
 ```sh
-pi install npm:pi-leetcode-tools@0.1.2
+pi install npm:pi-leetcode-tools@0.1.3
 pi list
 ```
 
