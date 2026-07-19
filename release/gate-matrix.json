@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-19T06:27:54Z",
+  "updatedAt": "2026-07-19T07:16:57Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -14,10 +14,10 @@
       "packageName": "pi-leetcode-tools",
       "gateClass": "engineering",
       "sourceMode": "independent_repository_candidate",
-      "status": "passed",
+      "status": "pending",
       "currentRecord": {
-        "recordId": "pi-leetcode-tools@0.1.2/sha256:9e15d4afaac1aa0ca46c0ad65b731bf739a44ed0b2a5f35775722b39f537aa4e",
-        "recordDigest": "sha256:3eaac2861e97e2941b86031047b352f3bcf38616540e5abfcb270254a512d435",
+        "recordId": "pi-leetcode-tools@0.1.2/sha256:14c0f71a15aec0b21549dcd2257b73f63d1c4a05b4361fe0960b814cd67e0d1c",
+        "recordDigest": "sha256:099535a13df2cb76d962ad313ddd13e2e4db001a9e8d7c9813e0dc25bc3a1cbb",
         "artifactSha256": "sha256:8f8cf6d38c542711d828b93297de722defc3485e458f054c8cc5867e03d990ad"
       },
       "requiredEvidence": [
@@ -29,22 +29,22 @@
         {
           "evidenceId": "TOOLS-ENG-CURRENT-NODE",
           "status": "passed",
-          "evidence": "The independent repository passed typecheck, 27 files / 275 tests, reproducible build, 24/24 upstream completeness, source/packed 344/344, packed install, 14-Tool Pi activation and supply-chain verification for pi-leetcode-tools@0.1.2."
+          "evidence": "The independent repository passed typecheck, 28 files / 278 tests, reproducible build, 24/24 upstream completeness, source/packed 344/344, packed install, 14-Tool Pi activation and supply-chain verification for pi-leetcode-tools@0.1.2."
         },
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
-          "status": "passed",
-          "evidence": "GitHub Actions run 29671629510 passed the complete release pipeline on Windows and Ubuntu with Node 22.19.0 and Node 24."
+          "status": "pending",
+          "evidence": "A fresh GitHub Actions matrix on Windows and Ubuntu with Node 22.19.0 and Node 24 is required for record 14c0f71a... after the closed-registry release-harness fix invalidated the previous source-closure run."
         },
         {
           "evidenceId": "TOOLS-ENG-LIVE-REBIND",
           "status": "passed",
-          "evidence": "Record 9e15d4af... passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped."
+          "evidence": "Record 14c0f71a... preserves the exact tgz SHA-256, unpacked package digest and contract tuple validated by record 9e15d4af.... The byte-identical package passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped; only the non-packed closed-registry release harness and its regression coverage changed."
         },
         {
           "evidenceId": "TOOLS-ENG-AUTHORIZED-WRITES",
           "status": "passed",
-          "evidence": "The separately authorized CN interactive Pi UI flow passed 8/8 with lc_run Accepted, operation recovery Accepted, revision-bound Notes write, and lc_submit Accepted. The evidence stores only hashes, byte counts and normalized states and is bound to record 9e15d4af... and tgz SHA-256 8f8cf6d3...."
+          "evidence": "The separately authorized CN interactive Pi UI flow passed 8/8 with lc_run Accepted, operation recovery Accepted, revision-bound Notes write, and lc_submit Accepted. The preserved evidence stores only hashes, byte counts and normalized states and remains package-artifact evidence for the unchanged tgz SHA-256 8f8cf6d3..., unpacked digest and contract tuple carried by record 14c0f71a...."
         }
       ],
       "invalidationConditions": [
@@ -63,6 +63,7 @@
         "TOOLS-ENG"
       ],
       "blockers": [
+        "the refreshed 0.1.2 engineering CI matrix is pending",
         "the immutable pi-leetcode-tools-v0.1.2 tag and tag-bound CI are pending",
         "npm package bootstrap and trusted publisher evidence are incomplete",
         "formal npm registry verification is missing"
