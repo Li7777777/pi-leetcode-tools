@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-19T02:55:00Z",
+  "updatedAt": "2026-07-19T03:25:00Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -14,7 +14,7 @@
       "packageName": "pi-leetcode-tools",
       "gateClass": "engineering",
       "sourceMode": "independent_repository_candidate",
-      "status": "pending",
+      "status": "passed",
       "currentRecord": {
         "recordId": "pi-leetcode-tools@0.1.1/sha256:7366aa077c03ac76f8e2d08dbcaf6e70ecca4e02461fa25d9eec02090899a898",
         "recordDigest": "sha256:fc1429e270cd7121f24cdc65ab57d24680b03a05a1c04a054d520ecb1ccab2df",
@@ -33,8 +33,8 @@
         },
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
-          "status": "pending",
-          "evidence": "The final GitHub-bound artifact is awaiting the public Windows/Ubuntu Node 22.19.0 and Node 24 CI matrix."
+          "status": "passed",
+          "evidence": "GitHub Actions run 29671629510 passed the complete release pipeline on Windows and Ubuntu with Node 22.19.0 and Node 24."
         },
         {
           "evidenceId": "TOOLS-ENG-LIVE-REBIND",
@@ -58,7 +58,7 @@
         "TOOLS-ENG"
       ],
       "blockers": [
-        "no immutable commit or release tag exists",
+        "no immutable release tag exists",
         "Linux/Pi/system-keyring evidence is missing",
         "npm package bootstrap and trusted publisher evidence are incomplete",
         "formal registry and authorized write evidence are missing"
