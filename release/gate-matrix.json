@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-19T16:36:03Z",
+  "updatedAt": "2026-07-19T16:52:06Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -14,7 +14,7 @@
       "packageName": "pi-leetcode-tools",
       "gateClass": "engineering",
       "sourceMode": "independent_repository_candidate",
-      "status": "pending",
+      "status": "passed",
       "currentRecord": {
         "recordId": "pi-leetcode-tools@0.1.3/sha256:f753a7ec8f3363d6d0079d584996f83bdec3641fff88668c9ced2dcef0153d1a",
         "recordDigest": "sha256:454240d9f3ceaf3e3778caafd6e60688c2a6417f5f4be309a480b8f8adac79a8",
@@ -33,8 +33,8 @@
         },
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
-          "status": "pending",
-          "evidence": "A fresh GitHub Actions matrix on Windows and Ubuntu with Node 22.19.0 and Node 24 is required for record f753a7ec... after the package version and protected publish workflows changed."
+          "status": "passed",
+          "evidence": "GitHub Actions push run 29695525569 and pull-request run 29695553418 passed the complete release pipeline for record f753a7ec... on Windows and Ubuntu with Node 22.19.0 and Node 24, including the corrected bootstrap and regular protected local-tgz publish boundaries."
         },
         {
           "evidenceId": "TOOLS-ENG-LOCAL-TGZ-PUBLISH",
@@ -68,7 +68,6 @@
         "TOOLS-ENG"
       ],
       "blockers": [
-        "the refreshed 0.1.3 engineering CI matrix is pending",
         "the immutable pi-leetcode-tools-v0.1.3 tag and tag-bound CI are pending",
         "npm package bootstrap and trusted publisher evidence are incomplete",
         "formal npm registry verification is missing"
