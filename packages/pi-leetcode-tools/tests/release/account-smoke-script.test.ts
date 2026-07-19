@@ -150,6 +150,25 @@ describe("packed account smoke script", () => {
     expect(source).toContain('process.env.PI_LEETCODE_ALLOW_ACCOUNT_SMOKE === "1"');
     expect(source).toContain('process.env.PI_LEETCODE_ALLOW_REAL_SUBMIT === "1"');
     expect(source).toContain('process.env.PI_LEETCODE_ALLOW_NOTES_WRITE === "1"');
+    expect(source).toContain(
+      'process.env.PI_LEETCODE_ACCOUNT_SMOKE_INTERACTIVE === "1"'
+    );
+    expect(source).toContain(
+      "Authorized submit or Notes write smoke requires PI_LEETCODE_ACCOUNT_SMOKE_INTERACTIVE=1"
+    );
+    expect(source).toContain(
+      '...(interactiveWriteSmoke ? [] : ["--mode", "rpc"])'
+    );
+    expect(source).toContain(
+      'stdio: interactiveWriteSmoke ? "inherit" : ["pipe", "pipe", "pipe"]'
+    );
+    expect(source).toContain('"--no-extensions"');
+    expect(source).toContain('installedProviderExtension');
+    expect(source).toContain('pi.registerCommand("account-smoke-start"');
+    expect(source).toContain('["/account-smoke-start"]');
+    expect(source).toContain('"TOOLS_NOT_REGISTERED"');
+    expect(source).toContain('setTimeout(() => void execute(), 0)');
+    expect(source).toContain('"UNCLASSIFIED_LOCAL_ERROR"');
     expect(
       source.match(/permanent-external-write-not-authorized-in-full-matrix/gu)
         ?.length
@@ -232,19 +251,25 @@ describe("packed account smoke script", () => {
       const result = await runAccountSmokeEvidence({
         artifactDirectory,
         recordDirectory,
+        interactive: true,
         loadCurrentCandidateRecordImpl: async () => {
           loadCount += 1;
           return candidate;
         },
-        runCommandImpl: async (_command: string, args: string[]) => {
+        runCommandImpl: async (
+          _command: string,
+          args: string[],
+          commandOptions: { stdio?: string }
+        ) => {
           expect(args.at(-1)).toBe(artifactDirectory);
+          expect(commandOptions.stdio).toBe("inherit");
           await writeFile(
             evidencePath,
             `${JSON.stringify(createRawEvidence(candidate), null, 2)}\n`,
             "utf8"
           );
           return {
-            stdout: `Approved account smoke verified; evidence: ${evidencePath}\n`,
+            stdout: "",
             stderr: ""
           };
         }

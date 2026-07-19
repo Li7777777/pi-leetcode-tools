@@ -228,7 +228,7 @@ describe("Tool Call v1 contract", () => {
       providerId: "provider-1",
       instanceId: "instance-1",
       contextRevision: 1,
-      packageVersion: "0.1.1",
+      packageVersion: "0.1.2",
       contractVersion: "1.1.0",
       protocolVersion: "1.0.0",
       schemaDigest: `sha256:${"a".repeat(64)}`,
@@ -252,7 +252,7 @@ describe("Tool Call v1 contract", () => {
     expect(
       Check(DiagnosticsSnapshotSchema, {
         packageName: "pi-leetcode-tools",
-        packageVersion: "0.1.1",
+        packageVersion: "0.1.2",
         contractVersion: "1.1.0",
         protocolVersion: "1.0.0",
         schemaDigest: descriptor.schemaDigest,

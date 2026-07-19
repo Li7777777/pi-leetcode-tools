@@ -36,7 +36,7 @@ The package exposes fourteen Pi tools:
 
 ## Verification
 
-`pi-leetcode-tools@0.1.1` implements all 24 pinned reference interfaces as 16
+`pi-leetcode-tools@0.1.2` implements all 24 pinned reference interfaces as 16
 native-tool mappings, 5 Gateway capabilities, and 3 static contract resources,
 with no partial, missing, superseded, or explicitly unsupported mapping.
 
@@ -100,7 +100,7 @@ mandatory evidence in addition to those eight dimensions. A test file that
 merely contains some `test`/`it` call is not parity evidence. Missing receipts,
 missing or duplicate cases, non-passed cases, stale runner/target/reference
 digests, and packed JavaScript that cannot resolve all 24 targets fail closed.
-Version `0.1.1` maps all 24 pinned interfaces and passes the strict source and
+Version `0.1.2` maps all 24 pinned interfaces and passes the strict source and
 packed completeness gates: 344/344 conformance cases in each form, 24/24 packed
 JavaScript target resolution, and 24/24 independent actual
 adapter/Gateway/static-resource fixtures.
@@ -231,7 +231,7 @@ SHA-256 digests.
 
 - Node.js `>=22.19.0`.
 - The currently verified Pi runtime is `@earendil-works/pi-coding-agent@0.80.7`.
-- Package `0.1.1` publishes contract `1.1.0` and RPC protocol `1.0.0`.
+- Package `0.1.2` publishes contract `1.1.0` and RPC protocol `1.0.0`.
 - Public JavaScript imports are limited to `pi-leetcode-tools/embedded`,
   `pi-leetcode-tools/types`, and `pi-leetcode-tools/contract`. Package-root and
   `dist/` imports are intentionally blocked.
@@ -247,7 +247,7 @@ guessed around. Loading more than one provider instance is also rejected with
 Install the exact version for Pi:
 
 ```bash
-pi install npm:pi-leetcode-tools@0.1.1
+pi install npm:pi-leetcode-tools@0.1.2
 pi list
 ```
 

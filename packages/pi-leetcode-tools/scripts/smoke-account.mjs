@@ -120,6 +120,11 @@ assert(
 const fullMatrix =
   fixture.fullMatrix ??
   (fixture.run !== false && fixture.submit !== true && fixture.notesWriteContent === undefined);
+const interactiveWriteSmoke =
+  process.env.PI_LEETCODE_ACCOUNT_SMOKE_INTERACTIVE === "1";
+const requiresInteractiveWrite =
+  !fullMatrix &&
+  (fixture.submit === true || fixture.notesWriteContent !== undefined);
 
 if (fullMatrix) {
   assert(
@@ -129,6 +134,18 @@ if (fullMatrix) {
   assert(
     fixture.titleSlug === SAFE_MATRIX_RUN.titleSlug,
     "fullMatrix uses the fixed two-sum dependency chain"
+  );
+}
+if (requiresInteractiveWrite) {
+  assert(
+    interactiveWriteSmoke,
+    "Authorized submit or Notes write smoke requires PI_LEETCODE_ACCOUNT_SMOKE_INTERACTIVE=1 and a real Pi UI confirmation."
+  );
+}
+if (interactiveWriteSmoke) {
+  assert(
+    requiresInteractiveWrite,
+    "Interactive account smoke is reserved for an authorized submit or Notes write fixture."
   );
 }
 
@@ -222,6 +239,7 @@ try {
   const probeFixture = {
     region: fixture.region,
     fullMatrix,
+    interactiveWriteSmoke,
     titleSlug: fixture.titleSlug,
     language: fixture.language,
     code: fixture.code,
@@ -991,6 +1009,12 @@ export default function accountSmokeProbe(pi) {
     if (running || settled) return;
     running = true;
     try {
+      if (
+        FIXTURE.interactiveWriteSmoke &&
+        !TOOL_NAMES.every((name) => pi.getAllTools().some((tool) => tool?.name === name))
+      ) {
+        throw new Error("TOOLS_NOT_REGISTERED");
+      }
       const discovery = await discover();
       const descriptor = discovery?.descriptor;
       if (
@@ -1026,7 +1050,18 @@ export default function accountSmokeProbe(pi) {
               }
             })
       });
-    } catch {
+    } catch (error) {
+      const localErrorCode =
+        error instanceof Error &&
+        [
+          "DISCOVERY_TIMEOUT",
+          "PROVIDER_CONTRACT_MISMATCH",
+          "RPC_TIMEOUT",
+          "TOOLS_NOT_REGISTERED",
+          "UNEXPECTED_TOOL"
+        ].includes(error.message)
+          ? error.message
+          : "UNCLASSIFIED_LOCAL_ERROR";
       await finish({
         ok: false,
         mode: FIXTURE.fullMatrix ? "full-safe-matrix" : "legacy-focused",
@@ -1034,7 +1069,11 @@ export default function accountSmokeProbe(pi) {
         capabilities: { toolCount: 0, tools: [] },
         operations: [],
         summary: { passed: 0, failed: 1, blocked: 0, skipped: 0 },
-        failure: { operation: "harness", errorCode: "LOCAL_PROBE_ERROR" }
+        failure: {
+          operation: "harness",
+          errorCode: "LOCAL_PROBE_ERROR",
+          localErrorCode
+        }
       });
     }
   }
@@ -1042,6 +1081,16 @@ export default function accountSmokeProbe(pi) {
   readyUnsubscribe = pi.events.on(READY_CHANNEL, () => void execute());
   pi.on("session_start", () => void execute());
   pi.on("session_shutdown", () => readyUnsubscribe?.());
+  if (FIXTURE.interactiveWriteSmoke) {
+    pi.registerCommand("account-smoke-start", {
+      description: "Start the approved interactive LeetCode account smoke",
+      async handler() {
+        await execute();
+      }
+    });
+  } else {
+    setTimeout(() => void execute(), 0);
+  }
 }
 `;
   await writeFile(probeExtension, probeSource, "utf8");
@@ -1096,26 +1145,36 @@ export default function accountSmokeProbe(pi) {
     installedContent.digest === candidateContent.digest,
     "Account smoke installed files do not match the candidate tarball"
   );
+  const installedProviderExtension = join(
+    installedPackageDirectory,
+    "dist",
+    "extensions",
+    "index.js"
+  );
 
-  child = spawn(
-    process.execPath,
-    [
+  const piArguments = [
       piCli,
-      "--mode",
-      "rpc",
+      ...(interactiveWriteSmoke ? [] : ["--mode", "rpc"]),
       "--no-session",
       "--offline",
       "--no-builtin-tools",
       "--tools",
       FULL_MATRIX_TOOL_NAMES.join(","),
+      "--no-extensions",
+      "--extension",
+      installedProviderExtension,
       "--extension",
       probeExtension,
       "--no-skills",
       "--no-prompt-templates",
       "--no-themes",
       "--no-context-files",
-      "--approve"
-    ],
+      "--approve",
+      ...(interactiveWriteSmoke ? ["/account-smoke-start"] : [])
+    ];
+  child = spawn(
+    process.execPath,
+    piArguments,
     {
       cwd: workingDirectory,
       env: {
@@ -1123,22 +1182,24 @@ export default function accountSmokeProbe(pi) {
         PI_OFFLINE: "1",
         PI_LEETCODE_ACCOUNT_SMOKE_RESULT: probeResult
       },
-      stdio: ["pipe", "pipe", "pipe"],
-      windowsHide: true
+      stdio: interactiveWriteSmoke ? "inherit" : ["pipe", "pipe", "pipe"],
+      windowsHide: !interactiveWriteSmoke
     }
   );
   childExit = new Promise((resolvePromise) => child.once("exit", resolvePromise));
 
   let stdout = "";
   let stderr = "";
-  child.stdout.setEncoding("utf8");
-  child.stderr.setEncoding("utf8");
-  child.stdout.on("data", (chunk) => {
-    stdout = (stdout + chunk).slice(-32_768);
-  });
-  child.stderr.on("data", (chunk) => {
-    stderr = (stderr + chunk).slice(-32_768);
-  });
+  if (!interactiveWriteSmoke) {
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      stdout = (stdout + chunk).slice(-32_768);
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr = (stderr + chunk).slice(-32_768);
+    });
+  }
 
   const deadline = Date.now() + 20 * 60_000;
   while (!(await pathExists(probeResult)) && Date.now() < deadline) {
@@ -1172,7 +1233,8 @@ export default function accountSmokeProbe(pi) {
       mode: fullMatrix ? "full-safe-matrix" : "legacy-focused",
       realSubmit: !fullMatrix && fixture.submit === true,
       notesWrite: !fullMatrix && fixture.notesWriteContent !== undefined,
-      permanentWritesSkipped: fullMatrix
+      permanentWritesSkipped: fullMatrix,
+      interactiveConfirmation: interactiveWriteSmoke
     },
     fixture: {
       region: fixture.region,

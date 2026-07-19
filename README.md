@@ -22,7 +22,7 @@ contains the package, its tests, and its release infrastructure.
 ## Installation
 
 ```sh
-pi install npm:pi-leetcode-tools@0.1.1
+pi install npm:pi-leetcode-tools@0.1.2
 pi list
 ```
 
