@@ -110,6 +110,30 @@ function addPackageRecord(packages, record) {
   versions.set(record.version, record);
 }
 
+export async function preparePrefetchWorkspace(
+  {
+    resolutionDirectory,
+    cacheDirectory,
+    tarballDirectory,
+    npmUserConfig
+  },
+  filesystem = { mkdir, writeFile }
+) {
+  await filesystem.mkdir(resolutionDirectory, { recursive: true });
+  await filesystem.mkdir(cacheDirectory, { recursive: true });
+  await filesystem.mkdir(tarballDirectory, { recursive: true });
+  await filesystem.writeFile(
+    join(resolutionDirectory, "package.json"),
+    `${JSON.stringify({ name: "pi-leetcode-registry-prefetch", private: true }, null, 2)}\n`,
+    "utf8"
+  );
+  await filesystem.writeFile(
+    npmUserConfig,
+    `registry=${UPSTREAM_REGISTRY}\naudit=false\nfund=false\nupdate-notifier=false\n`,
+    "utf8"
+  );
+}
+
 async function prefetchProductionGraph({
   candidateTarball,
   candidatePackageJson,
@@ -120,21 +144,12 @@ async function prefetchProductionGraph({
   const cacheDirectory = join(registryDirectory, "prefetch-cache");
   const tarballDirectory = join(registryDirectory, "tarballs");
   const npmUserConfig = join(registryDirectory, "prefetch.npmrc");
-  await Promise.all([
-    mkdir(resolutionDirectory, { recursive: true }),
-    mkdir(cacheDirectory, { recursive: true }),
-    mkdir(tarballDirectory, { recursive: true }),
-    writeFile(
-      join(resolutionDirectory, "package.json"),
-      `${JSON.stringify({ name: "pi-leetcode-registry-prefetch", private: true }, null, 2)}\n`,
-      "utf8"
-    ),
-    writeFile(
-      npmUserConfig,
-      `registry=${UPSTREAM_REGISTRY}\naudit=false\nfund=false\nupdate-notifier=false\n`,
-      "utf8"
-    )
-  ]);
+  await preparePrefetchWorkspace({
+    resolutionDirectory,
+    cacheDirectory,
+    tarballDirectory,
+    npmUserConfig
+  });
 
   const npmCli = process.env.npm_execpath;
   assert(
