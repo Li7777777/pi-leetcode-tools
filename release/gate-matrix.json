@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-19T07:16:57Z",
+  "updatedAt": "2026-07-19T07:32:19Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -14,7 +14,7 @@
       "packageName": "pi-leetcode-tools",
       "gateClass": "engineering",
       "sourceMode": "independent_repository_candidate",
-      "status": "pending",
+      "status": "passed",
       "currentRecord": {
         "recordId": "pi-leetcode-tools@0.1.2/sha256:14c0f71a15aec0b21549dcd2257b73f63d1c4a05b4361fe0960b814cd67e0d1c",
         "recordDigest": "sha256:099535a13df2cb76d962ad313ddd13e2e4db001a9e8d7c9813e0dc25bc3a1cbb",
@@ -33,8 +33,8 @@
         },
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
-          "status": "pending",
-          "evidence": "A fresh GitHub Actions matrix on Windows and Ubuntu with Node 22.19.0 and Node 24 is required for record 14c0f71a... after the closed-registry release-harness fix invalidated the previous source-closure run."
+          "status": "passed",
+          "evidence": "GitHub Actions push run 29678152949 and pull-request run 29678164885 passed the complete release pipeline for record 14c0f71a... on Windows and Ubuntu with Node 22.19.0 and Node 24 after the closed-registry release-harness fix."
         },
         {
           "evidenceId": "TOOLS-ENG-LIVE-REBIND",
@@ -63,7 +63,6 @@
         "TOOLS-ENG"
       ],
       "blockers": [
-        "the refreshed 0.1.2 engineering CI matrix is pending",
         "the immutable pi-leetcode-tools-v0.1.2 tag and tag-bound CI are pending",
         "npm package bootstrap and trusted publisher evidence are incomplete",
         "formal npm registry verification is missing"
