@@ -325,6 +325,11 @@ async function prepareBundle(args) {
 }
 
 async function verifyCleanInstall({ version, integrity, tarballUrl, record, expectedPackagePaths }) {
+  const npmCli = process.env.npm_execpath;
+  assert(
+    typeof npmCli === "string" && npmCli.length > 0,
+    "Bootstrap registry verification must be launched through an npm script"
+  );
   const temporaryDirectory = await mkdtemp(join(tmpdir(), "pi-leetcode-tools-bootstrap-install-"));
   const cache = join(temporaryDirectory, "npm-cache");
   const userConfig = join(temporaryDirectory, "user.npmrc");
@@ -356,11 +361,13 @@ async function verifyCleanInstall({ version, integrity, tarballUrl, record, expe
       writeFile(globalConfig, "", "utf8"),
       writeFile(join(temporaryDirectory, "package.json"), `${JSON.stringify({ name: "bootstrap-registry-probe", version: "0.0.0", private: true }, null, 2)}\n`, "utf8")
     ]);
-    const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-    const npmVersion = await runCommand(npmCommand, ["--version"], { cwd: temporaryDirectory, env: environment });
+    const npmVersion = await runCommand(process.execPath, [npmCli, "--version"], {
+      cwd: temporaryDirectory,
+      env: environment
+    });
     await runCommand(
-      npmCommand,
-      ["install", "--save-exact", "--package-lock=true", "--ignore-scripts", "--no-audit", "--no-fund", `${packageName}@${version}`],
+      process.execPath,
+      [npmCli, "install", "--save-exact", "--package-lock=true", "--ignore-scripts", "--no-audit", "--no-fund", `${packageName}@${version}`],
       { cwd: temporaryDirectory, env: environment, stdio: "inherit", timeoutMs: 600_000 }
     );
     const lockfile = await readJson(join(temporaryDirectory, "package-lock.json"));
@@ -372,7 +379,7 @@ async function verifyCleanInstall({ version, integrity, tarballUrl, record, expe
     assert(installed.digest === record.artifact.unpackedContentDigest, "Clean install content differs from the CandidateRecord");
     assert(installed.files.length === record.artifact.fileCount, "Clean install file count differs from the CandidateRecord");
 
-    const audit = await runCommand(npmCommand, ["audit", "signatures", "--json"], {
+    const audit = await runCommand(process.execPath, [npmCli, "audit", "signatures", "--json"], {
       cwd: temporaryDirectory,
       env: environment,
       timeoutMs: 600_000
@@ -506,11 +513,20 @@ async function verifyRegistry(args) {
   let afterState;
   for (let attempt = 1; attempt <= 12; attempt += 1) {
     afterState = await fetchRegistryState();
-    assert(afterState.distTags.latest === snapshot.state.distTags.latest, "Protected latest tag changed during bootstrap publication");
+    const latest = afterState.distTags.latest;
+    assert(
+      latest === undefined || latest === version,
+      `Initial npm publication assigned protected latest to unexpected version ${latest}`
+    );
     if (afterState.packageExists && afterState.distTags.next === version) break;
     if (attempt < 12) await new Promise((resolvePromise) => setTimeout(resolvePromise, 5_000));
   }
   assert(afterState.packageExists && afterState.distTags.next === version, `Registry next tag does not point to ${version}`);
+  const latestBefore = snapshot.state.distTags.latest ?? null;
+  const latestAfter = afterState.distTags.latest ?? null;
+  const latestDisposition = latestAfter === version
+    ? "registry_initialized_to_bootstrap_version"
+    : "absent";
 
   const evidence = {
     schemaVersion: 1,
@@ -548,9 +564,11 @@ async function verifyRegistry(args) {
     },
     distTags: {
       next: afterState.distTags.next,
-      latestBefore: snapshot.state.distTags.latest ?? null,
-      latestAfter: afterState.distTags.latest ?? null,
-      latestUnchanged: true,
+      latestBefore,
+      latestAfter,
+      latestUnchanged: latestAfter === latestBefore,
+      latestMutationRequested: false,
+      latestDisposition,
       beforeDigest: snapshot.stateDigest,
       afterDigest: stateDigest(afterState)
     },

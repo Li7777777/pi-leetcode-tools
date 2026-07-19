@@ -307,7 +307,7 @@ function verifyReleaseWorkflow(source, packageJson, validationSource) {
   return { jobs: jobs.size, publishCount };
 }
 
-function verifyBootstrapWorkflow(source) {
+function verifyBootstrapWorkflow(source, packageJson) {
   const label = ".github/workflows/bootstrap-tools.yml";
   const { jobs } = parseWorkflowJobs(source, label);
   const validateJob = jobs.get("validate");
@@ -323,6 +323,34 @@ function verifyBootstrapWorkflow(source) {
     "bootstrap validate must keep only contents: read"
   );
   assert(!validatePermissions.has("id-token"), "bootstrap validate must not receive id-token permission");
+
+  const verifyPermissions = parseJobPermissions(verifyJob, label);
+  assert(
+    verifyPermissions.get("contents") === "read" && verifyPermissions.size === 1,
+    "bootstrap verify must keep only contents: read"
+  );
+  assert(!verifyPermissions.has("id-token"), "bootstrap verify must not receive id-token permission");
+  assert(!/^\s*environment:/mu.test(verifyJob.source), "bootstrap verify must not use a protected environment");
+  assert(
+    !/\b(?:NPM_TOKEN|NODE_AUTH_TOKEN)\s*:/u.test(verifyJob.source),
+    "bootstrap verify must not receive npm credentials"
+  );
+  assert(
+    packageJson.scripts?.["verify:tools:bootstrap-registry"] ===
+      "node ./release/scripts/verify-tools-bootstrap-registry.mjs",
+    "Root package.json must expose the exact verify:tools:bootstrap-registry command"
+  );
+  const registryVerifyInvocations = [
+    ...verifyJob.source.matchAll(/\bnpm\s+run\s+verify:tools:bootstrap-registry\s+--\s+verify\b/gu)
+  ];
+  assert(
+    registryVerifyInvocations.length === 1,
+    `bootstrap verify must invoke verify:tools:bootstrap-registry through npm exactly once; found ${registryVerifyInvocations.length}`
+  );
+  assert(
+    !/\bnode\s+(?:\.\/)?release\/scripts\/verify-tools-bootstrap-registry\.mjs\s+verify\b/u.test(verifyJob.source),
+    "bootstrap verify must not launch the registry verifier directly with node"
+  );
 
   const publishPermissions = parseJobPermissions(publishJob, label);
   assert(
@@ -566,8 +594,34 @@ function runNegativeSelfTests({
       'npm publish "./bootstrap-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"',
       'npm publish "bootstrap-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz"',
       "bootstrap local tgz input"
-    )),
+    ), packageJson),
     "explicit ./ local tgz path"
+  );
+  negative(
+    "bootstrap verify bypasses npm script",
+    () => verifyBootstrapWorkflow(
+      mutateJob(bootstrapWorkflow, "verify", (job) => replaceOnce(
+        job,
+        "npm run verify:tools:bootstrap-registry -- verify",
+        "node release/scripts/verify-tools-bootstrap-registry.mjs verify",
+        "bootstrap verify invocation"
+      )),
+      packageJson
+    ),
+    "through npm exactly once"
+  );
+  negative(
+    "OIDC added to bootstrap verify",
+    () => verifyBootstrapWorkflow(
+      mutateJob(bootstrapWorkflow, "verify", (job) => replaceOnce(
+        job,
+        "      contents: read",
+        "      contents: read\n      id-token: write",
+        "bootstrap verify permissions"
+      )),
+      packageJson
+    ),
+    "only contents: read"
   );
   negative(
     "OIDC added to validate-build",
@@ -667,7 +721,7 @@ for (const workflowFile of workflowFiles) {
 }
 
 const workflowResult = verifyReleaseWorkflow(releaseWorkflow, packageJson, validationSource);
-const bootstrapResult = verifyBootstrapWorkflow(bootstrapWorkflow);
+const bootstrapResult = verifyBootstrapWorkflow(bootstrapWorkflow, packageJson);
 const policyResult = verifyReleasePolicy(policy);
 const upstreamPinCount = verifyUpstreamPins(provisionSource);
 const ciGateCommands = normalizedLines(ciWorkflow, ".github/workflows/ci.yml")
