@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-19T03:25:00Z",
+  "updatedAt": "2026-07-19T06:27:54Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -16,9 +16,9 @@
       "sourceMode": "independent_repository_candidate",
       "status": "passed",
       "currentRecord": {
-        "recordId": "pi-leetcode-tools@0.1.1/sha256:7366aa077c03ac76f8e2d08dbcaf6e70ecca4e02461fa25d9eec02090899a898",
-        "recordDigest": "sha256:fc1429e270cd7121f24cdc65ab57d24680b03a05a1c04a054d520ecb1ccab2df",
-        "artifactSha256": "sha256:627e8b00a1331fcb90258371db8c71b124e61501a469a114d0c4f9eeed35e72b"
+        "recordId": "pi-leetcode-tools@0.1.2/sha256:9e15d4afaac1aa0ca46c0ad65b731bf739a44ed0b2a5f35775722b39f537aa4e",
+        "recordDigest": "sha256:3eaac2861e97e2941b86031047b352f3bcf38616540e5abfcb270254a512d435",
+        "artifactSha256": "sha256:8f8cf6d38c542711d828b93297de722defc3485e458f054c8cc5867e03d990ad"
       },
       "requiredEvidence": [
         {
@@ -29,7 +29,7 @@
         {
           "evidenceId": "TOOLS-ENG-CURRENT-NODE",
           "status": "passed",
-          "evidence": "The independent repository passed typecheck, 27 files / 275 tests, reproducible build, 24/24 upstream completeness, source/packed 344/344, packed install, 14-Tool Pi activation and supply-chain verification."
+          "evidence": "The independent repository passed typecheck, 27 files / 275 tests, reproducible build, 24/24 upstream completeness, source/packed 344/344, packed install, 14-Tool Pi activation and supply-chain verification for pi-leetcode-tools@0.1.2."
         },
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
@@ -39,7 +39,12 @@
         {
           "evidenceId": "TOOLS-ENG-LIVE-REBIND",
           "status": "passed",
-          "evidence": "Record 7366aa07... passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped. Real submit and Notes writes remained disabled."
+          "evidence": "Record 9e15d4af... passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped."
+        },
+        {
+          "evidenceId": "TOOLS-ENG-AUTHORIZED-WRITES",
+          "status": "passed",
+          "evidence": "The separately authorized CN interactive Pi UI flow passed 8/8 with lc_run Accepted, operation recovery Accepted, revision-bound Notes write, and lc_submit Accepted. The evidence stores only hashes, byte counts and normalized states and is bound to record 9e15d4af... and tgz SHA-256 8f8cf6d3...."
         }
       ],
       "invalidationConditions": [
@@ -58,10 +63,9 @@
         "TOOLS-ENG"
       ],
       "blockers": [
-        "no immutable release tag exists",
-        "Linux/Pi/system-keyring evidence is missing",
+        "the immutable pi-leetcode-tools-v0.1.2 tag and tag-bound CI are pending",
         "npm package bootstrap and trusted publisher evidence are incomplete",
-        "formal registry and authorized write evidence are missing"
+        "formal npm registry verification is missing"
       ]
     }
   ]

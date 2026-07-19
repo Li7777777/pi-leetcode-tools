@@ -77,6 +77,24 @@ function parseEvidencePath(stdout, artifactDirectory, existingEvidenceFiles) {
   return evidencePath;
 }
 
+async function findNewEvidencePath(
+  artifactDirectory,
+  existingEvidenceFiles,
+  readdirImpl
+) {
+  const newEvidenceFiles = (await readdirImpl(artifactDirectory)).filter(
+    (file) =>
+      file.startsWith(ACCOUNT_EVIDENCE_PREFIX) &&
+      file.endsWith(ACCOUNT_EVIDENCE_SUFFIX) &&
+      !existingEvidenceFiles.has(file)
+  );
+  assert(
+    newEvidenceFiles.length === 1,
+    `Interactive account smoke produced ${newEvidenceFiles.length} new evidence files instead of one`
+  );
+  return resolve(artifactDirectory, newEvidenceFiles[0]);
+}
+
 async function bindEvidence({
   evidencePath,
   candidate,
@@ -147,6 +165,9 @@ export async function runAccountSmokeEvidence(options = {}) {
   const writeFileImpl = options.writeFileImpl ?? writeFile;
   const renameImpl = options.renameImpl ?? rename;
   const rmImpl = options.rmImpl ?? rm;
+  const interactive =
+    options.interactive ??
+    process.env.PI_LEETCODE_ACCOUNT_SMOKE_INTERACTIVE === "1";
 
   const before = await loadCandidate({
     kind: "tools",
@@ -175,16 +196,23 @@ export async function runAccountSmokeEvidence(options = {}) {
     {
       cwd: REPOSITORY_ROOT,
       env: { ...process.env },
+      ...(interactive ? { stdio: "inherit" } : {}),
       timeoutMs: 30 * 60_000
     }
   );
   let evidencePath;
   try {
-    evidencePath = parseEvidencePath(
-      result.stdout,
-      artifactDirectory,
-      existingEvidenceFiles
-    );
+    evidencePath = interactive
+      ? await findNewEvidencePath(
+          artifactDirectory,
+          existingEvidenceFiles,
+          readdirImpl
+        )
+      : parseEvidencePath(
+          result.stdout,
+          artifactDirectory,
+          existingEvidenceFiles
+        );
     const after = await loadCandidate({
       kind: "tools",
       artifactDirectory,

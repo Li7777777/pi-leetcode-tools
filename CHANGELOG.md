@@ -4,7 +4,7 @@ All notable changes to this repository are documented here. Package versions
 follow Semantic Versioning independently from the versioned Tool contract and
 event protocol.
 
-## 0.1.1 - 2026-07-19
+## 0.1.2 - 2026-07-19
 
 - Added fourteen model-facing `lc_*` Pi tools for LeetCode Global and CN,
   including public reads, authenticated progress/history/submission reads,
