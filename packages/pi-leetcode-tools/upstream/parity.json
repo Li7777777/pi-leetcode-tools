@@ -16,7 +16,7 @@
   },
   "target": {
     "package": "pi-leetcode-tools",
-    "packageVersion": "0.1.2",
+    "packageVersion": "0.1.3",
     "contractVersion": "1.1.0",
     "protocolVersion": "1.0.0",
     "schemaDigest": "sha256:ae800dec293e2218fa67c068e272e1ba304877853c66f4b22e88f8dbc7499114",

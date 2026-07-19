@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 import { Type, type Static, type TSchema } from "typebox";
 
-export const PACKAGE_VERSION = "0.1.2";
+export const PACKAGE_VERSION = "0.1.3";
 export const PACKAGE_NAME = "pi-leetcode-tools";
 export const CONTRACT_VERSION = "1.1.0";
 export const PROTOCOL_VERSION = "1.0.0";

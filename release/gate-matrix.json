@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-19T07:32:19Z",
+  "updatedAt": "2026-07-19T16:52:06Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -16,9 +16,9 @@
       "sourceMode": "independent_repository_candidate",
       "status": "passed",
       "currentRecord": {
-        "recordId": "pi-leetcode-tools@0.1.2/sha256:14c0f71a15aec0b21549dcd2257b73f63d1c4a05b4361fe0960b814cd67e0d1c",
-        "recordDigest": "sha256:099535a13df2cb76d962ad313ddd13e2e4db001a9e8d7c9813e0dc25bc3a1cbb",
-        "artifactSha256": "sha256:8f8cf6d38c542711d828b93297de722defc3485e458f054c8cc5867e03d990ad"
+        "recordId": "pi-leetcode-tools@0.1.3/sha256:f753a7ec8f3363d6d0079d584996f83bdec3641fff88668c9ced2dcef0153d1a",
+        "recordDigest": "sha256:454240d9f3ceaf3e3778caafd6e60688c2a6417f5f4be309a480b8f8adac79a8",
+        "artifactSha256": "sha256:911bee92100bb33f5fdb68d91a1e8f47ab3373be9af43560fcccbfa3c78d160a"
       },
       "requiredEvidence": [
         {
@@ -29,22 +29,27 @@
         {
           "evidenceId": "TOOLS-ENG-CURRENT-NODE",
           "status": "passed",
-          "evidence": "The independent repository passed typecheck, 28 files / 278 tests, reproducible build, 24/24 upstream completeness, source/packed 344/344, packed install, 14-Tool Pi activation and supply-chain verification for pi-leetcode-tools@0.1.2."
+          "evidence": "The independent repository passed typecheck, 29 files / 279 tests, reproducible build, 24/24 upstream completeness and adapter fixtures, source/packed 344/344, packed install, 14-Tool Pi activation, local publish-path regression and supply-chain verification for pi-leetcode-tools@0.1.3."
         },
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
           "status": "passed",
-          "evidence": "GitHub Actions push run 29678152949 and pull-request run 29678164885 passed the complete release pipeline for record 14c0f71a... on Windows and Ubuntu with Node 22.19.0 and Node 24 after the closed-registry release-harness fix."
+          "evidence": "GitHub Actions push run 29695525569 and pull-request run 29695553418 passed the complete release pipeline for record f753a7ec... on Windows and Ubuntu with Node 22.19.0 and Node 24, including the corrected bootstrap and regular protected local-tgz publish boundaries."
+        },
+        {
+          "evidenceId": "TOOLS-ENG-LOCAL-TGZ-PUBLISH",
+          "status": "passed",
+          "evidence": "Both protected workflows now publish explicit ./ local tgz paths. The static gate validates bootstrap and regular publish jobs, includes 12 negative checks, and a real npm --dry-run regression passed for the downloaded bootstrap-bundle and release-bundle layouts."
         },
         {
           "evidenceId": "TOOLS-ENG-LIVE-REBIND",
           "status": "passed",
-          "evidence": "Record 14c0f71a... preserves the exact tgz SHA-256, unpacked package digest and contract tuple validated by record 9e15d4af.... The byte-identical package passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped; only the non-packed closed-registry release harness and its regression coverage changed."
+          "evidence": "The controlled 0.1.2 to 0.1.3 rebind changes packageVersion values, generated version metadata, package documentation and release-only workflow verification. Schema, behavior, capability and resource digests; contract/protocol versions; the 14-Tool surface; upstream semantics; runtime logic and all regional adapters remain unchanged. The sole runtime-source difference is the PACKAGE_VERSION constant. The new exact artifact passed 29/279 tests and packed activation with packageVersion 0.1.3, so the prior public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped remain cross-version remote-behavior evidence rather than exact-artifact live evidence."
         },
         {
           "evidenceId": "TOOLS-ENG-AUTHORIZED-WRITES",
           "status": "passed",
-          "evidence": "The separately authorized CN interactive Pi UI flow passed 8/8 with lc_run Accepted, operation recovery Accepted, revision-bound Notes write, and lc_submit Accepted. The preserved evidence stores only hashes, byte counts and normalized states and remains package-artifact evidence for the unchanged tgz SHA-256 8f8cf6d3..., unpacked digest and contract tuple carried by record 14c0f71a...."
+          "evidence": "The separately authorized CN interactive Pi UI flow passed 8/8 with lc_run Accepted, operation recovery Accepted, revision-bound Notes write, and lc_submit Accepted. Preserved evidence SHA-256 f82937d8... stores no credentials, raw code or Notes text, raw slug, or raw operation IDs; sensitive values are represented by hashes, byte counts and normalized outcomes alongside non-sensitive version, environment, tool and count metadata. The controlled version-only rebind is accepted because the write adapters, confirmation semantics and behavior/capability/resource digests are unchanged; the sole runtime-source difference is the PACKAGE_VERSION constant, and the new packed artifact independently passed the complete automated write-adapter and Pi activation suites."
         }
       ],
       "invalidationConditions": [
@@ -63,9 +68,20 @@
         "TOOLS-ENG"
       ],
       "blockers": [
-        "the immutable pi-leetcode-tools-v0.1.2 tag and tag-bound CI are pending",
+        "the immutable pi-leetcode-tools-v0.1.3 tag and tag-bound CI are pending",
         "npm package bootstrap and trusted publisher evidence are incomplete",
         "formal npm registry verification is missing"
+      ],
+      "attemptHistory": [
+        {
+          "version": "0.1.2",
+          "tag": "pi-leetcode-tools-v0.1.2",
+          "commit": "310e6bd9da711d1b96c9532d5461c033f5b1e790",
+          "workflowRun": "https://github.com/Li7777777/pi-leetcode-tools/actions/runs/29693895997",
+          "status": "failed_before_registry_write",
+          "reason": "npm interpreted bootstrap-bundle/pi-leetcode-tools-0.1.2.tgz as a Git locator because the protected publish input lacked an explicit ./ local path prefix",
+          "registryState": "package_absent_http_404"
+        }
       ]
     }
   ]

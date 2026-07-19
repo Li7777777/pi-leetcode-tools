@@ -4,7 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/pi-leetcode-tools?style=flat-square&logo=npm&logoColor=white)](https://www.npmjs.com/package/pi-leetcode-tools)
 [![CI](https://img.shields.io/github/actions/workflow/status/Li7777777/pi-leetcode-tools/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/Li7777777/pi-leetcode-tools/actions/workflows/ci.yml)
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22.19.0-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-275%20passing-2ea44f?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-279%20passing-2ea44f?style=flat-square)
 [![MCP parity](https://img.shields.io/badge/MCP%20parity-24%2F24-7c3aed?style=flat-square)](#reference-mcp-interface-parity)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Li7777777/pi-leetcode-tools?style=flat-square&logo=github)](https://github.com/Li7777777/pi-leetcode-tools/stargazers)
@@ -36,14 +36,14 @@ The package exposes fourteen Pi tools:
 
 ## Verification
 
-`pi-leetcode-tools@0.1.2` implements all 24 pinned reference interfaces as 16
+`pi-leetcode-tools@0.1.3` implements all 24 pinned reference interfaces as 16
 native-tool mappings, 5 Gateway capabilities, and 3 static contract resources,
 with no partial, missing, superseded, or explicitly unsupported mapping.
 
 | Capability class | Current evidence |
 | --- | --- |
 | Contract and upstream parity | Source 344/344, packed 344/344, packed target resolution 24/24, and independent adapter/Gateway/resource fixtures 24/24 pass |
-| Package verification | Typecheck, 27 test files / 275 tests, packed install, 14-tool Pi activation, and local supply-chain checks pass on Node 22.19.0 and 24.18.0 |
+| Package verification | Typecheck, 29 test files / 279 tests, packed install, 14-tool Pi activation, and local supply-chain checks pass on Node 22.19.0 and 24.18.0 |
 | Public-read smoke tests | Global/CN daily, search, and problem reads pass 6/6 |
 | Authenticated safe matrix | Global passes 19 operations and CN passes 21 operations with zero failures; the matrix covers all region-supported safe reads plus `lc_run -> lc_operation_status` |
 | Write safeguards | The safe matrix forcibly skips `lc_submit` and Notes create/update/write unless a separate, explicitly authorized interactive verification is running |
@@ -100,7 +100,7 @@ mandatory evidence in addition to those eight dimensions. A test file that
 merely contains some `test`/`it` call is not parity evidence. Missing receipts,
 missing or duplicate cases, non-passed cases, stale runner/target/reference
 digests, and packed JavaScript that cannot resolve all 24 targets fail closed.
-Version `0.1.2` maps all 24 pinned interfaces and passes the strict source and
+Version `0.1.3` maps all 24 pinned interfaces and passes the strict source and
 packed completeness gates: 344/344 conformance cases in each form, 24/24 packed
 JavaScript target resolution, and 24/24 independent actual
 adapter/Gateway/static-resource fixtures.
@@ -231,7 +231,7 @@ SHA-256 digests.
 
 - Node.js `>=22.19.0`.
 - The currently verified Pi runtime is `@earendil-works/pi-coding-agent@0.80.7`.
-- Package `0.1.2` publishes contract `1.1.0` and RPC protocol `1.0.0`.
+- Package `0.1.3` publishes contract `1.1.0` and RPC protocol `1.0.0`.
 - Public JavaScript imports are limited to `pi-leetcode-tools/embedded`,
   `pi-leetcode-tools/types`, and `pi-leetcode-tools/contract`. Package-root and
   `dist/` imports are intentionally blocked.
@@ -247,7 +247,7 @@ guessed around. Loading more than one provider instance is also rejected with
 Install the exact version for Pi:
 
 ```bash
-pi install npm:pi-leetcode-tools@0.1.2
+pi install npm:pi-leetcode-tools@0.1.3
 pi list
 ```
 
