@@ -369,6 +369,7 @@ async function discoverInstalledPackages(nodeModulesDirectory, output = new Set(
 }
 
 async function inspectProductionTree(installDirectory, rootPackageDirectory) {
+  const installRoot = await realpath(installDirectory);
   const rootDirectory = await realpath(rootPackageDirectory);
   const queue = [rootDirectory];
   const nodes = new Map();
@@ -379,7 +380,7 @@ async function inspectProductionTree(installDirectory, rootPackageDirectory) {
     if (nodes.has(packageDirectory)) {
       continue;
     }
-    assert(isInside(installDirectory, packageDirectory), `Package escaped install root: ${packageDirectory}`);
+    assert(isInside(installRoot, packageDirectory), `Package escaped install root: ${packageDirectory}`);
     const manifest = await readJson(join(packageDirectory, "package.json"));
     assert(
       typeof manifest.name === "string" && PACKAGE_NAME.test(manifest.name),
@@ -432,7 +433,7 @@ async function inspectProductionTree(installDirectory, rootPackageDirectory) {
       for (const name of Object.keys(dependencies).sort()) {
         const peerOptional =
           section === "peerDependencies" && manifest.peerDependenciesMeta?.[name]?.optional === true;
-        const dependencyDirectory = await resolveDependency(packageDirectory, installDirectory, name);
+        const dependencyDirectory = await resolveDependency(packageDirectory, installRoot, name);
         if (dependencyDirectory === undefined) {
           assert(
             optionalSection || peerOptional,
@@ -446,7 +447,7 @@ async function inspectProductionTree(installDirectory, rootPackageDirectory) {
     }
   }
 
-  const discovered = await discoverInstalledPackages(join(installDirectory, "node_modules"));
+  const discovered = await discoverInstalledPackages(join(installRoot, "node_modules"));
   const reachable = new Set(nodes.keys());
   const extraneous = [...discovered].filter((path) => !reachable.has(path));
   assert(
@@ -462,7 +463,7 @@ async function inspectProductionTree(installDirectory, rootPackageDirectory) {
   assert(hostPeerDependencies !== undefined, "Root host peer dependency contract was not inspected");
   for (const name of Object.keys(hostPeerDependencies)) {
     assert(
-      await resolveDependency(rootDirectory, installDirectory, name) === undefined,
+      await resolveDependency(rootDirectory, installRoot, name) === undefined,
       `Host peer was copied into the package-owned production tree: ${name}`
     );
   }

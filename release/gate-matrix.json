@@ -16,8 +16,8 @@
       "sourceMode": "independent_repository_candidate",
       "status": "pending",
       "currentRecord": {
-        "recordId": "pi-leetcode-tools@0.1.1/sha256:8bd76eef8edcd584fc76ec1a5bce40b1826405bfac87e1f68d9092c054272360",
-        "recordDigest": "sha256:a3e73c19bba61597d520598b83ab4746a8586453f1f7f2476a58017625ce2513",
+        "recordId": "pi-leetcode-tools@0.1.1/sha256:7366aa077c03ac76f8e2d08dbcaf6e70ecca4e02461fa25d9eec02090899a898",
+        "recordDigest": "sha256:fc1429e270cd7121f24cdc65ab57d24680b03a05a1c04a054d520ecb1ccab2df",
         "artifactSha256": "sha256:627e8b00a1331fcb90258371db8c71b124e61501a469a114d0c4f9eeed35e72b"
       },
       "requiredEvidence": [
@@ -39,7 +39,7 @@
         {
           "evidenceId": "TOOLS-ENG-LIVE-REBIND",
           "status": "passed",
-          "evidence": "Record 8bd76eef... passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped. Real submit and Notes writes remained disabled."
+          "evidence": "Record 7366aa07... passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped. Real submit and Notes writes remained disabled."
         }
       ],
       "invalidationConditions": [
