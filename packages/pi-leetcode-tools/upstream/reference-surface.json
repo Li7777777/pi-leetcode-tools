@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 2,
+  "surfaceType": "reference-mcp-surface",
+  "source": {
+    "package": "@jinzcdev/leetcode-mcp-server",
+    "version": "1.4.0",
+    "researchCommit": "126115fc",
+    "repository": "https://github.com/jinzcdev/leetcode-mcp-server",
+    "license": "MIT",
+    "tarball": {
+      "integrity": "sha512-9DewGzg265ob+ld0dq8R2yzK7/k9RCPE/KNKB/3cDAeiIuONPi1OopAzAcAkHpYnXG/xgxDwuy8tokZjX3BTpw==",
+      "sha256": "976ffafb49f1a3d2132a119e71af28b2911b4c56480bcb58097fa9d1c9657b56",
+      "sizeBytes": 46005
+    }
+  },
+  "expectedCounts": {
+    "tools": 19,
+    "resources": 5,
+    "total": 24
+  },
+  "inventoryDigest": "sha256:9a89de5f253c3e9c7e4ef476690d477ed8aa4c6ca43399150a16b0d09b1ca4b2",
+  "interfaces": [
+    {
+      "id": "tool:get_daily_challenge",
+      "kind": "tool",
+      "name": "get_daily_challenge",
+      "category": "problem",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "inputFields": []
+    },
+    {
+      "id": "tool:get_problem",
+      "kind": "tool",
+      "name": "get_problem",
+      "category": "problem",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "inputFields": ["titleSlug"]
+    },
+    {
+      "id": "tool:search_problems",
+      "kind": "tool",
+      "name": "search_problems",
+      "category": "problem",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "inputFields": ["category", "tags", "difficulty", "searchKeywords", "limit", "offset"]
+    },
+    {
+      "id": "tool:run_code",
+      "kind": "tool",
+      "name": "run_code",
+      "category": "submission",
+      "regions": ["global", "cn"],
+      "authentication": "required",
+      "consequence": "execution",
+      "inputFields": ["titleSlug", "lang", "typedCode", "dataInput", "timeoutMs", "pollIntervalMs"]
+    },
+    {
+      "id": "tool:submit_solution",
+      "kind": "tool",
+      "name": "submit_solution",
+      "category": "submission",
+      "regions": ["global", "cn"],
+      "authentication": "required",
+      "consequence": "external_write",
+      "inputFields": ["titleSlug", "lang", "typedCode", "timeoutMs", "pollIntervalMs"]
+    },
+    {
+      "id": "tool:get_user_profile",
+      "kind": "tool",
+      "name": "get_user_profile",
+      "category": "user",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "inputFields": ["username"]
+    },
+    {
+      "id": "tool:get_recent_submissions",
+      "kind": "tool",
+      "name": "get_recent_submissions",
+      "category": "user",
+      "regions": ["global"],
+      "authentication": "public",
+      "consequence": "read",
+      "inputFields": ["username", "limit"]
+    },
+    {
+      "id": "tool:get_recent_ac_submissions",
+      "kind": "tool",
+      "name": "get_recent_ac_submissions",
+      "category": "user",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "inputFields": ["username", "limit"]
+    },
+    {
+      "id": "tool:get_user_status",
+      "kind": "tool",
+      "name": "get_user_status",
+      "category": "user",
+      "regions": ["global", "cn"],
+      "authentication": "required",
+      "consequence": "read",
+      "inputFields": []
+    },
+    {
+      "id": "tool:get_problem_submission_report",
+      "kind": "tool",
+      "name": "get_problem_submission_report",
+      "category": "user",
+      "regions": ["global", "cn"],
+      "authentication": "required",
+      "consequence": "sensitive_read",
+      "inputFields": ["id"]
+    },
+    {
+      "id": "tool:get_problem_progress",
+      "kind": "tool",
+      "name": "get_problem_progress",
+      "category": "user",
+      "regions": ["global", "cn"],
+      "authentication": "required",
+      "consequence": "read",
+      "inputFields": ["offset", "limit", "questionStatus", "difficulty"]
+    },
+    {
+      "id": "tool:get_all_submissions",
+      "kind": "tool",
+      "name": "get_all_submissions",
+      "category": "user",
+      "regions": ["global", "cn"],
+      "authentication": "required",
+      "consequence": "read",
+      "inputFields": ["limit", "offset", "questionSlug", "lang", "status", "lastKey"]
+    },
+    {
+      "id": "tool:get_user_contest_ranking",
+      "kind": "tool",
+      "name": "get_user_contest_ranking",
+      "category": "contest",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "inputFields": ["username", "attended"]
+    },
+    {
+      "id": "tool:search_notes",
+      "kind": "tool",
+      "name": "search_notes",
+      "category": "notes",
+      "regions": ["cn"],
+      "authentication": "required",
+      "consequence": "sensitive_read",
+      "inputFields": ["keyword", "limit", "skip", "orderBy"]
+    },
+    {
+      "id": "tool:get_note",
+      "kind": "tool",
+      "name": "get_note",
+      "category": "notes",
+      "regions": ["cn"],
+      "authentication": "required",
+      "consequence": "sensitive_read",
+      "inputFields": ["questionId", "limit", "skip"]
+    },
+    {
+      "id": "tool:create_note",
+      "kind": "tool",
+      "name": "create_note",
+      "category": "notes",
+      "regions": ["cn"],
+      "authentication": "required",
+      "consequence": "external_write",
+      "inputFields": ["questionId", "content", "title"]
+    },
+    {
+      "id": "tool:update_note",
+      "kind": "tool",
+      "name": "update_note",
+      "category": "notes",
+      "regions": ["cn"],
+      "authentication": "required",
+      "consequence": "external_write",
+      "inputFields": ["noteId", "content", "title"]
+    },
+    {
+      "id": "tool:list_problem_solutions",
+      "kind": "tool",
+      "name": "list_problem_solutions",
+      "category": "solution",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "answer_read",
+      "inputFields": ["questionSlug", "limit", "skip", "orderBy", "userInput", "tagSlugs"]
+    },
+    {
+      "id": "tool:get_problem_solution",
+      "kind": "tool",
+      "name": "get_problem_solution",
+      "category": "solution",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "answer_read",
+      "inputFields": ["topicId", "slug"]
+    },
+    {
+      "id": "resource:problem-categories",
+      "kind": "resource",
+      "name": "problem-categories",
+      "category": "problem",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "uriTemplates": ["categories://problems/all"],
+      "inputFields": []
+    },
+    {
+      "id": "resource:problem-tags",
+      "kind": "resource",
+      "name": "problem-tags",
+      "category": "problem",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "uriTemplates": ["tags://problems/all"],
+      "inputFields": []
+    },
+    {
+      "id": "resource:problem-langs",
+      "kind": "resource",
+      "name": "problem-langs",
+      "category": "problem",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "uriTemplates": ["langs://problems/all"],
+      "inputFields": []
+    },
+    {
+      "id": "resource:problem-detail",
+      "kind": "resource",
+      "name": "problem-detail",
+      "category": "problem",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "read",
+      "uriTemplates": ["problem://{titleSlug}"],
+      "inputFields": ["titleSlug"]
+    },
+    {
+      "id": "resource:problem-solution",
+      "kind": "resource",
+      "name": "problem-solution",
+      "category": "solution",
+      "regions": ["global", "cn"],
+      "authentication": "public",
+      "consequence": "answer_read",
+      "uriTemplates": ["solution://{slug}", "solution://{topicId}"],
+      "inputFields": ["topicId", "slug"]
+    }
+  ]
+}

@@ -1,0 +1,1254 @@
+{
+  "schemaVersion": 2,
+  "mappingType": "reference-mcp-parity",
+  "reference": {
+    "package": "@jinzcdev/leetcode-mcp-server",
+    "version": "1.4.0",
+    "researchCommit": "126115fc",
+    "inventoryDigest": "sha256:9a89de5f253c3e9c7e4ef476690d477ed8aa4c6ca43399150a16b0d09b1ca4b2",
+    "semanticSurfaceDigest": "sha256:12ccc10040cc1b9e907065c1120c991baddc490d24310ecf8defe71e9351f3e0",
+    "queryDependency": {
+      "package": "leetcode-query",
+      "version": "2.0.1",
+      "tarballSha256": "281fbaa950bf82e0b72a7273c2e7f5502ea6eb1dd593079ab5b89f8048b3eff0",
+      "graphqlCatalogDigest": "sha256:ae9297343794201583bbc6c33eede8a2f1e1e5bd5a4631a345e3a4adac291967"
+    }
+  },
+  "target": {
+    "package": "pi-leetcode-tools",
+    "packageVersion": "0.1.1",
+    "contractVersion": "1.1.0",
+    "protocolVersion": "1.0.0",
+    "schemaDigest": "sha256:ae800dec293e2218fa67c068e272e1ba304877853c66f4b22e88f8dbc7499114",
+    "behaviorManifestDigest": "sha256:81650b24c55be375ef82b78ce119e4f15d6e0b78fb032b5aecc696313d134e35",
+    "capabilityManifestDigest": "sha256:ca75af95a1d84f44e8206804ab863bf33f155a04df20a7e5d3e8608fb62b4a12",
+    "resourceCatalogDigest": "sha256:43c1996245bfdaa6aab82657349b6de5f000c29d00a31874a0cbb2b9f5fc49ef"
+  },
+  "mappings": [
+    {
+      "sourceId": "tool:get_daily_challenge",
+      "status": "native_tool",
+      "targets": ["lc_daily"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "tools.lc_daily.input", "fieldMap": {} },
+        "outputSchema": { "status": "verified", "target": "tools.lc_daily.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "activeDailyCodingChallengeQuestion" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "questionOfToday" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts",
+            "src/leetcode/adapters/read-normalization.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["unauthenticated-complete-regional-payload", "strict-bounded-dto"] },
+        "errorSemantics": { "status": "verified", "mode": "normalized_tool_error", "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"] },
+        "tests": { "status": "verified", "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/contract.test.ts"] },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-daily-challenge"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_problem",
+      "status": "native_tool",
+      "targets": ["lc_problem"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "tools.lc_problem.input", "fieldMap": { "titleSlug": "titleSlug" } },
+        "outputSchema": { "status": "verified", "target": "tools.lc_problem.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "questionData" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "questionData" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts",
+            "src/leetcode/adapters/read-normalization.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["sanitized-problem-content", "bounded-hints-similar-and-snippets"] },
+        "errorSemantics": { "status": "verified", "mode": "normalized_tool_error", "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"] },
+        "tests": { "status": "verified", "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/contract.test.ts"] },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-problem"] }
+      }
+    },
+    {
+      "sourceId": "tool:search_problems",
+      "status": "native_tool",
+      "targets": ["lc_search"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_search.input",
+          "fieldMap": {
+            "category": "category",
+            "tags": "tags",
+            "difficulty": "difficulty",
+            "searchKeywords": "query",
+            "limit": "limit",
+            "offset": "offset"
+          }
+        },
+        "outputSchema": { "status": "verified", "target": "tools.lc_search.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "problemsetQuestionList" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "problemsetQuestionList" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": {
+          "status": "verified",
+          "mode": "offset_cursor",
+          "defaults": {
+            "category": "all-code-essentials",
+            "limit": 10,
+            "offset": 0
+          }
+        },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["public-data-only"] },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"]
+        },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/contract.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-search-problems"] }
+      }
+    },
+    {
+      "sourceId": "tool:run_code",
+      "status": "native_tool",
+      "targets": ["lc_run"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_run.input",
+          "fieldMap": {
+            "titleSlug": "titleSlug",
+            "lang": "language",
+            "typedCode": "code",
+            "dataInput": "testcase",
+            "timeoutMs": "timeoutMs",
+            "pollIntervalMs": "pollIntervalMs"
+          },
+          "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 },
+          "normalization": { "golang": "go" }
+        },
+        "outputSchema": {
+          "status": "verified",
+          "target": "tools.lc_run.output",
+          "transientFields": ["questionId", "start", "checkUrl", "check"]
+        },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": {
+              "endpoint": "https://leetcode.com/problems/{titleSlug}/interpret_solution/",
+              "operation": "POST interpret_solution then GET check"
+            },
+            "cn": {
+              "endpoint": "https://leetcode.cn/problems/{titleSlug}/interpret_solution/",
+              "operation": "POST interpret_solution then GET check"
+            }
+          },
+          "implementationFiles": ["src/leetcode/write-adapter.ts"]
+        },
+        "capability": { "status": "verified", "consequence": "execution", "sideEffect": "remote_execution" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "account_private",
+          "controls": [
+            "source-code-input-not-logged",
+            "transient-upstream-envelope-never-persisted",
+            "durable-code-hash-only"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "AUTH_REQUIRED",
+            "AUTH_EXPIRED",
+            "RATE_LIMITED",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED",
+            "CANCELLED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/leetcode/write-adapter.test.ts", "tests/tool-calls/contract.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-run-code"] }
+      },
+      "conversion": {
+        "omittedDataInput": "The MCP schema leaves dataInput absent and its HTTP client serializes absence as an empty string. pi-leetcode-tools instead resolves the problem's exact untrimmed defaultTestcase and refuses to dispatch when none exists, preserving the documented default-test behavior without an ambiguous empty payload."
+      }
+    },
+    {
+      "sourceId": "tool:submit_solution",
+      "status": "native_tool",
+      "targets": ["lc_submit"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_submit.input",
+          "fieldMap": {
+            "titleSlug": "titleSlug",
+            "lang": "language",
+            "typedCode": "code",
+            "timeoutMs": "timeoutMs",
+            "pollIntervalMs": "pollIntervalMs"
+          },
+          "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 },
+          "normalization": { "golang": "go" }
+        },
+        "outputSchema": {
+          "status": "verified",
+          "target": "tools.lc_submit.output",
+          "transientFields": ["questionId", "start", "checkUrl", "check"]
+        },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": {
+              "endpoint": "https://leetcode.com/problems/{titleSlug}/submit/",
+              "operation": "POST submit then GET check"
+            },
+            "cn": {
+              "endpoint": "https://leetcode.cn/problems/{titleSlug}/submit/",
+              "operation": "POST submit then GET check"
+            }
+          },
+          "implementationFiles": ["src/leetcode/write-adapter.ts"]
+        },
+        "capability": { "status": "verified", "consequence": "external_write", "sideEffect": "remote_write" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "account_private",
+          "controls": [
+            "pi-ui-confirmation-per-call",
+            "source-code-input-not-logged",
+            "transient-upstream-envelope-never-persisted",
+            "durable-code-hash-only"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "AUTH_REQUIRED",
+            "AUTH_EXPIRED",
+            "INTERACTION_REQUIRED",
+            "RATE_LIMITED",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED",
+            "STALE_OPERATION",
+            "CANCELLED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/write-adapter.test.ts",
+            "tests/tool-calls/contract.test.ts",
+            "tests/tool-calls/gateway.test.ts",
+            "tests/tool-calls/registry.test.ts"
+          ]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-submit-solution"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_user_profile",
+      "status": "native_tool",
+      "targets": ["lc_profile"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "tools.lc_profile.input", "fieldMap": { "username": "username" } },
+        "outputSchema": { "status": "verified", "target": "tools.lc_profile.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "arbitrary_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "userProfile" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "getUserProfile" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts",
+            "src/leetcode/adapters/read-normalization.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["explicit-public-username", "bounded-social-and-skill-facets"] },
+        "errorSemantics": { "status": "verified", "mode": "normalized_tool_error", "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"] },
+        "tests": { "status": "verified", "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/contract.test.ts"] },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-user-profile"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_recent_submissions",
+      "status": "native_tool",
+      "targets": ["lc_user_submissions"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_user_submissions.input",
+          "fieldMap": { "username": "username", "limit": "limit" }
+        },
+        "outputSchema": { "status": "verified", "target": "tools.lc_user_submissions.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "arbitrary_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "recentSubmissions" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "bounded_window", "defaults": { "limit": 10 } },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["public-data-only"] },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"]
+        },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/gateway.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-recent-submissions"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_recent_ac_submissions",
+      "status": "native_tool",
+      "targets": ["lc_user_submissions"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_user_submissions.input",
+          "fieldMap": { "username": "username", "limit": "limit" }
+        },
+        "outputSchema": { "status": "verified", "target": "tools.lc_user_submissions.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "arbitrary_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "recentAcSubmissions" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/noj-go/", "operation": "recentAcSubmissions" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "bounded_window", "defaults": { "limit": 10 } },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["public-data-only"] },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"]
+        },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/gateway.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-recent-ac-submissions"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_user_status",
+      "status": "gateway_capability",
+      "targets": ["gateway:user.status"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "user.status.input",
+          "fieldMap": {}
+        },
+        "outputSchema": { "status": "verified", "target": "user.status.output" },
+        "authentication": {
+          "status": "verified",
+          "mode": "required",
+          "subject": "current_user"
+        },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": {
+              "endpoint": "https://leetcode.com/graphql/",
+              "operation": "userStatus"
+            },
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "userStatus"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": {
+          "status": "verified",
+          "consequence": "read",
+          "sideEffect": "none"
+        },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "account_private",
+          "controls": [
+            "authenticated-current-user",
+            "non-model-gateway",
+            "credentials-redacted"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "AUTH_REQUIRED",
+            "AUTH_EXPIRED",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/read-adapter.test.ts",
+            "tests/tool-calls/provider.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": {
+          "status": "verified",
+          "anchors": ["upstream-get-user-status"]
+        }
+      },
+      "conversion": {
+        "cnUsername": "The upstream CN username field is retained as displayName when it differs; userSlug is exposed as the stable canonical username.",
+        "modelVisibility": "The authenticated status capability is intentionally non-model-facing and is available only through Gateway RPC."
+      }
+    },
+    {
+      "sourceId": "tool:get_problem_submission_report",
+      "status": "native_tool",
+      "targets": ["lc_submission"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_submission.input",
+          "fieldMap": { "id": "submissionId" }
+        },
+        "outputSchema": { "status": "verified", "target": "tools.lc_submission.output" },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "submissionDetails" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "submissionDetails" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "sensitive_read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "source_code",
+          "controls": ["authenticated-current-user", "explicit-source-code-opt-in", "no-source-code-persistence"]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": ["VALIDATION_ERROR", "AUTH_REQUIRED", "AUTH_EXPIRED", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"]
+        },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/gateway.test.ts", "tests/tool-calls/contract.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-problem-submission-report"] }
+      },
+      "conversion": {
+        "sourceCode": "Set includeCode=true for the upstream full-report equivalent; metadata-only is the safer default."
+      }
+    },
+    {
+      "sourceId": "tool:get_problem_progress",
+      "status": "native_tool",
+      "targets": ["lc_progress"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "tools.lc_progress.input", "fieldMap": { "offset": "offset", "limit": "limit", "questionStatus": "status", "difficulty": "difficulty" } },
+        "outputSchema": { "status": "verified", "target": "tools.lc_progress.output" },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "userProgressQuestionList" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "userProgressQuestionList" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts",
+            "src/leetcode/adapters/read-normalization.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "offset", "defaults": { "offset": 0, "limit": 100 } },
+        "sensitiveData": { "status": "verified", "classification": "account_private", "controls": ["region-scoped-session", "bounded-progress-facets"] },
+        "errorSemantics": { "status": "verified", "mode": "normalized_tool_error", "codes": ["VALIDATION_ERROR", "AUTH_REQUIRED", "AUTH_EXPIRED", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"] },
+        "tests": { "status": "verified", "files": ["tests/leetcode/read-adapter.test.ts", "tests/leetcode/default-client.test.ts", "tests/tool-calls/contract.test.ts"] },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-problem-progress"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_all_submissions",
+      "status": "native_tool",
+      "targets": ["lc_history"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_history.input",
+          "fieldMap": {
+            "limit": "limit",
+            "offset": "offset",
+            "questionSlug": "titleSlug",
+            "lang": "language",
+            "status": "status",
+            "lastKey": "cursor"
+          }
+        },
+        "outputSchema": { "status": "verified", "target": "tools.lc_history.output" },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "submissionList" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "submissionList" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": {
+          "status": "verified",
+          "mode": "regional_offset_cursor",
+          "defaults": { "limit": 20, "offset": 0 }
+        },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "account_private",
+          "controls": ["authenticated-current-user", "source-code-excluded"]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": ["VALIDATION_ERROR", "AUTH_REQUIRED", "AUTH_EXPIRED", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"]
+        },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/leetcode/read-adapter.test.ts", "tests/leetcode/default-client.test.ts", "tests/tool-calls/gateway.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-all-submissions"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_user_contest_ranking",
+      "status": "native_tool",
+      "targets": ["lc_contest"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "tools.lc_contest.input", "fieldMap": { "username": "username", "attended": "attendedOnly" } },
+        "outputSchema": { "status": "verified", "target": "tools.lc_contest.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "arbitrary_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "userContestRanking" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/noj-go/", "operation": "userContestRankingInfo" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts",
+            "src/leetcode/adapters/read-normalization.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["explicit-public-username", "bounded-50-record-page", "remote-history-input-cap-2000"] },
+        "errorSemantics": { "status": "verified", "mode": "normalized_tool_error", "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"] },
+        "tests": { "status": "verified", "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/contract.test.ts"] },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-user-contest-ranking"] }
+      }
+    },
+    {
+      "sourceId": "tool:search_notes",
+      "status": "gateway_capability",
+      "targets": ["gateway:notes.search"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "notes.search.input",
+          "fieldMap": {
+            "keyword": "keyword",
+            "limit": "limit",
+            "skip": "skip",
+            "orderBy": "orderBy"
+          }
+        },
+        "outputSchema": { "status": "verified", "target": "notes.search.output" },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["cn"],
+          "endpoints": {
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "noteAggregateNote"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/notes-port.ts",
+            "src/tool-calls/gateway.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "sensitive_read", "sideEffect": "none" },
+        "paginationDefaults": {
+          "status": "verified",
+          "mode": "offset",
+          "defaults": { "limit": 10, "skip": 0 }
+        },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "personal_notes",
+          "controls": [
+            "authenticated-current-user",
+            "non-model-gateway",
+            "bounded-page",
+            "no-note-content-logging"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "AUTH_REQUIRED",
+            "AUTH_EXPIRED",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/user-notes.test.ts",
+            "tests/tool-calls/gateway.test.ts",
+            "tests/tool-calls/provider.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-search-notes"] }
+      }
+    },
+    {
+      "sourceId": "tool:get_note",
+      "status": "gateway_capability",
+      "targets": ["gateway:notes.get"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "notes.get.input",
+          "fieldMap": { "questionId": "questionId", "limit": "limit", "skip": "skip" }
+        },
+        "outputSchema": { "status": "verified", "target": "notes.get.output" },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["cn"],
+          "endpoints": {
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "noteOneTargetCommonNote"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/notes-port.ts",
+            "src/tool-calls/gateway.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "sensitive_read", "sideEffect": "none" },
+        "paginationDefaults": {
+          "status": "verified",
+          "mode": "offset",
+          "defaults": { "limit": 10, "skip": 0 }
+        },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "personal_notes",
+          "controls": [
+            "authenticated-current-user",
+            "non-model-gateway",
+            "bounded-page",
+            "no-note-content-logging"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "AUTH_REQUIRED",
+            "AUTH_EXPIRED",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/user-notes.test.ts",
+            "tests/tool-calls/gateway.test.ts",
+            "tests/tool-calls/provider.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-get-note"] }
+      }
+    },
+    {
+      "sourceId": "tool:create_note",
+      "status": "gateway_capability",
+      "targets": ["gateway:notes.create"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "notes.create.input",
+          "fieldMap": { "questionId": "questionId", "content": "content", "title": "title" }
+        },
+        "outputSchema": { "status": "verified", "target": "notes.create.output" },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["cn"],
+          "endpoints": {
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "noteCreateCommonNote"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/notes-port.ts",
+            "src/tool-calls/gateway.ts"
+          ]
+        },
+        "capability": {
+          "status": "verified",
+          "consequence": "external_write",
+          "sideEffect": "remote_write"
+        },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "personal_notes",
+          "controls": [
+            "authenticated-current-user",
+            "non-model-gateway",
+            "interactive-confirmation",
+            "content-hash-only-confirmation",
+            "no-note-content-logging"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "AUTH_REQUIRED",
+            "AUTH_EXPIRED",
+            "INTERACTION_REQUIRED",
+            "UNKNOWN_WRITE_OUTCOME",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/user-notes.test.ts",
+            "tests/tool-calls/gateway.test.ts",
+            "tests/tool-calls/provider.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-create-note"] }
+      }
+    },
+    {
+      "sourceId": "tool:update_note",
+      "status": "gateway_capability",
+      "targets": ["gateway:notes.update"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "notes.update.input",
+          "fieldMap": { "noteId": "noteId", "content": "content", "title": "title" }
+        },
+        "outputSchema": { "status": "verified", "target": "notes.update.output" },
+        "authentication": { "status": "verified", "mode": "required", "subject": "current_user" },
+        "regions": {
+          "status": "verified",
+          "values": ["cn"],
+          "endpoints": {
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "noteUpdateUserNote"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/notes-port.ts",
+            "src/tool-calls/gateway.ts"
+          ]
+        },
+        "capability": {
+          "status": "verified",
+          "consequence": "external_write",
+          "sideEffect": "remote_write"
+        },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "personal_notes",
+          "controls": [
+            "authenticated-current-user",
+            "non-model-gateway",
+            "interactive-confirmation",
+            "content-hash-only-confirmation",
+            "no-note-content-logging"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "AUTH_REQUIRED",
+            "AUTH_EXPIRED",
+            "INTERACTION_REQUIRED",
+            "UNKNOWN_WRITE_OUTCOME",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/user-notes.test.ts",
+            "tests/tool-calls/gateway.test.ts",
+            "tests/tool-calls/provider.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-update-note"] }
+      }
+    },
+    {
+      "sourceId": "tool:list_problem_solutions",
+      "status": "native_tool",
+      "targets": ["lc_solution_search"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_solution_search.input",
+          "fieldMap": {
+            "questionSlug": "titleSlug",
+            "limit": "limit",
+            "skip": "offset",
+            "orderBy": "orderBy",
+            "userInput": "query",
+            "tagSlugs": "tags"
+          }
+        },
+        "outputSchema": {
+          "status": "verified",
+          "target": "tools.lc_solution_search.output"
+        },
+        "authentication": {
+          "status": "verified",
+          "mode": "public",
+          "subject": "none"
+        },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": {
+              "endpoint": "https://leetcode.com/graphql/",
+              "operation": "ugcArticleSolutionArticles"
+            },
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "questionTopicsList"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": {
+          "status": "verified",
+          "consequence": "answer_read",
+          "sideEffect": "none"
+        },
+        "paginationDefaults": {
+          "status": "verified",
+          "mode": "offset",
+          "defaults": { "limit": 10, "skip": 0 }
+        },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "answer_bearing",
+          "controls": [
+            "explicit-user-request",
+            "bounded-page",
+            "no-solution-persistence",
+            "untrusted-content"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "NOT_FOUND",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/solution-read.test.ts",
+            "tests/tool-calls/solution-tools.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": {
+          "status": "verified",
+          "anchors": ["upstream-list-problem-solutions"]
+        }
+      },
+      "conversion": {
+        "globalMostRecent": "The public contract accepts MOST_RECENT and sends the valid GraphQL enum without the upstream registry typo's leading space.",
+        "cnHasMore": "When the upstream CN query omits pageInfo, hasMore is derived from totalNum and the bounded offset page instead of being forced false."
+      }
+    },
+    {
+      "sourceId": "tool:get_problem_solution",
+      "status": "native_tool",
+      "targets": ["lc_solution"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_solution.input",
+          "fieldMap": { "topicId": "topicId", "slug": "slug" }
+        },
+        "outputSchema": { "status": "verified", "target": "tools.lc_solution.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": {
+              "endpoint": "https://leetcode.com/graphql/",
+              "operation": "ugcArticleSolutionArticle"
+            },
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "discussTopic"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": {
+          "status": "verified",
+          "consequence": "answer_read",
+          "sideEffect": "none"
+        },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "answer_bearing",
+          "controls": [
+            "explicit-user-request",
+            "single-article-only",
+            "no-solution-persistence",
+            "untrusted-content"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "NOT_FOUND",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/solution-read.test.ts",
+            "tests/tool-calls/solution-tools.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": {
+          "status": "verified",
+          "anchors": ["upstream-get-problem-solution"]
+        }
+      }
+    },
+    {
+      "sourceId": "resource:problem-categories",
+      "status": "static_contract_resource",
+      "targets": ["contract/catalogs.json#/categories"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "none", "fieldMap": {} },
+        "outputSchema": { "status": "verified", "target": "contract/catalogs.json#/categories" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "contract/catalogs.json", "operation": "read-categories" },
+            "cn": { "endpoint": "contract/catalogs.json", "operation": "read-categories" }
+          }
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["immutable-contract-artifact"] },
+        "errorSemantics": { "status": "verified", "mode": "immutable_contract", "codes": ["CONTRACT_MISMATCH"] },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/tool-calls/artifacts.test.ts", "tests/leetcode/read-adapter.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-problem-categories"] }
+      }
+    },
+    {
+      "sourceId": "resource:problem-tags",
+      "status": "static_contract_resource",
+      "targets": ["contract/catalogs.json#/tags"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "none", "fieldMap": {} },
+        "outputSchema": { "status": "verified", "target": "contract/catalogs.json#/tags" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "contract/catalogs.json", "operation": "read-tags" },
+            "cn": { "endpoint": "contract/catalogs.json", "operation": "read-tags" }
+          }
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["immutable-contract-artifact"] },
+        "errorSemantics": { "status": "verified", "mode": "immutable_contract", "codes": ["CONTRACT_MISMATCH"] },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/tool-calls/artifacts.test.ts", "tests/leetcode/read-adapter.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-problem-tags"] }
+      }
+    },
+    {
+      "sourceId": "resource:problem-langs",
+      "status": "static_contract_resource",
+      "targets": ["contract/catalogs.json#/languages/upstream"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "none", "fieldMap": {} },
+        "outputSchema": { "status": "verified", "target": "contract/catalogs.json#/languages/upstream" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "contract/catalogs.json", "operation": "read-languages" },
+            "cn": { "endpoint": "contract/catalogs.json", "operation": "read-languages" }
+          }
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["immutable-contract-artifact"] },
+        "errorSemantics": { "status": "verified", "mode": "immutable_contract", "codes": ["CONTRACT_MISMATCH"] },
+        "tests": {
+          "status": "verified",
+          "files": ["tests/tool-calls/artifacts.test.ts", "tests/tool-calls/contract.test.ts", "tests/leetcode/write-adapter.test.ts"]
+        },
+        "documentation": { "status": "verified", "anchors": ["upstream-problem-langs"] }
+      }
+    },
+    {
+      "sourceId": "resource:problem-detail",
+      "status": "native_tool",
+      "targets": ["lc_problem"],
+      "evidence": {
+        "inputSchema": { "status": "verified", "target": "tools.lc_problem.input", "fieldMap": { "titleSlug": "titleSlug" } },
+        "outputSchema": { "status": "verified", "target": "tools.lc_problem.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": { "endpoint": "https://leetcode.com/graphql/", "operation": "questionData" },
+            "cn": { "endpoint": "https://leetcode.cn/graphql/", "operation": "questionData" }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts",
+            "src/leetcode/adapters/read-normalization.ts"
+          ]
+        },
+        "capability": { "status": "verified", "consequence": "read", "sideEffect": "none" },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": { "status": "verified", "classification": "public", "controls": ["explicit-resource-payload-opt-in", "additional-properties-false", "strict-bounded-dto"] },
+        "errorSemantics": { "status": "verified", "mode": "normalized_tool_error", "codes": ["VALIDATION_ERROR", "NOT_FOUND", "REMOTE_UNAVAILABLE", "REMOTE_SCHEMA_CHANGED"] },
+        "tests": { "status": "verified", "files": ["tests/leetcode/read-adapter.test.ts", "tests/tool-calls/contract.test.ts"] },
+        "documentation": { "status": "verified", "anchors": ["upstream-problem-detail"] }
+      },
+      "conversion": {
+        "resourcePayload": "Call lc_problem with includeResourcePayload=true for the complete problem://{titleSlug} equivalent."
+      }
+    },
+    {
+      "sourceId": "resource:problem-solution",
+      "status": "native_tool",
+      "targets": ["lc_solution"],
+      "evidence": {
+        "inputSchema": {
+          "status": "verified",
+          "target": "tools.lc_solution.input",
+          "fieldMap": { "topicId": "topicId", "slug": "slug" }
+        },
+        "outputSchema": { "status": "verified", "target": "tools.lc_solution.output" },
+        "authentication": { "status": "verified", "mode": "public", "subject": "none" },
+        "regions": {
+          "status": "verified",
+          "values": ["global", "cn"],
+          "endpoints": {
+            "global": {
+              "endpoint": "https://leetcode.com/graphql/",
+              "operation": "ugcArticleSolutionArticle"
+            },
+            "cn": {
+              "endpoint": "https://leetcode.cn/graphql/",
+              "operation": "discussTopic"
+            }
+          },
+          "implementationFiles": [
+            "src/leetcode/read-adapter.ts",
+            "src/leetcode/adapters/read-queries.ts"
+          ]
+        },
+        "capability": {
+          "status": "verified",
+          "consequence": "answer_read",
+          "sideEffect": "none"
+        },
+        "paginationDefaults": { "status": "verified", "mode": "none", "defaults": {} },
+        "sensitiveData": {
+          "status": "verified",
+          "classification": "answer_bearing",
+          "controls": [
+            "explicit-user-request",
+            "single-article-only",
+            "no-solution-persistence",
+            "untrusted-content"
+          ]
+        },
+        "errorSemantics": {
+          "status": "verified",
+          "mode": "normalized_tool_error",
+          "codes": [
+            "VALIDATION_ERROR",
+            "NOT_FOUND",
+            "REMOTE_UNAVAILABLE",
+            "REMOTE_SCHEMA_CHANGED"
+          ]
+        },
+        "tests": {
+          "status": "verified",
+          "files": [
+            "tests/leetcode/solution-read.test.ts",
+            "tests/tool-calls/solution-tools.test.ts",
+            "tests/tool-calls/contract.test.ts"
+          ]
+        },
+        "documentation": {
+          "status": "verified",
+          "anchors": ["upstream-problem-solution"]
+        }
+      },
+      "conversion": {
+        "transport": "The MCP resource URI is represented by the same versioned lc_solution contract without retaining MCP transport at runtime."
+      }
+    }
+  ]
+}

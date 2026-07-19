@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "packageName": "pi-leetcode-tools",
+  "registry": "https://registry.npmjs.org",
+  "expectedNpmOwner": "tech7",
+  "releaseTagPrefix": "pi-leetcode-tools-v",
+  "publishDistTag": "next",
+  "protectedDistTag": "latest",
+  "trustedPublisher": {
+    "workflow": ".github/workflows/release-tools.yml",
+    "environment": "npm-tools-next",
+    "configured": false,
+    "evidenceGate": "external_required",
+    "evidenceReference": null
+  },
+  "bootstrap": {
+    "mode": "external_required",
+    "packageMustAlreadyExist": true,
+    "automationImplemented": false,
+    "procedure": "release/TOOLS-BOOTSTRAP.md",
+    "instructions": "Use .github/workflows/bootstrap-tools.yml from the exact release tag with the protected npm-tools-bootstrap environment and a short-lived granular NPM_TOKEN. Publish only the approved tgz to next with provenance, verify it, revoke the token, then configure the regular trusted publisher and commit its evidence reference."
+  },
+  "source": {
+    "mainlineRef": "refs/remotes/origin/main",
+    "requireMainlineAncestor": false,
+    "tagProtectionEvidenceGate": "external_required"
+  }
+}

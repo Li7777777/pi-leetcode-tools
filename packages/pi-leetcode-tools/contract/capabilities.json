@@ -1,0 +1,113 @@
+{
+  "packageName": "pi-leetcode-tools",
+  "packageVersion": "0.1.1",
+  "contractVersion": "1.1.0",
+  "protocolVersion": "1.0.0",
+  "schemaDigest": "sha256:ae800dec293e2218fa67c068e272e1ba304877853c66f4b22e88f8dbc7499114",
+  "behaviorManifestDigest": "sha256:81650b24c55be375ef82b78ce119e4f15d6e0b78fb032b5aecc696313d134e35",
+  "capabilityManifestDigest": "sha256:ca75af95a1d84f44e8206804ab863bf33f155a04df20a7e5d3e8608fb62b4a12",
+  "supportedRegions": [
+    "global",
+    "cn"
+  ],
+  "tools": [
+    {
+      "name": "lc_daily",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_search",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_problem",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_solution_search",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "answer_read",
+      "disclosureRisk": "solution"
+    },
+    {
+      "name": "lc_solution",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "answer_read",
+      "disclosureRisk": "solution"
+    },
+    {
+      "name": "lc_profile",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_contest",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_progress",
+      "version": "1.1.0",
+      "requiresAuth": true,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_history",
+      "version": "1.1.0",
+      "requiresAuth": true,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_user_submissions",
+      "version": "1.1.0",
+      "requiresAuth": false,
+      "consequence": "read"
+    },
+    {
+      "name": "lc_submission",
+      "version": "1.1.0",
+      "requiresAuth": true,
+      "consequence": "sensitive_read"
+    },
+    {
+      "name": "lc_run",
+      "version": "1.1.0",
+      "requiresAuth": true,
+      "consequence": "execution"
+    },
+    {
+      "name": "lc_submit",
+      "version": "1.1.0",
+      "requiresAuth": true,
+      "consequence": "external_write"
+    },
+    {
+      "name": "lc_operation_status",
+      "version": "1.1.0",
+      "requiresAuth": true,
+      "consequence": "read"
+    }
+  ],
+  "notesPort": {
+    "global": {
+      "supported": false,
+      "revisionMode": "unsupported",
+      "maxSize": 0
+    },
+    "cn": {
+      "supported": true,
+      "revisionMode": "best-effort-compare-and-set",
+      "maxSize": 16384
+    }
+  }
+}

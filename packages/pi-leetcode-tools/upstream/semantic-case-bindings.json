@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "bindingType": "upstream-semantic-case-bindings",
+  "semanticSurfaceDigest": "sha256:12ccc10040cc1b9e907065c1120c991baddc490d24310ecf8defe71e9351f3e0",
+  "semanticDimensions": [
+    "input_contract",
+    "output_contract",
+    "auth_subject_scope",
+    "region_endpoint",
+    "pagination_defaults_filters",
+    "capability_side_effect",
+    "sensitive_data",
+    "error_semantics"
+  ],
+  "interfaces": [
+    {
+      "sourceId": "tool:get_daily_challenge",
+      "outputPathGroups": [
+        ["data.date"],
+        ["data.problem"],
+        ["data.regionalPayload"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_problem",
+      "outputPathGroups": [
+        ["data.content"],
+        ["data.hints"],
+        ["data.similarQuestions"],
+        ["data.codeSnippets"]
+      ]
+    },
+    {
+      "sourceId": "tool:search_problems",
+      "outputPathGroups": [
+        ["data.items"],
+        ["data.items[].titleSlug"],
+        ["data.page.total"],
+        ["data.page.hasMore"]
+      ]
+    },
+    {
+      "sourceId": "tool:run_code",
+      "outputPathGroups": [
+        ["data.questionId"],
+        ["data.start"],
+        ["data.checkUrl"],
+        ["data.check"]
+      ]
+    },
+    {
+      "sourceId": "tool:submit_solution",
+      "outputPathGroups": [
+        ["data.questionId"],
+        ["data.start"],
+        ["data.checkUrl"],
+        ["data.check"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_user_profile",
+      "outputPathGroups": [
+        ["data.username"],
+        ["data.totalSubmissions"],
+        ["data.acceptedQuestions"],
+        ["data.socialAccounts"],
+        ["data.skillTopics"],
+        ["data.topicAreaScores"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_recent_submissions",
+      "outputPathGroups": [
+        ["data.username"],
+        ["data.mode"],
+        ["data.items"],
+        ["data.items[].status"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_recent_ac_submissions",
+      "outputPathGroups": [
+        ["data.username"],
+        ["data.mode"],
+        ["data.items"],
+        ["data.items[].id", "data.items[].frontendId"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_user_status",
+      "outputPathGroups": [
+        ["data.isSignedIn"],
+        ["data.username"],
+        ["data.avatar"],
+        ["data.isAdmin"],
+        ["data.useTranslation"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_problem_submission_report",
+      "outputPathGroups": [
+        ["data.id"],
+        ["data.code"],
+        ["data.compileError"],
+        ["data.runtimeError"],
+        ["data.lastTestcase"],
+        ["data.codeOutput"],
+        ["data.expectedOutput"],
+        ["data.stdout"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_problem_progress",
+      "outputPathGroups": [
+        ["data.filters"],
+        ["data.items"],
+        ["data.items[].lastSubmittedAt"],
+        ["data.items[].numSubmitted"],
+        ["data.items[].lastResult"],
+        ["data.page.total"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_all_submissions",
+      "outputPathGroups": [
+        ["data.items"],
+        ["data.items[].id"],
+        ["data.items[].language"],
+        ["data.items[].status"],
+        ["data.page.hasMore"],
+        ["data.page.nextCursor"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_user_contest_ranking",
+      "outputPathGroups": [
+        ["data.username"],
+        ["data.ranking"],
+        ["data.ranking.badge"],
+        ["data.history"],
+        ["data.history[].trend"]
+      ]
+    },
+    {
+      "sourceId": "tool:search_notes",
+      "outputPathGroups": [
+        ["data.filters"],
+        ["data.pagination.totalCount"],
+        ["data.notes"],
+        ["data.notes[].content"],
+        ["data.notes[].noteQuestion"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_note",
+      "outputPathGroups": [
+        ["data.questionId"],
+        ["data.count"],
+        ["data.pagination"],
+        ["data.notes"],
+        ["data.notes[].content"]
+      ]
+    },
+    {
+      "sourceId": "tool:create_note",
+      "outputPathGroups": [
+        ["data.success"],
+        ["data.note.id"],
+        ["data.note.content"],
+        ["data.note.targetId"]
+      ]
+    },
+    {
+      "sourceId": "tool:update_note",
+      "outputPathGroups": [
+        ["data.success"],
+        ["data.note.id"],
+        ["data.note.content"],
+        ["data.note.targetId"]
+      ]
+    },
+    {
+      "sourceId": "tool:list_problem_solutions",
+      "defaultBindings": {
+        "global": {
+          "orderBy": "manifest.behaviorManifest.solutionArticles.globalDefaultOrderBy"
+        },
+        "cn": {
+          "orderBy": "manifest.behaviorManifest.solutionArticles.cnDefaultOrderBy"
+        }
+      },
+      "outputPathGroups": [
+        ["data.titleSlug"],
+        ["data.items"],
+        ["data.items[].topicId"],
+        ["data.items[].canSee"],
+        ["data.page.total"],
+        ["data.page.hasMore"]
+      ]
+    },
+    {
+      "sourceId": "tool:get_problem_solution",
+      "outputPathGroups": [
+        ["data.title"],
+        ["data.slug"],
+        ["data.content"],
+        ["data.tags"],
+        ["data.topicId"],
+        ["data.prev"],
+        ["data.next"]
+      ]
+    },
+    {
+      "sourceId": "resource:problem-categories",
+      "outputPathGroups": [],
+      "staticValueDigest": "sha256:8c5dafa39861dc9cf5a0277516cc03c885ddd1f3029d4bf6bb7d262ee87f3ae8"
+    },
+    {
+      "sourceId": "resource:problem-tags",
+      "outputPathGroups": [],
+      "staticValueDigest": "sha256:6774fa632a7a9e7f2064830593f05e62d84fd0a7875597ac743f91531bb77875"
+    },
+    {
+      "sourceId": "resource:problem-langs",
+      "outputPathGroups": [],
+      "staticValueDigest": "sha256:f038da6a36e317eb3342ba3f2a77e74e6b1c974267d5fc72a27bcfd5fd7bd5cf"
+    },
+    {
+      "sourceId": "resource:problem-detail",
+      "outputPathGroups": [
+        ["data.resourcePayload"]
+      ]
+    },
+    {
+      "sourceId": "resource:problem-solution",
+      "outputPathGroups": [
+        ["data.title"],
+        ["data.slug"],
+        ["data.content"],
+        ["data.tags"],
+        ["data.topicId"],
+        ["data.prev"],
+        ["data.next"]
+      ]
+    }
+  ]
+}

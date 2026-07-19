@@ -1,0 +1,325 @@
+name: release-tools-next
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Validate only, or publish the committed candidate to next
+        required: true
+        type: choice
+        default: dry-run
+        options:
+          - dry-run
+          - publish-next
+      version:
+        description: Exact committed pi-leetcode-tools semantic version
+        required: true
+        type: string
+      expected_sha256:
+        description: Exact lowercase SHA-256 of the committed candidate tgz
+        required: true
+        type: string
+      expected_record_digest:
+        description: Exact sha256-prefixed digest from committed current.json
+        required: true
+        type: string
+      confirmation:
+        description: For publishing, type "publish pi-leetcode-tools@VERSION to next"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-pi-leetcode-tools-next
+  cancel-in-progress: false
+
+env:
+  RELEASE_MODE: ${{ inputs.mode }}
+  RELEASE_VERSION: ${{ inputs.version }}
+  RELEASE_EXPECTED_SHA256: ${{ inputs.expected_sha256 }}
+  RELEASE_EXPECTED_RECORD_DIGEST: ${{ inputs.expected_record_digest }}
+  RELEASE_CONFIRMATION: ${{ inputs.confirmation }}
+
+jobs:
+  validate-build:
+    name: Validate committed record and build without OIDC
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - name: Check out complete tagged source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up fixed Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: 24.18.0
+          cache: npm
+      - name: Save tagged current.json and CandidateRecord before build
+        run: >-
+          npm run snapshot:tools:release-record --
+          --version "$RELEASE_VERSION"
+          --expected-sha256 "$RELEASE_EXPECTED_SHA256"
+          --expected-record-digest "$RELEASE_EXPECTED_RECORD_DIGEST"
+      - name: Install the locked workspace
+        run: npm ci
+      - name: Verify release workflow policy and static boundaries
+        run: npm run verify:tools:release-workflow
+      - name: Provision fixed upstream references
+        run: npm run provision:tools:upstream
+      - name: Build and verify without recording a new candidate
+        run: npm run verify:tools:release:no-record
+      - name: Verify independent upstream adapter fixtures
+        run: npm run verify:tools:upstream-adapter-fixtures
+      - name: Reverify the committed CandidateRecord
+        run: npm run verify:tools:candidate
+      - name: Bind build output to tagged current.json and record
+        run: >-
+          npm run validate:tools:release-inputs --
+          --mode "$RELEASE_MODE"
+          --version "$RELEASE_VERSION"
+          --expected-sha256 "$RELEASE_EXPECTED_SHA256"
+          --expected-record-digest "$RELEASE_EXPECTED_RECORD_DIGEST"
+          --confirmation "${RELEASE_CONFIRMATION:-not-confirmed}"
+          --snapshot .artifacts/committed-release/tools
+          --bundle .artifacts/release-bundle/tools
+      - name: Exercise npm publish without changing the registry
+        if: ${{ inputs.mode == 'dry-run' }}
+        run: >-
+          npm publish ".artifacts/release-bundle/tools/pi-leetcode-tools-${RELEASE_VERSION}.tgz"
+          --dry-run
+          --tag next
+          --ignore-scripts
+      - name: Upload exact approved release bundle
+        if: ${{ hashFiles('.artifacts/release-bundle/tools/approval.json') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tools-release-bundle-${{ github.run_id }}
+          path: .artifacts/release-bundle/tools/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
+  publish-next:
+    name: Protected minimal OIDC publish
+    if: ${{ inputs.mode == 'publish-next' }}
+    needs: validate-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm-tools-next
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Set up fixed trusted-publishing runtime
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: 24.18.0
+      - name: Download exact approved release bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: tools-release-bundle-${{ github.run_id }}
+          path: release-bundle
+      - name: Verify committed approval and publish one exact tgz to next
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node --input-type=module <<'NODE'
+          import { createHash } from "node:crypto";
+          import { lstat, readFile, readdir } from "node:fs/promises";
+          import { join, resolve } from "node:path";
+
+          const fail = (message) => { throw new Error(message); };
+          const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+          const integrity = (bytes) => `sha512-${createHash("sha512").update(bytes).digest("base64")}`;
+          const canonical = (value) => {
+            if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+            if (value !== null && typeof value === "object") {
+              return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`;
+            }
+            const encoded = JSON.stringify(value);
+            if (encoded === undefined) fail("Approval contains non-JSON data");
+            return encoded;
+          };
+          const jcsDigest = (value) => `sha256:${sha256(Buffer.from(canonical(value), "utf8"))}`;
+
+          const directory = resolve("release-bundle");
+          const version = process.env.RELEASE_VERSION;
+          const tarballName = `pi-leetcode-tools-${version}.tgz`;
+          const allowed = new Set([
+            "approval.json",
+            "current.json",
+            "policy.json",
+            "pre-publish-dist-tags.json",
+            "record.json",
+            tarballName
+          ]);
+          const entries = await readdir(directory);
+          if (entries.length !== allowed.size || entries.some((entry) => !allowed.has(entry))) {
+            fail(`Release bundle allowlist mismatch: ${entries.join(", ")}`);
+          }
+          for (const entry of entries) {
+            const metadata = await lstat(join(directory, entry));
+            if (!metadata.isFile() || metadata.isSymbolicLink()) fail(`Unsafe release-bundle entry: ${entry}`);
+          }
+
+          const [approval, current, recordText, policy, tarball] = await Promise.all([
+            readFile(join(directory, "approval.json"), "utf8").then(JSON.parse),
+            readFile(join(directory, "current.json"), "utf8").then(JSON.parse),
+            readFile(join(directory, "record.json"), "utf8"),
+            readFile(join(directory, "policy.json"), "utf8").then(JSON.parse),
+            readFile(join(directory, tarballName))
+          ]);
+          const record = JSON.parse(recordText);
+
+          const expectedSha256 = (process.env.RELEASE_EXPECTED_SHA256 ?? "").replace(/^sha256:/u, "");
+          const expectedRecordDigest = process.env.RELEASE_EXPECTED_RECORD_DIGEST;
+          const expectedTag = `pi-leetcode-tools-v${version}`;
+          if (!/^[0-9a-f]{64}$/u.test(expectedSha256)) fail("Expected tarball SHA-256 is invalid");
+          if (!/^sha256:[0-9a-f]{64}$/u.test(expectedRecordDigest ?? "")) fail("Expected record digest is invalid");
+          if (process.env.GITHUB_REF_TYPE !== "tag" || process.env.GITHUB_REF_NAME !== expectedTag) fail("Publish job is not running at the exact release tag");
+          if (process.env.GITHUB_EVENT_NAME !== "workflow_dispatch") fail("Publish job was not manually dispatched");
+          if (process.env.RELEASE_CONFIRMATION !== `publish pi-leetcode-tools@${version} to next`) fail("Manual publish confirmation is invalid");
+          if (approval.mode !== "publish-next") fail("Approval bundle is not authorized for publishing");
+          if (approval.source?.commit !== (process.env.GITHUB_SHA ?? "").toLowerCase()) fail("Approval commit differs from GITHUB_SHA");
+          if (approval.source?.tag !== expectedTag || approval.source?.tagPeeledToHead !== true) fail("Approval is not bound to the peeled release tag");
+          if (approval.subject?.package !== "pi-leetcode-tools" || approval.subject?.version !== version) fail("Approval subject is invalid");
+          if (approval.subject?.tarball !== tarballName || approval.subject?.bytes !== tarball.length) fail("Approval tarball identity is invalid");
+          if (approval.subject?.sha256 !== `sha256:${expectedSha256}`) fail("Approval SHA-256 differs from the manual input");
+          if (approval.subject?.recordDigest !== expectedRecordDigest) fail("Approval record digest differs from the manual input");
+          if (approval.subject?.committedRecordFile !== current.recordFile) fail("Approval does not name the committed record selected by current.json");
+          if (current.recordDigest !== expectedRecordDigest || current.recordId !== record.recordId) fail("Committed current.json and record do not match");
+          if (`sha256:${sha256(Buffer.from(recordText, "utf8"))}` !== expectedRecordDigest) fail("Committed CandidateRecord byte digest is invalid");
+          if (record.artifact?.file !== tarballName || record.artifact?.sha256 !== `sha256:${expectedSha256}`) fail("CandidateRecord artifact identity is invalid");
+          if (record.artifact?.bytes !== tarball.length || sha256(tarball) !== expectedSha256) fail("Downloaded tarball differs from the approved bytes");
+          if (record.artifact?.distIntegrity !== integrity(tarball)) fail("Downloaded tarball integrity differs from the CandidateRecord");
+          if (policy.packageName !== "pi-leetcode-tools" || policy.registry !== "https://registry.npmjs.org" || policy.releaseTagPrefix !== "pi-leetcode-tools-v") fail("Release policy registry or tag identity is invalid");
+          if (policy.publishDistTag !== "next" || policy.protectedDistTag !== "latest") fail("Release policy dist-tags are invalid");
+          if (approval.policy?.digest !== jcsDigest(policy)) fail("Approval is not bound to the reviewed release policy");
+          if (typeof policy.expectedNpmOwner !== "string" || !approval.registryPreflight?.maintainers?.includes(policy.expectedNpmOwner)) fail("Reviewed npm owner was not verified before approval");
+          if (approval.registryPreflight?.packageExists !== true || approval.registryPreflight?.versionExists !== false) fail("Regular OIDC workflow cannot bootstrap or overwrite an npm version");
+          if (policy.trustedPublisher?.configured !== true || policy.trustedPublisher?.workflow !== ".github/workflows/release-tools.yml" || policy.trustedPublisher?.environment !== "npm-tools-next" || typeof policy.trustedPublisher?.evidenceReference !== "string" || policy.trustedPublisher.evidenceReference.length === 0) fail("Trusted-publisher external evidence gate is not committed as configured");
+          for (const blocker of ["bootstrap_required", "expected_npm_owner_unconfigured", "trusted_publisher_external_gate_unconfirmed"]) {
+            if (approval.releaseBlockers?.includes(blocker)) fail(`Release approval retains blocking gate: ${blocker}`);
+          }
+
+          const forbiddenEnvironment = new Set(["NODE_AUTH_TOKEN", "NPM_TOKEN"]);
+          for (const [name, value] of Object.entries(process.env)) {
+            if (forbiddenEnvironment.has(name.toUpperCase()) && typeof value === "string" && value.length > 0) fail(`${name} must not be present in the OIDC publish job`);
+          }
+          for (const [name, value] of Object.entries(process.env)) {
+            const upperName = name.toUpperCase();
+            if (upperName.startsWith("NPM_CONFIG_") && /(?:AUTH|TOKEN|PASSWORD|USERNAME)/u.test(upperName) && typeof value === "string" && value.length > 0) {
+              fail(`Credential-bearing npm environment variable is forbidden: ${name}`);
+            }
+          }
+          const npmrcPaths = new Set([
+            join(process.env.HOME ?? "", ".npmrc"),
+            process.env.NPM_CONFIG_USERCONFIG,
+            process.env.NPM_CONFIG_GLOBALCONFIG
+          ].filter((value) => typeof value === "string" && value.length > 0));
+          for (const npmrcPath of npmrcPaths) {
+            try {
+              const text = await readFile(npmrcPath, "utf8");
+              if (/(?:_authToken|_auth|password|username)\s*=/iu.test(text)) fail(`npmrc contains authentication material: ${npmrcPath}`);
+            } catch (error) {
+              if (error?.code !== "ENOENT") throw error;
+            }
+          }
+          if (typeof process.env.ACTIONS_ID_TOKEN_REQUEST_URL !== "string" || typeof process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN !== "string") {
+            fail("GitHub OIDC environment is unavailable");
+          }
+          NODE
+
+          npm_version="$(npm --version)"
+          node - "$npm_version" <<'NODE'
+          const [major, minor] = process.argv[2].split(".").map(Number);
+          if (!Number.isInteger(major) || !Number.isInteger(minor)) {
+            throw new Error(`Unable to parse npm version: ${process.argv[2]}`);
+          }
+          if (major < 11 || (major === 11 && minor < 5)) {
+            throw new Error(`npm >=11.5 is required for trusted publishing; found ${process.argv[2]}`);
+          }
+          NODE
+
+          isolated_home="$RUNNER_TEMP/pi-leetcode-tools-publish-home"
+          isolated_userconfig="$RUNNER_TEMP/pi-leetcode-tools-publish-user.npmrc"
+          isolated_globalconfig="$RUNNER_TEMP/pi-leetcode-tools-publish-global.npmrc"
+          isolated_cache="$RUNNER_TEMP/pi-leetcode-tools-publish-cache"
+          mkdir -p "$isolated_home" "$isolated_cache"
+          printf '%s\n' 'registry=https://registry.npmjs.org/' 'audit=false' 'fund=false' 'update-notifier=false' > "$isolated_userconfig"
+          : > "$isolated_globalconfig"
+          chmod 600 "$isolated_userconfig" "$isolated_globalconfig"
+
+          HOME="$isolated_home" \
+          NPM_CONFIG_USERCONFIG="$isolated_userconfig" \
+          NPM_CONFIG_GLOBALCONFIG="$isolated_globalconfig" \
+          NPM_CONFIG_CACHE="$isolated_cache" \
+          npm publish "release-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz" \
+            --registry https://registry.npmjs.org/ \
+            --tag next \
+            --provenance \
+            --access public \
+            --ignore-scripts
+
+  verify-registry:
+    name: Verify registry release without OIDC
+    if: ${{ inputs.mode == 'publish-next' }}
+    needs: publish-next
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    permissions:
+      contents: read
+    steps:
+      - name: Check out complete tagged source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up fixed Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: 24.18.0
+          cache: npm
+      - name: Download exact approved release bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: tools-release-bundle-${{ github.run_id }}
+          path: release-bundle
+      - name: Install the locked verification workspace
+        run: npm ci
+      - name: Restore approved tgz as formal verifier input
+        run: |
+          mkdir -p .artifacts/tools
+          cp "release-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz" .artifacts/tools/
+      - name: Verify exact registry metadata, provenance, clean install, and Pi activation
+        run: >-
+          npm run verify:tools:registry-release --
+          --version "$RELEASE_VERSION"
+          --expected-sha256 "$RELEASE_EXPECTED_SHA256"
+          --expected-record-digest "$RELEASE_EXPECTED_RECORD_DIGEST"
+          --artifacts .artifacts/tools
+          --records release/candidates/tools
+          --evidence ".artifacts/tools/pi-leetcode-tools-${RELEASE_VERSION}-formal-registry-evidence.json"
+      - name: Prove next moved and latest did not
+        run: >-
+          npm run assert:tools:registry-tags --
+          --snapshot release-bundle/pre-publish-dist-tags.json
+          --version "$RELEASE_VERSION"
+          --output ".artifacts/tools/pi-leetcode-tools-${RELEASE_VERSION}-dist-tag-evidence.json"
+      - name: Retain formal registry evidence
+        if: ${{ always() && hashFiles('.artifacts/tools/pi-leetcode-tools-*.tgz') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tools-formal-registry-${{ github.run_id }}
+          path: .artifacts/tools/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90

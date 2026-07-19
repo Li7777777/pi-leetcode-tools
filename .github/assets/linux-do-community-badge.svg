@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="224" height="20" role="img" aria-label="Where possible begins: LINUX.DO">
+  <title>Where possible begins: LINUX.DO</title>
+  <rect width="164" height="20" fill="#555"/>
+  <rect x="164" width="60" height="20" fill="#2ea44f"/>
+  <image x="4" y="3" width="14" height="14" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMiSURBVEhLvVbLTlNRFC1CwqMFE0EDCPIYAUEdgE6QgQJOEOOUACYq6A+AUz9AQX9AHAoYtQ6cmACioEEQDCgpQlp5CrS0994+blvsWe7dXo3FCkVKd7LS03PWXuvu87j36HYLAIeEEDWEuw6H4/XMzIx5dHTUyuA299HYPeYwV0v7vyCRVqvVOm00vkBHx23U1l5EWVk5CguLg+B2bW0d2ts7YDQawVzKadPSow9KKicM9/b24dy5auj1GTAYMpCVdQzZ2bnIzc0Lgtvcx2N6fTqqqqrR09MLyh0hnNTkdg4iNiwvLztbWq4iJSUNmZlHkZd3IiowNzk5Dc3NLVhaWnaS1mVNNnIQod5kMonKyrNITTVEFI0GaWkGVFScAWtxAZp8eNCClywuLrrZLD39MPLzCyKKRQPOZQ02XVhY8JBpqWYTCjJLUBTlQ1NTM01JanB9cnKO7wuswVqNjU2QZXk8bAfTE1zjDcKESE+8H7CmtpFuBM3IOZGqm7VYLBgbG8Pk5CQmJmID1mJNs9nMVc6RV5KODu75QCAAVVXh9/vh8hliCtZkbfYgrws6SZI6yRn0e6DQPO5zhW9pfv8ixBqaxzBX+I1L/3PwIKB5LHCFNp7j7YRYw+Px8Bpuxt+Q/sR9SuO2achrRGe327vidSzI8MHvgy8rKhxO/4GAtYUIHvwa3eDgYJLdIX3dcs1DWRmDsjoeW5DmlnMOdoc8T0UmBd+nth/iOja6gT56tRoTYwvW3HiITZ9oDZpx3KFPh0OW6c1dB/QS4XmMwFoTNZBk6SNVF37BstFH0i2bPRgoAp4QMdLT7gWs0V8AtzyvknaZZhMe372iwStNCQwU7296Obe/CD5pCtatXe41TFAVswufLoUSn+7BmLmcM1kPr9PsWvPiiia7c6zRFc/tE++w/ggYKg1ND+MZYfs6cd+v8aESYL0bHl/gPWmc0uSiDwW4qSrrn7HaA8y2ASOngVdHgJfJIXCb+0ytwOpjqM61L4oQt8g6QZPYe/TRFUQSos4lRKdL3nzj2pi2uFaGbUFwm/sCoosuoXXM1dL+ETrdT8hK+nY8TljTAAAAAElFTkSuQmCC"/>
+  <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
+    <text x="93" y="14">Where possible begins</text>
+    <text x="194" y="14">LINUX.DO</text>
+  </g>
+</svg>

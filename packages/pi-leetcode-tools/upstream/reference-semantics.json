@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "surfaceType": "reference-mcp-semantic-surface",
+  "source": {
+    "mcp": {
+      "package": "@jinzcdev/leetcode-mcp-server",
+      "version": "1.4.0",
+      "inventoryDigest": "sha256:9a89de5f253c3e9c7e4ef476690d477ed8aa4c6ca43399150a16b0d09b1ca4b2"
+    },
+    "queryDependency": {
+      "package": "leetcode-query",
+      "version": "2.0.1",
+      "license": "MIT",
+      "tarball": {
+        "sizeBytes": 26379,
+        "sha256": "281fbaa950bf82e0b72a7273c2e7f5502ea6eb1dd593079ab5b89f8048b3eff0",
+        "integrity": "sha512-zvVp5T5C69pmvgaaxIP8OFBfhzIw57TAVPFDK5y2DYDNPW2A5sBSFHAUDgFpbZylO3VeHJWlCBAEgrhs2PHR9Q=="
+      },
+      "library": {
+        "path": "package/lib/index.js",
+        "sizeBytes": 40391,
+        "sha256": "1bac78c8c317787490aaa51bdec701502df514e2afce33fd1478f72a2f72c6c3"
+      },
+      "graphqlQueryCount": 19,
+      "graphqlCatalogDigest": "sha256:ae9297343794201583bbc6c33eede8a2f1e1e5bd5a4631a345e3a4adac291967"
+    }
+  },
+  "semanticDimensions": [
+    "input_contract",
+    "output_contract",
+    "auth_subject_scope",
+    "region_endpoint",
+    "pagination_defaults_filters",
+    "capability_side_effect",
+    "sensitive_data",
+    "error_semantics"
+  ],
+  "caseIdFormat": "upstream/<sourceId>/<variantId>/<semanticDimension>",
+  "interfaces": [
+    {
+      "sourceId": "tool:get_daily_challenge",
+      "inputContract": { "required": [], "optional": [], "defaults": {} },
+      "outputContract": "utc invocation date plus the complete regional daily payload",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "activeDailyCodingChallengeQuestion", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "questionOfToday", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/tools/problem-tools.js#get_daily_challenge", "leetcode-query/lib/index.js#daily_default", "leetcode-query/lib/index.js#question_of_today_default"],
+      "documentationAnchor": "upstream-get-daily-challenge",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_problem",
+      "inputContract": { "required": ["titleSlug"], "optional": [], "defaults": {} },
+      "outputContract": "simplified problem including content, hints, first three similar questions, and cpp/python3/java snippets",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "question", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "question", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/tools/problem-tools.js#get_problem", "build/leetcode/leetcode-global-service.js#fetchProblemSimplified", "build/leetcode/leetcode-cn-service.js#fetchProblemSimplified", "leetcode-query/lib/index.js#problem_default", "leetcode-query/lib/index.js#problem_default2"],
+      "documentationAnchor": "upstream-get-problem",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:search_problems",
+      "inputContract": { "required": [], "optional": ["category", "tags", "difficulty", "searchKeywords", "limit", "offset"], "defaults": { "category": "all-code-essentials", "limit": 10, "offset": 0 } },
+      "outputContract": "filters, pagination, total, and regional problem summaries",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "problemsetQuestionList", "defaults": { "category": "all-code-essentials", "limit": 10, "offset": 0 } },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "problemsetQuestionList", "defaults": { "category": "all-code-essentials", "limit": 10, "offset": 0 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/problem-tools.js#search_problems", "build/leetcode/graphql/global/search-problems.js", "build/leetcode/graphql/cn/search-problems.js"],
+      "documentationAnchor": "upstream-search-problems",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:run_code",
+      "inputContract": { "required": ["titleSlug", "lang", "typedCode"], "optional": ["dataInput", "timeoutMs", "pollIntervalMs"], "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 } },
+      "outputContract": "titleSlug, questionId, complete start JSON, check URL, and complete terminal check JSON",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "required", "endpoint": "https://leetcode.com/problems/{titleSlug}/interpret_solution/", "operation": "POST interpret_solution then GET check", "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 } },
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/problems/{titleSlug}/interpret_solution/", "operation": "POST interpret_solution then GET check", "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/submission-tools.js#run_code", "build/leetcode/leetcode-global-service.js#runCode", "build/leetcode/leetcode-cn-service.js#runCode", "build/utils/leetcode-http.js#pollCheck"],
+      "documentationAnchor": "upstream-run-code",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:submit_solution",
+      "inputContract": { "required": ["titleSlug", "lang", "typedCode"], "optional": ["timeoutMs", "pollIntervalMs"], "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 } },
+      "outputContract": "titleSlug, questionId, complete start JSON, check URL, and complete terminal check JSON",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "required", "endpoint": "https://leetcode.com/problems/{titleSlug}/submit/", "operation": "POST submit then GET check", "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 } },
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/problems/{titleSlug}/submit/", "operation": "POST submit then GET check", "defaults": { "timeoutMs": 120000, "pollIntervalMs": 1500 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/submission-tools.js#submit_solution", "build/leetcode/leetcode-global-service.js#submitSolution", "build/leetcode/leetcode-cn-service.js#submitSolution", "build/utils/leetcode-http.js#pollCheck"],
+      "documentationAnchor": "upstream-submit-solution",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_user_profile",
+      "inputContract": { "required": ["username"], "optional": [], "defaults": {} },
+      "outputContract": "regional simplified public profile, submission/progress counts, and CN social/skill facets",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "matchedUser", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "getUserProfile", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/tools/user-tools.js#get_user_profile", "build/leetcode/leetcode-global-service.js#fetchUserProfile", "build/leetcode/leetcode-cn-service.js#fetchUserProfile", "leetcode-query/lib/index.js#profile_default", "leetcode-query/lib/index.js#user_profile_default"],
+      "documentationAnchor": "upstream-get-user-profile",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_recent_submissions",
+      "inputContract": { "required": ["username"], "optional": ["limit"], "defaults": { "limit": 10 } },
+      "outputContract": "public Global recent submissions including failed attempts",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "recentSubmissionList", "defaults": { "limit": 10 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/user-tools.js#get_recent_submissions", "leetcode-query/lib/index.js#recent_submissions_default"],
+      "documentationAnchor": "upstream-get-recent-submissions",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_recent_ac_submissions",
+      "inputContract": { "required": ["username"], "optional": ["limit"], "defaults": { "limit": 10 } },
+      "outputContract": "public recent accepted submissions with regional identity fields",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "recentAcSubmissionList", "defaults": { "limit": 10 } },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/noj-go/", "operation": "recentAcSubmissions", "defaults": { "limit": 10 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/user-tools.js#get_recent_ac_submissions", "build/leetcode/leetcode-global-service.js#fetchUserRecentACSubmissions", "leetcode-query/lib/index.js#recent_ac_submissions_default"],
+      "documentationAnchor": "upstream-get-recent-ac-submissions",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_user_status",
+      "inputContract": { "required": [], "optional": [], "defaults": {} },
+      "outputContract": "current authenticated isSignedIn, username, avatar, isAdmin, plus CN useTranslation",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "required", "endpoint": "https://leetcode.com/graphql", "operation": "userStatus", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "userStatus", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/tools/user-tools.js#get_user_status", "build/leetcode/leetcode-global-service.js#fetchUserStatus", "build/leetcode/leetcode-cn-service.js#fetchUserStatus", "leetcode-query/lib/index.js#whoami_default", "leetcode-query/lib/index.js#user_status_default"],
+      "documentationAnchor": "upstream-get-user-status",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_problem_submission_report",
+      "inputContract": { "required": ["id"], "optional": [], "defaults": {} },
+      "outputContract": "complete authenticated submission detail including code and judge output",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "required", "endpoint": "https://leetcode.com/graphql", "operation": "submissionDetails", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "submissionDetails", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/tools/user-tools.js#get_problem_submission_report", "leetcode-query/lib/index.js#submission_detail_default", "leetcode-query/lib/index.js#submission_detail_default2"],
+      "documentationAnchor": "upstream-get-problem-submission-report",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_problem_progress",
+      "inputContract": { "required": [], "optional": ["offset", "limit", "questionStatus", "difficulty"], "defaults": { "offset": 0, "limit": 100 } },
+      "outputContract": "echoed filters plus totalNum and ordered progress question facets",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "required", "endpoint": "https://leetcode.com/graphql", "operation": "userProgressQuestionList", "defaults": { "offset": 0, "limit": 100 } },
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "userProgressQuestionList", "defaults": { "offset": 0, "limit": 100 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/user-tools.js#get_problem_progress", "build/leetcode/leetcode-global-service.js#fetchUserProgressQuestionList", "build/leetcode/leetcode-cn-service.js#fetchUserProgressQuestionList", "leetcode-query/lib/index.js#user_progress_questions_default"],
+      "documentationAnchor": "upstream-get-problem-progress",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_all_submissions",
+      "inputContract": { "required": [], "optional": ["limit", "offset", "questionSlug", "lang", "status", "lastKey"], "defaults": { "limit": 20, "offset": 0 } },
+      "outputContract": "authenticated paginated submission history with CN filters and cursor",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "required", "endpoint": "https://leetcode.com/graphql", "operation": "submissionList", "defaults": { "limit": 20, "offset": 0 } },
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "submissionList", "defaults": { "limit": 20, "offset": 0 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/user-tools.js#get_all_submissions", "leetcode-query/lib/index.js#submissions_default", "build/leetcode/leetcode-cn-service.js#fetchUserAllSubmissions"],
+      "documentationAnchor": "upstream-get-all-submissions",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_user_contest_ranking",
+      "inputContract": { "required": ["username"], "optional": ["attended"], "defaults": { "attended": true } },
+      "outputContract": "ranking summary, badge where available, and complete filtered contest history including trend",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "userContestRanking", "defaults": { "attended": true } },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/noj-go/", "operation": "userContestRankingInfo", "defaults": { "attended": true } }
+      ],
+      "sourcePointers": ["build/mcp/tools/contest-tools.js#get_user_contest_ranking", "build/leetcode/leetcode-global-service.js#fetchUserContestRanking", "build/leetcode/leetcode-cn-service.js#fetchUserContestRanking", "leetcode-query/lib/index.js#contest_default", "leetcode-query/lib/index.js#user_contest_ranking_default"],
+      "documentationAnchor": "upstream-get-user-contest-ranking",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:search_notes",
+      "inputContract": { "required": [], "optional": ["keyword", "limit", "skip", "orderBy"], "defaults": { "limit": 10, "skip": 0, "orderBy": "DESCENDING" } },
+      "outputContract": "filters, exact count, pagination, and arbitrary personal note records with question identity",
+      "variants": [
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "noteAggregateNote", "defaults": { "limit": 10, "skip": 0, "orderBy": "DESCENDING" } }
+      ],
+      "sourcePointers": ["build/mcp/tools/note-tools.js#search_notes", "build/leetcode/graphql/cn/note-queries.js#NOTE_AGGREGATE_QUERY", "build/leetcode/leetcode-cn-service.js#fetchUserNotes"],
+      "documentationAnchor": "upstream-search-notes",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_note",
+      "inputContract": { "required": ["questionId"], "optional": ["limit", "skip"], "defaults": { "limit": 10, "skip": 0 } },
+      "outputContract": "questionId, count, pagination, and all matching arbitrary personal note records",
+      "variants": [
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "noteOneTargetCommonNote", "defaults": { "limit": 10, "skip": 0 } }
+      ],
+      "sourcePointers": ["build/mcp/tools/note-tools.js#get_note", "build/leetcode/graphql/cn/note-queries.js#NOTE_BY_QUESTION_ID_QUERY", "build/leetcode/leetcode-cn-service.js#fetchNotesByQuestionId"],
+      "documentationAnchor": "upstream-get-note",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:create_note",
+      "inputContract": { "required": ["questionId", "content"], "optional": ["title"], "defaults": { "title": "" } },
+      "outputContract": "success flag and created arbitrary note id/content/targetId",
+      "variants": [
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "noteCreateCommonNote", "defaults": { "title": "" } }
+      ],
+      "sourcePointers": ["build/mcp/tools/note-tools.js#create_note", "build/leetcode/graphql/cn/note-queries.js#NOTE_CREATE_MUTATION", "build/leetcode/leetcode-cn-service.js#createUserNote"],
+      "documentationAnchor": "upstream-create-note",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:update_note",
+      "inputContract": { "required": ["noteId"], "optional": ["content", "title"], "defaults": { "content": "", "title": "" } },
+      "outputContract": "success flag and updated arbitrary note id/content/targetId",
+      "variants": [
+        { "id": "cn", "region": "cn", "auth": "required", "endpoint": "https://leetcode.cn/graphql/", "operation": "noteUpdateUserNote", "defaults": { "content": "", "title": "" } }
+      ],
+      "sourcePointers": ["build/mcp/tools/note-tools.js#update_note", "build/leetcode/graphql/cn/note-queries.js#NOTE_UPDATE_MUTATION", "build/leetcode/leetcode-cn-service.js#updateUserNote"],
+      "documentationAnchor": "upstream-update-note",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:list_problem_solutions",
+      "inputContract": { "required": ["questionSlug"], "optional": ["limit", "skip", "orderBy", "userInput", "tagSlugs"], "defaults": { "limit": 10, "skip": 0, "tagSlugs": [] } },
+      "outputContract": "questionSlug, totalNum, hasNextPage, visible article metadata, regional id, and article URL",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "ugcArticleSolutionArticles", "defaults": { "limit": 10, "skip": 0, "orderBy": "HOT", "tagSlugs": [] }, "enumAliases": { "orderBy": ["HOT", " MOST_RECENT", "MOST_RECENT", "MOST_VOTES"] } },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "questionTopicsList", "defaults": { "limit": 10, "skip": 0, "orderBy": "DEFAULT", "tagSlugs": [] } }
+      ],
+      "sourcePointers": ["build/mcp/tools/solution-tools.js#list_problem_solutions", "build/leetcode/graphql/global/solution-articles.js", "build/leetcode/graphql/cn/solution-articles.js"],
+      "documentationAnchor": "upstream-list-problem-solutions",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "tool:get_problem_solution",
+      "inputContract": { "requiredByVariant": { "global": ["topicId"], "cn": ["slug"] }, "optional": [], "defaults": {} },
+      "outputContract": "complete answer-bearing article content, tags, topic identity, question/navigation metadata",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "ugcArticleSolutionArticle", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "discussTopic", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/tools/solution-tools.js#get_problem_solution", "build/leetcode/graphql/global/solution-article-detail.js", "build/leetcode/graphql/cn/solution-article-detail.js"],
+      "documentationAnchor": "upstream-get-problem-solution",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "resource:problem-categories",
+      "inputContract": { "required": [], "optional": [], "defaults": {} },
+      "outputContract": "exact PROBLEM_CATEGORIES JSON array",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "embedded://mcp/constants", "operation": "read-PROBLEM_CATEGORIES", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "embedded://mcp/constants", "operation": "read-PROBLEM_CATEGORIES", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/resources/problem-resources.js#problem-categories", "build/common/constants.js#PROBLEM_CATEGORIES"],
+      "documentationAnchor": "upstream-problem-categories",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "resource:problem-tags",
+      "inputContract": { "required": [], "optional": [], "defaults": {} },
+      "outputContract": "exact PROBLEM_TAGS JSON array",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "embedded://mcp/constants", "operation": "read-PROBLEM_TAGS", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "embedded://mcp/constants", "operation": "read-PROBLEM_TAGS", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/resources/problem-resources.js#problem-tags", "build/common/constants.js#PROBLEM_TAGS"],
+      "documentationAnchor": "upstream-problem-tags",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "resource:problem-langs",
+      "inputContract": { "required": [], "optional": [], "defaults": {} },
+      "outputContract": "exact PROGRAMMING_LANGS JSON array",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "embedded://mcp/constants", "operation": "read-PROGRAMMING_LANGS", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "embedded://mcp/constants", "operation": "read-PROGRAMMING_LANGS", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/resources/problem-resources.js#problem-langs", "build/common/constants.js#PROGRAMMING_LANGS"],
+      "documentationAnchor": "upstream-problem-langs",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "resource:problem-detail",
+      "inputContract": { "required": ["titleSlug"], "optional": [], "defaults": {} },
+      "outputContract": "complete regional question GraphQL payload, not the simplified tool projection",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "question", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "question", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/resources/problem-resources.js#problem-detail", "leetcode-query/lib/index.js#problem_default", "leetcode-query/lib/index.js#problem_default2"],
+      "documentationAnchor": "upstream-problem-detail",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    },
+    {
+      "sourceId": "resource:problem-solution",
+      "inputContract": { "requiredByVariant": { "global": ["topicId"], "cn": ["slug"] }, "optional": [], "defaults": {} },
+      "outputContract": "same complete answer-bearing detail as get_problem_solution with resource URI identity",
+      "variants": [
+        { "id": "global", "region": "global", "auth": "public", "endpoint": "https://leetcode.com/graphql", "operation": "ugcArticleSolutionArticle", "defaults": {} },
+        { "id": "cn", "region": "cn", "auth": "public", "endpoint": "https://leetcode.cn/graphql/", "operation": "discussTopic", "defaults": {} }
+      ],
+      "sourcePointers": ["build/mcp/resources/solution-resources.js#problem-solution", "build/leetcode/graphql/global/solution-article-detail.js", "build/leetcode/graphql/cn/solution-article-detail.js"],
+      "documentationAnchor": "upstream-problem-solution",
+      "behaviorCaseRequired": true,
+      "packedBehaviorRequired": true
+    }
+  ],
+  "semanticSurfaceDigest": "sha256:12ccc10040cc1b9e907065c1120c991baddc490d24310ecf8defe71e9351f3e0"
+}

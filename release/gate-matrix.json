@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "matrixType": "release-gate-matrix",
+  "repository": "pi-leetcode-tools",
+  "updatedAt": "2026-07-19T02:55:00Z",
+  "evidencePolicy": {
+    "engineeringEvidenceMayUseWorkspaceSnapshot": true,
+    "workspaceSnapshotIsFormalProvenance": false,
+    "formalReleaseRequiresImmutableCommit": true
+  },
+  "gates": [
+    {
+      "gateId": "TOOLS-ENG",
+      "packageName": "pi-leetcode-tools",
+      "gateClass": "engineering",
+      "sourceMode": "independent_repository_candidate",
+      "status": "pending",
+      "currentRecord": {
+        "recordId": "pi-leetcode-tools@0.1.1/sha256:8bd76eef8edcd584fc76ec1a5bce40b1826405bfac87e1f68d9092c054272360",
+        "recordDigest": "sha256:a3e73c19bba61597d520598b83ab4746a8586453f1f7f2476a58017625ce2513",
+        "artifactSha256": "sha256:627e8b00a1331fcb90258371db8c71b124e61501a469a114d0c4f9eeed35e72b"
+      },
+      "requiredEvidence": [
+        {
+          "evidenceId": "TOOLS-ENG-REPOSITORY-BOUNDARY",
+          "status": "passed",
+          "evidence": "The independent repository contains the Tools package, its release infrastructure, and a fresh lockfile."
+        },
+        {
+          "evidenceId": "TOOLS-ENG-CURRENT-NODE",
+          "status": "passed",
+          "evidence": "The independent repository passed typecheck, 27 files / 275 tests, reproducible build, 24/24 upstream completeness, source/packed 344/344, packed install, 14-Tool Pi activation and supply-chain verification."
+        },
+        {
+          "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
+          "status": "pending",
+          "evidence": "The final GitHub-bound artifact is awaiting the public Windows/Ubuntu Node 22.19.0 and Node 24 CI matrix."
+        },
+        {
+          "evidenceId": "TOOLS-ENG-LIVE-REBIND",
+          "status": "passed",
+          "evidence": "Record 8bd76eef... passed public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped. Real submit and Notes writes remained disabled."
+        }
+      ],
+      "invalidationConditions": [
+        "package repository/homepage/bugs metadata changes",
+        "the independent package-lock, source closure, release scripts or packed files change",
+        "the contract tuple, upstream mapping or exact artifact bytes change"
+      ]
+    },
+    {
+      "gateId": "TOOLS-REL",
+      "packageName": "pi-leetcode-tools",
+      "gateClass": "release",
+      "sourceMode": "formal_registry",
+      "status": "externally_blocked",
+      "prerequisiteGates": [
+        "TOOLS-ENG"
+      ],
+      "blockers": [
+        "no immutable commit or release tag exists",
+        "Linux/Pi/system-keyring evidence is missing",
+        "npm package bootstrap and trusted publisher evidence are incomplete",
+        "formal registry and authorized write evidence are missing"
+      ]
+    }
+  ]
+}

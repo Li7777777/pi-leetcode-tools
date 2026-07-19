@@ -1,0 +1,363 @@
+{
+  "packageName": "pi-leetcode-tools",
+  "packageVersion": "0.1.1",
+  "contractVersion": "1.1.0",
+  "protocolVersion": "1.0.0",
+  "schemaDigest": "sha256:ae800dec293e2218fa67c068e272e1ba304877853c66f4b22e88f8dbc7499114",
+  "behaviorDigestAlgorithm": "RFC8785/JCS+UTF-8+SHA-256",
+  "behaviorManifestDigest": "sha256:81650b24c55be375ef82b78ce119e4f15d6e0b78fb032b5aecc696313d134e35",
+  "capabilityManifestDigest": "sha256:ca75af95a1d84f44e8206804ab863bf33f155a04df20a7e5d3e8608fb62b4a12",
+  "resourceCatalogDigest": "sha256:43c1996245bfdaa6aab82657349b6de5f000c29d00a31874a0cbb2b9f5fc49ef",
+  "behaviorManifest": {
+    "manifestVersion": "1.1.0",
+    "defaultRegion": {
+      "lc_daily": "global",
+      "lc_search": "global",
+      "lc_problem": "global",
+      "lc_solution_search": "global",
+      "lc_solution": "global",
+      "lc_profile": "global",
+      "lc_contest": "global",
+      "lc_progress": "global",
+      "lc_history": "global",
+      "lc_user_submissions": "global",
+      "lc_submission": "global",
+      "lc_run": "global",
+      "lc_submit": "global",
+      "lc_operation_status": "global"
+    },
+    "gatewayRpcDefaults": {
+      "user.status": {
+        "region": "global"
+      },
+      "notes.search": {
+        "region": "cn",
+        "limit": 10,
+        "skip": 0,
+        "orderBy": "DESCENDING"
+      },
+      "notes.get": {
+        "region": "cn",
+        "limit": 10,
+        "skip": 0
+      },
+      "notes.create": {
+        "region": "cn",
+        "title": ""
+      },
+      "notes.update": {
+        "region": "cn",
+        "content": "",
+        "title": ""
+      }
+    },
+    "execution": {
+      "defaults": {
+        "timeoutMs": 120000,
+        "pollIntervalMs": 1500
+      },
+      "bounds": {
+        "timeoutMs": {
+          "minimum": 1,
+          "maximum": 120000
+        },
+        "pollIntervalMs": {
+          "minimum": 1,
+          "maximum": 5000,
+          "effectiveMinimum": 200
+        }
+      },
+      "languageAliases": {
+        "golang": "go"
+      },
+      "transientUpstreamEnvelope": {
+        "fields": [
+          "questionId",
+          "start",
+          "checkUrl",
+          "check"
+        ],
+        "maxJsonBytes": 900000,
+        "maxDepth": 16,
+        "persistence": "never"
+      }
+    },
+    "userNotes": {
+      "namespace": "current-authenticated-user",
+      "region": "cn",
+      "managedNotesPortSeparated": true,
+      "sensitiveFields": [
+        "content",
+        "title",
+        "keyword"
+      ],
+      "persistence": "never",
+      "writeConfirmation": "required-per-call",
+      "writeRetry": "never",
+      "uncertainWriteOutcome": "UNKNOWN_WRITE_OUTCOME"
+    },
+    "dailyDate": {
+      "global": {
+        "timeZone": "America/Los_Angeles",
+        "representation": "site-calendar-date"
+      },
+      "cn": {
+        "timeZone": "Asia/Shanghai",
+        "representation": "site-calendar-date"
+      }
+    },
+    "pagination": {
+      "defaultLimit": 20,
+      "maximumLimit": 50,
+      "defaultOffset": 0,
+      "ordering": "upstream-order-preserved",
+      "search": {
+        "totalKind": "exact",
+        "defaultCategory": "all-code-essentials",
+        "defaultLimit": 10,
+        "cursorFingerprintFields": [
+          "category",
+          "query",
+          "tags(sorted)",
+          "difficulty",
+          "limit"
+        ]
+      },
+      "progress": {
+        "totalKind": "exact",
+        "cursorFingerprintFields": null
+      },
+      "history": {
+        "global": {
+          "totalKind": "lower_bound",
+          "cursorFingerprintFields": [
+            "scope",
+            "titleSlug",
+            "language",
+            "status",
+            "limit"
+          ]
+        },
+        "cn": {
+          "totalKind": "lower_bound",
+          "cursorFingerprintFields": [
+            "scope",
+            "titleSlug",
+            "language",
+            "status",
+            "limit"
+          ]
+        }
+      },
+      "publicUserSubmissions": {
+        "maximumLimit": 20,
+        "pagination": "single-bounded-public-window"
+      },
+      "cursor": {
+        "version": 1,
+        "signature": "HMAC-SHA-256",
+        "canonicalization": "RFC8785/JCS",
+        "ttlMs": 900000,
+        "maximumEncodedLength": 1000,
+        "payloadBindings": [
+          "tool",
+          "region",
+          "queryFingerprint",
+          "profileId(if authenticated)",
+          "offset",
+          "remoteCursor(if present)",
+          "expiresAt"
+        ]
+      }
+    },
+    "language": {
+      "canonicalIds": [
+        "bash",
+        "c",
+        "cpp",
+        "csharp",
+        "cangjie",
+        "dart",
+        "elixir",
+        "erlang",
+        "go",
+        "java",
+        "javascript",
+        "kotlin",
+        "mysql",
+        "mssql",
+        "oracle",
+        "php",
+        "python",
+        "python3",
+        "racket",
+        "ruby",
+        "rust",
+        "scala",
+        "swift",
+        "typescript"
+      ],
+      "remoteIds": {
+        "global": {
+          "bash": "bash",
+          "c": "c",
+          "cpp": "cpp",
+          "csharp": "csharp",
+          "cangjie": "cangjie",
+          "dart": "dart",
+          "elixir": "elixir",
+          "erlang": "erlang",
+          "go": "golang",
+          "java": "java",
+          "javascript": "javascript",
+          "kotlin": "kotlin",
+          "mysql": "mysql",
+          "mssql": "mssql",
+          "oracle": "oraclesql",
+          "php": "php",
+          "python": "python",
+          "python3": "python3",
+          "racket": "racket",
+          "ruby": "ruby",
+          "rust": "rust",
+          "scala": "scala",
+          "swift": "swift",
+          "typescript": "typescript"
+        },
+        "cn": {
+          "bash": "bash",
+          "c": "c",
+          "cpp": "cpp",
+          "csharp": "csharp",
+          "cangjie": "cangjie",
+          "dart": "dart",
+          "elixir": "elixir",
+          "erlang": "erlang",
+          "go": "golang",
+          "java": "java",
+          "javascript": "javascript",
+          "kotlin": "kotlin",
+          "mysql": "mysql",
+          "mssql": "mssql",
+          "oracle": "oraclesql",
+          "php": "php",
+          "python": "python",
+          "python3": "python3",
+          "racket": "racket",
+          "ruby": "ruby",
+          "rust": "rust",
+          "scala": "scala",
+          "swift": "swift",
+          "typescript": "typescript"
+        }
+      },
+      "selection": "explicit-language-only",
+      "absentSelection": null
+    },
+    "testcase": {
+      "maximumUtf8Bytes": 200000,
+      "defaultSource": "problem.defaultTestcase",
+      "preserveRemoteWhitespace": true,
+      "missingDefault": "VALIDATION_ERROR"
+    },
+    "submissionDetail": {
+      "sourceCodeDefault": false,
+      "sourceCodeOptInField": "includeCode",
+      "sourceCodeMaximumUtf8Bytes": 100000,
+      "persistence": "never"
+    },
+    "solutionArticles": {
+      "disclosureRisk": "solution",
+      "contentTrust": "untrusted-answer-bearing",
+      "defaultLimit": 10,
+      "maximumLimit": 50,
+      "globalDefaultOrderBy": "HOT",
+      "cnDefaultOrderBy": "DEFAULT",
+      "persistence": "never",
+      "evidenceBodyStorage": "forbidden"
+    },
+    "outputBounds": {
+      "transportResponseUtf8Bytes": {
+        "readDefault": 2097152,
+        "writeDefault": 1048576,
+        "configurableMaximum": 10485760,
+        "overflow": "REMOTE_SCHEMA_CHANGED"
+      },
+      "items": {
+        "maximum": 50,
+        "overflow": "truncate-and-mark"
+      },
+      "topicTags": {
+        "maximum": 100,
+        "overflow": "truncate-and-mark"
+      },
+      "exampleTestcases": {
+        "maximum": 100,
+        "overflow": "truncate-and-mark"
+      },
+      "availableLanguages": {
+        "maximum": 24,
+        "unknownRemoteLanguage": "omit-and-mark"
+      },
+      "controlFields": {
+        "overflow": "REMOTE_SCHEMA_CHANGED",
+        "fields": [
+          "operationId",
+          "requestId",
+          "codeHash",
+          "revision",
+          "cursor",
+          "verdict",
+          "error.code"
+        ]
+      },
+      "omissionMeta": {
+        "truncated": true,
+        "pointerFormat": "RFC6901 JSON Pointer",
+        "maximumPointers": 100
+      }
+    },
+    "remoteErrors": {
+      "http401": "AUTH_EXPIRED",
+      "http403": {
+        "authenticatedOperation": "AUTH_EXPIRED",
+        "unauthenticatedOperation": "PERMISSION_DENIED"
+      },
+      "http429": "RATE_LIMITED",
+      "http5xx": "REMOTE_UNAVAILABLE",
+      "redirect": "REMOTE_UNAVAILABLE",
+      "malformedJson": "REMOTE_SCHEMA_CHANGED",
+      "graphqlAuthentication": {
+        "authenticatedOperation": "AUTH_EXPIRED",
+        "unauthenticatedOperation": "AUTH_REQUIRED"
+      },
+      "graphqlNotFound": "NOT_FOUND",
+      "graphqlContract": "REMOTE_SCHEMA_CHANGED",
+      "aborted": "CANCELLED",
+      "uncertainWriteDispatch": "UNKNOWN_WRITE_OUTCOME"
+    }
+  },
+  "discoveryChannel": "pi-leetcode-tools:discover:v1",
+  "rpcChannel": "pi-leetcode-tools:rpc:v1",
+  "artifacts": {
+    "schema": "schema.json",
+    "capabilities": "capabilities.json",
+    "catalogs": "catalogs.json"
+  },
+  "tools": [
+    "lc_daily",
+    "lc_search",
+    "lc_problem",
+    "lc_solution_search",
+    "lc_solution",
+    "lc_profile",
+    "lc_contest",
+    "lc_progress",
+    "lc_history",
+    "lc_user_submissions",
+    "lc_submission",
+    "lc_run",
+    "lc_submit",
+    "lc_operation_status"
+  ]
+}

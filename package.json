@@ -1,0 +1,50 @@
+{
+  "name": "pi-leetcode-tools-workspace",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/pi-leetcode-tools"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "clean:artifacts": "npm run prepare:tools:artifacts",
+    "prepare:tools:artifacts": "node ./release/scripts/prepare-artifact-dir.mjs tools",
+    "provision:tools:upstream": "node ./release/scripts/provision-tools-upstream.mjs",
+    "build:tools:reproducible": "node ./packages/pi-leetcode-tools/scripts/verify-reproducible-build.mjs",
+    "verify:tools:artifact": "npm run verify:release-artifact --workspace pi-leetcode-tools",
+    "verify:tools:generated": "npm run build:tools:reproducible",
+    "verify:tools:upstream-inventory": "npm run verify:upstream-parity:report --workspace pi-leetcode-tools",
+    "verify:tools:upstream-parity:report": "npm run verify:upstream-parity:report --workspace pi-leetcode-tools",
+    "verify:tools:upstream-parity": "npm run verify:upstream-parity --workspace pi-leetcode-tools",
+    "verify:tools:upstream-completeness:source": "npm run verify:upstream-completeness:source --workspace pi-leetcode-tools",
+    "verify:tools:upstream-completeness": "npm run verify:upstream-completeness --workspace pi-leetcode-tools -- ../../.artifacts/tools",
+    "verify:tools:upstream-adapter-fixtures": "npm run verify:upstream-adapter-fixtures --workspace pi-leetcode-tools",
+    "record:tools": "npm run verify:tools:upstream-completeness && node ./release/scripts/candidate-record.mjs --package tools --artifacts .artifacts/tools --records release/candidates/tools",
+    "verify:tools:candidate": "npm run verify:tools:upstream-completeness && node ./release/scripts/candidate-record.mjs --verify-current --package tools --artifacts .artifacts/tools --records release/candidates/tools",
+    "pack:tools": "npm run verify:tools:upstream-completeness:source && npm run prepare:tools:artifacts && npm pack --workspace pi-leetcode-tools --pack-destination .artifacts/tools --json && npm run record:tools",
+    "pack:tools:no-record": "npm run verify:tools:upstream-completeness:source && npm run prepare:tools:artifacts && npm pack --workspace pi-leetcode-tools --pack-destination .artifacts/tools --json",
+    "verify:tools:contract": "node ./packages/pi-leetcode-tools/scripts/verify-contract.mjs .artifacts/tools",
+    "verify:tools:files": "node ./packages/pi-leetcode-tools/scripts/verify-packed-files.mjs .artifacts/tools",
+    "test:tools:packed-install": "node ./packages/pi-leetcode-tools/scripts/test-packed-install.mjs .artifacts/tools",
+    "test:tools:pi-activation": "node ./packages/pi-leetcode-tools/scripts/test-pi-activation.mjs .artifacts/tools",
+    "smoke:tools:public-reads": "npm run verify:tools:artifact && npm run pack:tools && node ./packages/pi-leetcode-tools/scripts/smoke-public-reads.mjs .artifacts/tools",
+    "smoke:tools:public-reads:candidate": "node ./release/scripts/tools-public-read-evidence.mjs .artifacts/tools release/candidates/tools",
+    "smoke:tools:account": "node ./release/scripts/tools-account-smoke-evidence.mjs .artifacts/tools release/candidates/tools",
+    "verify:tools:supply-chain": "node ./packages/pi-leetcode-tools/scripts/verify-release-security.mjs .artifacts/tools",
+    "verify:tools:packed": "npm run verify:tools:contract && npm run verify:tools:files && npm run test:tools:packed-install && npm run test:tools:pi-activation && npm run verify:tools:supply-chain",
+    "verify:tools:release": "npm run typecheck --workspace pi-leetcode-tools && npm test --workspace pi-leetcode-tools && npm run build:tools:reproducible && npm run verify:tools:artifact && npm run verify:tools:upstream-completeness:source && npm run pack:tools && npm run verify:tools:upstream-completeness && npm run verify:tools:packed",
+    "verify:tools:release:no-record": "npm run typecheck --workspace pi-leetcode-tools && npm test --workspace pi-leetcode-tools && npm run build:tools:reproducible && npm run verify:tools:artifact && npm run pack:tools:no-record && npm run verify:tools:upstream-completeness && npm run verify:tools:packed",
+    "validate:tools:release-inputs": "node ./release/scripts/validate-tools-release-inputs.mjs",
+    "snapshot:tools:release-record": "node ./release/scripts/snapshot-tools-release-record.mjs",
+    "snapshot:tools:registry-tags": "node ./release/scripts/tools-registry-tags.mjs snapshot",
+    "assert:tools:registry-tags": "node ./release/scripts/tools-registry-tags.mjs assert",
+    "verify:tools:registry-release": "node ./release/scripts/verify-tools-registry-release.mjs",
+    "verify:tools:release-workflow": "node ./release/scripts/verify-tools-release-workflow.mjs"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}
