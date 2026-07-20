@@ -4,6 +4,18 @@ All notable changes to this repository are documented here. Package versions
 follow Semantic Versioning independently from the versioned Tool contract and
 event protocol.
 
+## Unreleased
+
+- Fixed installed-package Gateway activation when `PI_CODING_AGENT_DIR` is not
+  explicitly set by resolving durable state through Pi's standard agent
+  directory fallback.
+- Added a provider-compatible model-tool schema projection that removes root
+  JSON Schema combinators while preserving the strict versioned Gateway
+  contract and runtime cross-field validation.
+- Strengthened packed-install and real-Pi activation gates to require a Gateway
+  ready event, validate every registered model parameter root, and exercise an
+  isolated default agent directory without the environment override.
+
 ## 0.1.3 - 2026-07-20
 
 - Reissued the first public npm release from the immutable

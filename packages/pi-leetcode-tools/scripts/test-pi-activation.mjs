@@ -37,7 +37,8 @@ const tarballBytes = await readFile(tarball);
 assertJcsGoldenVectors();
 
 const temporaryDirectory = await mkdtemp(join(tmpdir(), "pi-leetcode-tools-activation-"));
-const agentDirectory = join(temporaryDirectory, "agent");
+const homeDirectory = join(temporaryDirectory, "home");
+const agentDirectory = join(homeDirectory, ".pi", "agent");
 const npmCache = join(temporaryDirectory, "npm-cache");
 const npmUserConfig = join(temporaryDirectory, "npmrc");
 const workingDirectory = join(temporaryDirectory, "workspace");
@@ -54,6 +55,7 @@ let childExit;
 try {
   await rm(activationEvidence, { force: true });
   await Promise.all([
+    mkdir(homeDirectory, { recursive: true }),
     mkdir(agentDirectory, { recursive: true }),
     mkdir(npmCache, { recursive: true }),
     mkdir(workingDirectory, { recursive: true }),
@@ -199,13 +201,15 @@ export default function probeExtension(pi) {
     profileId: noAccountProfileId
   } = createNoAccountEnvironment();
   Object.assign(baseEnvironment, {
+    HOME: homeDirectory,
+    USERPROFILE: homeDirectory,
     NODE_PATH: "",
     NPM_CONFIG_CACHE: npmCache,
     NPM_CONFIG_REGISTRY: registryOrigin,
     NPM_CONFIG_USERCONFIG: npmUserConfig,
-    PI_CODING_AGENT_DIR: agentDirectory,
     PI_TELEMETRY: "0"
   });
+  delete baseEnvironment.PI_CODING_AGENT_DIR;
 
   const packageSpec = `npm:${manifest.packageName}@${manifest.packageVersion}`;
   await runCommand(process.execPath, [piCli, "install", packageSpec], {

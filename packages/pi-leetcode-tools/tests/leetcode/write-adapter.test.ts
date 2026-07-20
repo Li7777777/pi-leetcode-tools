@@ -145,6 +145,20 @@ afterEach(async () => {
 });
 
 describe("LeetCode write adapter", { timeout: 30_000 }, () => {
+  it("uses Pi's default agent directory when PI_CODING_AGENT_DIR is absent", () => {
+    const previous = process.env.PI_CODING_AGENT_DIR;
+    delete process.env.PI_CODING_AGENT_DIR;
+    try {
+      expect(() => trackedWriteAdapter("global", {})).not.toThrow();
+    } finally {
+      if (previous === undefined) {
+        delete process.env.PI_CODING_AGENT_DIR;
+      } else {
+        process.env.PI_CODING_AGENT_DIR = previous;
+      }
+    }
+  });
+
   it("runs code through fixed HTTPS endpoints and persists only a minimal result", async () => {
     const directory = await temporaryDirectory();
     const code = "console.log('雪')\r\n";

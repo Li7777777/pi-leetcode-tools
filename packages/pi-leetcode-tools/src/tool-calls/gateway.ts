@@ -368,12 +368,17 @@ export class LeetCodeToolGateway implements ToolGateway {
       });
     }
 
-    if (!Check(TOOL_INPUT_SCHEMAS[name], input)) {
-      return createGatewayFailure("VALIDATION_ERROR", `Invalid input for ${name}`, {
-        requestId,
-        region,
-        manifest: this.#manifest
-      });
+    if (name === "lc_solution" && input !== null && typeof input === "object") {
+      const solutionInput = input as { topicId?: unknown; slug?: unknown };
+      const hasTopicId = solutionInput.topicId !== undefined;
+      const hasSlug = solutionInput.slug !== undefined;
+      if (hasTopicId === hasSlug) {
+        return createGatewayFailure(
+          "VALIDATION_ERROR",
+          "lc_solution requires exactly one of topicId or slug",
+          { requestId, region, manifest: this.#manifest }
+        );
+      }
     }
 
     if (
@@ -389,6 +394,14 @@ export class LeetCodeToolGateway implements ToolGateway {
         "retryUnknownOperationId and resubmitCompletedOperationId are mutually exclusive",
         { requestId, region, manifest: this.#manifest }
       );
+    }
+
+    if (!Check(TOOL_INPUT_SCHEMAS[name], input)) {
+      return createGatewayFailure("VALIDATION_ERROR", `Invalid input for ${name}`, {
+        requestId,
+        region,
+        manifest: this.#manifest
+      });
     }
 
     if (

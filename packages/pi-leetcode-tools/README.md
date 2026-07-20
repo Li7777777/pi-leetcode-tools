@@ -496,14 +496,16 @@ cancellation is not proof that LeetCode cancelled the request.
 Durable state is stored below:
 
 ```text
-${PI_CODING_AGENT_DIR}/leetcode-tools/
+<resolved-pi-agent-directory>/leetcode-tools/
   operations/<sha256(profile-id + region)>/operations.json
   locks/
 ```
 
-`PI_CODING_AGENT_DIR` must be available for run/submit durability. Pi normally
-uses its configured agent directory (commonly `~/.pi/agent`); deployments that
-override it must preserve the same directory across restarts.
+Run/submit durability uses Pi's resolved agent directory: `~/.pi/agent` by
+default, or the directory selected by `PI_CODING_AGENT_DIR` when that optional
+override is set. Deployments that override it must preserve the same directory
+across restarts. Embedded SDK hosts with a custom agent directory can pass the
+matching `storageDirectory` option to `createLeetCodeToolsRuntime`.
 
 The operation journal stores IDs, state transitions, remote IDs, timestamps,
 problem/language metadata, results, and a SHA-256 code hash. Its persistence

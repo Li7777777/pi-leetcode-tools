@@ -1,5 +1,7 @@
 import { join } from "node:path";
 
+import { getAgentDir } from "@earendil-works/pi-coding-agent";
+
 import type { RunCodeInput, SubmitCodeInput } from "./client.js";
 import { authRequired, LeetCodeToolError } from "./errors.js";
 import {
@@ -295,14 +297,7 @@ function utf8Bytes(value: string): Uint8Array {
 }
 
 function defaultStorageDirectory(): string {
-  const codingAgentDirectory = process.env.PI_CODING_AGENT_DIR?.trim();
-  if (codingAgentDirectory === undefined || codingAgentDirectory.length === 0) {
-    throw new LeetCodeToolError(
-      "CAPABILITY_UNAVAILABLE",
-      "PI_CODING_AGENT_DIR is required for durable LeetCode operation state"
-    );
-  }
-  return join(codingAgentDirectory, "leetcode-tools");
+  return join(getAgentDir(), "leetcode-tools");
 }
 
 function positiveIntegerInRange(

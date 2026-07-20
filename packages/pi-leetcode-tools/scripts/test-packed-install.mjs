@@ -153,19 +153,22 @@ try {
     }
 
     const registeredTools = [];
+    const emittedChannels = [];
     const lifecycleHandlers = new Map();
     const fakePi = {
       events: {
-        emit() {},
+        emit(channel) {
+          emittedChannels.push(channel);
+        },
         on() {
           return () => {};
         }
       },
       registerTool(tool) {
-        registeredTools.push(tool.name);
+        registeredTools.push(tool);
       },
       getAllTools() {
-        return registeredTools.map((name) => ({ name }));
+        return registeredTools;
       },
       on(event, handler) {
         lifecycleHandlers.set(event, handler);
@@ -206,7 +209,21 @@ try {
     };
     try {
       await sessionStart({ type: "session_start", reason: "startup" }, context);
-      assert.deepEqual(registeredTools, [...contract.TOOL_NAMES]);
+      assert.deepEqual(registeredTools.map((tool) => tool.name), [...contract.TOOL_NAMES]);
+      for (const tool of registeredTools) {
+        assert.equal(tool.parameters?.type, "object", tool.name + " parameter root is not an object");
+        for (const keyword of ["anyOf", "oneOf", "allOf", "not"]) {
+          assert.equal(
+            tool.parameters?.[keyword],
+            undefined,
+            tool.name + " parameter root uses unsupported " + keyword
+          );
+        }
+      }
+      assert.ok(
+        emittedChannels.includes("pi-leetcode-tools:ready:v1"),
+        "Extension registered tools but did not activate its Gateway"
+      );
     } finally {
       await sessionShutdown({ type: "session_shutdown", reason: "quit" }, context);
     }

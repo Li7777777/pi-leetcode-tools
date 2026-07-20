@@ -13,13 +13,39 @@ import { createLeetCodeTools } from "../../src/tool-calls/registry.js";
 import { FakeLeetCodeClient } from "./fake-client.js";
 
 describe("answer-bearing solution tools", () => {
-  it("publishes bounded schemas and requires exactly one regional detail identifier", () => {
+  it("publishes provider-compatible bounded object schemas", () => {
     expect(Check(SolutionSearchInputSchema, { titleSlug: "two-sum" })).toBe(true);
     expect(Check(SolutionSearchInputSchema, { titleSlug: "two-sum", limit: 51 })).toBe(false);
     expect(Check(SolutionInputSchema, { topicId: "123" })).toBe(true);
     expect(Check(SolutionInputSchema, { region: "cn", slug: "two-sum-solution" })).toBe(true);
     expect(Check(SolutionInputSchema, {})).toBe(false);
     expect(Check(SolutionInputSchema, { topicId: "123", slug: "two-sum-solution" })).toBe(false);
+
+    const parameters = createLeetCodeTools(
+      createToolGateway({ client: new FakeLeetCodeClient(), interactiveUI: false })
+    ).find(({ name }) => name === "lc_solution")?.parameters;
+    expect(parameters).toMatchObject({ type: "object" });
+    expect(parameters).not.toHaveProperty("anyOf");
+    expect(parameters).not.toHaveProperty("oneOf");
+    expect(parameters).not.toHaveProperty("allOf");
+    expect(parameters).not.toHaveProperty("not");
+  });
+
+  it("enforces exactly one regional detail identifier inside the Gateway", async () => {
+    const client = new FakeLeetCodeClient();
+    const gateway = createToolGateway({ client, interactiveUI: false });
+
+    await expect(gateway.execute("lc_solution", {})).resolves.toMatchObject({
+      ok: false,
+      error: { code: "VALIDATION_ERROR" }
+    });
+    await expect(
+      gateway.execute("lc_solution", { topicId: "123", slug: "two-sum-solution" })
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "VALIDATION_ERROR" }
+    });
+    expect(client.calls).toHaveLength(0);
   });
 
   it("registers both solution tools with explicit answer-bearing guidance", () => {

@@ -49,6 +49,20 @@ describe("Pi model tool adapter", () => {
     expect(createLeetCodeTools(executor).some(({ name }) => name === "user.status")).toBe(false);
   });
 
+  it("projects every model parameter schema to a plain object root", () => {
+    const executor: ToolExecutor = {
+      execute: async () => ({ ok: true, data: {}, meta: meta() })
+    };
+
+    for (const tool of createLeetCodeTools(executor)) {
+      expect(tool.parameters, tool.name).toMatchObject({ type: "object" });
+      expect(tool.parameters, tool.name).not.toHaveProperty("anyOf");
+      expect(tool.parameters, tool.name).not.toHaveProperty("oneOf");
+      expect(tool.parameters, tool.name).not.toHaveProperty("allOf");
+      expect(tool.parameters, tool.name).not.toHaveProperty("not");
+    }
+  });
+
   it("returns successful Gateway envelopes as content and details", async () => {
     const result: ToolResult<unknown> = {
       ok: true,

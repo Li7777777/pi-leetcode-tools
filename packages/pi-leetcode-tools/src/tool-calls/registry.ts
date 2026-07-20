@@ -25,13 +25,28 @@ export class LeetCodeModelToolError extends Error {
   }
 }
 
+const MODEL_ROOT_COMBINATORS = ["anyOf", "oneOf", "allOf", "not"] as const;
+
+/**
+ * Pi providers require model tool parameter schemas to have a plain object
+ * root. The Gateway still validates against the complete contract schema, so
+ * removing root combinators here only widens the model-facing transport shape.
+ */
+export function createModelToolParameters(schema: TSchema): TSchema {
+  const parameters = { ...schema } as TSchema & Record<string, unknown>;
+  for (const keyword of MODEL_ROOT_COMBINATORS) {
+    delete parameters[keyword];
+  }
+  return parameters;
+}
+
 function createTool(
   executor: ToolExecutor,
   metadata: LeetCodeToolMetadata
 ): ToolDefinition<TSchema, ToolResult<unknown>> {
   return {
     ...metadata,
-    parameters: TOOL_INPUT_SCHEMAS[metadata.name],
+    parameters: createModelToolParameters(TOOL_INPUT_SCHEMAS[metadata.name]),
     async execute(toolCallId, params, signal, _onUpdate, ctx) {
       const interaction = ctx.hasUI
         ? {

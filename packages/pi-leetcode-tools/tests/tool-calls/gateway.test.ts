@@ -208,6 +208,25 @@ describe("LeetCodeToolGateway", () => {
     expect(client.calls).toHaveLength(1);
   });
 
+  it("rejects mutually exclusive submit recovery references inside the Gateway", async () => {
+    const client = new FakeLeetCodeClient();
+    const gateway = createToolGateway({ client, interactiveUI: true });
+
+    await expect(
+      gateway.execute("lc_submit", {
+        titleSlug: "two-sum",
+        language: "typescript",
+        code: "return;",
+        retryUnknownOperationId: "operation-global-1",
+        resubmitCompletedOperationId: "operation-global-2"
+      })
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "VALIDATION_ERROR" }
+    });
+    expect(client.calls).toHaveLength(0);
+  });
+
   it("keeps arbitrary current-user notes separate and requires redacted per-write confirmation", async () => {
     const client = new FakeLeetCodeClient();
     const gateway = createToolGateway({ client, interactiveUI: true });

@@ -29,6 +29,8 @@ export type LeetCodeClientFactory = (
 
 export interface LeetCodeToolsRuntimeOptions {
   createClient?: LeetCodeClientFactory;
+  /** Override durable run/submit state storage for embedded SDK hosts. */
+  storageDirectory?: string;
 }
 
 export type LeetCodeToolsRegistrationResult =
@@ -66,7 +68,14 @@ export function createLeetCodeToolsRuntime(
   pi: ExtensionAPI,
   options: LeetCodeToolsRuntimeOptions = {}
 ): LeetCodeToolsRuntimeController {
-  const createClient = options.createClient ?? (() => createDefaultLeetCodeClient());
+  const createClient =
+    options.createClient ??
+    (() =>
+      createDefaultLeetCodeClient(
+        options.storageDirectory === undefined
+          ? {}
+          : { storageDirectory: options.storageDirectory }
+      ));
   let runtime: ActiveRuntime | undefined;
   let generation = 0;
   let registrationState: "unregistered" | "registered" | "failed" = "unregistered";
