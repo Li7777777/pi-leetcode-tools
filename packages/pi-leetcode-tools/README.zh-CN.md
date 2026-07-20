@@ -36,6 +36,51 @@
 
 题解工具虽然无需登录，但属于 `answer_read`，并带有 `disclosureRisk=solution`。它们只应在调用者明确要求时使用；包不会预取、批量抓取、缓存、记录或持久化题解内容。
 
+## 快速开始
+
+通过 Pi 安装本包，然后启动一个新的交互会话：
+
+```bash
+pi install npm:pi-leetcode-tools
+pi list
+pi
+```
+
+扩展会自动加载。可以直接用自然语言描述需求；希望明确选择工具时，也可以在提示词中写出工具名：
+
+```text
+使用 lc_daily 查询 LeetCode CN 今天的每日一题。
+使用 lc_search 搜索 LeetCode Global 中等难度的数组题。
+使用 lc_problem 读取 CN 的 two-sum，并显示 C++ 代码模板。
+使用 lc_progress 汇总我的 CN 账户做题进度。
+```
+
+前三个示例属于公开读取。`lc_progress`、`lc_history`、`lc_submission`、`lc_run`、`lc_submit` 和 `lc_operation_status` 需要对应区域的账户凭据。使用本地认证 CLI 登录：
+
+```bash
+pi-leetcode auth login --region cn --profile personal-cn
+```
+
+Pi 会把包提供的可执行文件放在自己的 npm 管理目录中，该目录不一定在 shell 的 `PATH` 里。如果系统找不到 `pi-leetcode`，可通过该目录运行。
+
+macOS/Linux：
+
+```bash
+npm exec --prefix "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/npm" -- \
+  pi-leetcode auth login --region cn --profile personal-cn
+```
+
+Windows PowerShell：
+
+```powershell
+$agentDir = if ($env:PI_CODING_AGENT_DIR) { $env:PI_CODING_AGENT_DIR } else { "$HOME\.pi\agent" }
+npm exec --prefix "$agentDir\npm" -- pi-leetcode auth login --region cn --profile personal-cn
+```
+
+如果隔离浏览器无法通过站点验证，需要改用系统默认浏览器，请将 `auth login` 换成 `auth import`。登录或切换 profile 后应重新启动 Pi 会话。`lc_submit` 只能在交互会话中使用，并且每次提交都需要新的 Pi 界面确认。完整流程见[认证 CLI 与凭据配置](#认证-cli-与凭据配置)。
+
+如果某项已安装资源被禁用，可运行 `pi config` 启用它，然后重新启动 Pi 会话。
+
 ## 验证状态
 
 `pi-leetcode-tools@0.1.3` 已达到严格的上游接口对齐：固定参考面上的 24 个接口均已实现并验证，具体由 16 个原生工具映射、5 个 Gateway 能力和 3 个静态契约资源组成，不存在 `missing`、`partial`、`superseded` 或 `explicitly_unsupported` 映射。

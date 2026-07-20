@@ -26,6 +26,34 @@ pi install npm:pi-leetcode-tools@0.1.3
 pi list
 ```
 
+## Usage
+
+Start a new interactive Pi session after installing or updating the package:
+
+```sh
+pi
+```
+
+The extension loads automatically. Ask Pi in natural language, or name a tool
+when you want deterministic selection. For example:
+
+```text
+Use lc_daily to show today's LeetCode CN challenge.
+Use lc_search to find medium array problems on LeetCode Global.
+Use lc_problem to read two-sum on CN and show the C++ snippet.
+Use lc_progress to summarize my CN account progress.
+```
+
+Public problem, profile, contest, and solution reads do not require a login.
+Account progress, submission history, code execution, and submission do. See
+the [package usage and authentication guide](packages/pi-leetcode-tools/README.md#quick-start)
+for login commands, profile switching, and Pi-managed CLI paths. `lc_submit`
+works only in an interactive Pi session and always requires a fresh UI
+confirmation.
+
+If the extension is installed but disabled, use `pi config` to enable its
+resources and then start a new Pi session.
+
 ## Requirements
 
 - Node.js 22.19.0 or newer

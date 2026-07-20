@@ -24,6 +24,27 @@ pi install npm:pi-leetcode-tools@0.1.3
 pi list
 ```
 
+## 使用方法
+
+安装或更新后，启动一个新的 Pi 交互会话：
+
+```sh
+pi
+```
+
+扩展会自动加载。可以直接用自然语言描述需求；希望明确选择工具时，也可以在提示词中写出工具名。例如：
+
+```text
+使用 lc_daily 查询 LeetCode CN 今天的每日一题。
+使用 lc_search 搜索 LeetCode Global 中等难度的数组题。
+使用 lc_problem 读取 CN 的 two-sum，并显示 C++ 代码模板。
+使用 lc_progress 汇总我的 CN 账户做题进度。
+```
+
+题目、公开用户资料、竞赛和社区题解等公开读取不需要登录。账户进度、提交历史、远程运行和正式提交需要登录。登录命令、账号切换以及 Pi 管理的 CLI 路径见[包级使用与认证指南](./packages/pi-leetcode-tools/README.zh-CN.md#快速开始)。`lc_submit` 只能在 Pi 交互会话中使用，并且每次提交都需要新的界面确认。
+
+如果扩展已经安装但被禁用，可运行 `pi config` 启用对应资源，然后重新启动 Pi 会话。
+
 ## 环境要求
 
 - Node.js 22.19.0 或更高版本

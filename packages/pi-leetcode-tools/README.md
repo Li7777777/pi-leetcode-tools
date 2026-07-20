@@ -34,6 +34,61 @@ The package exposes fourteen Pi tools:
 | `lc_submit` | Submit code after Pi-owned UI confirmation | Session + CSRF |
 | `lc_operation_status` | Recover or refresh a recorded run/submit operation | Session + CSRF |
 
+## Quick start
+
+Install the package through Pi and start a fresh interactive session:
+
+```bash
+pi install npm:pi-leetcode-tools
+pi list
+pi
+```
+
+The extension loads automatically. Ask Pi in natural language, or name a tool
+when you want deterministic selection:
+
+```text
+Use lc_daily to show today's LeetCode CN challenge.
+Use lc_search to find medium array problems on LeetCode Global.
+Use lc_problem to read two-sum on CN and show the C++ snippet.
+Use lc_progress to summarize my CN account progress.
+```
+
+The first three examples are public reads. `lc_progress`, `lc_history`,
+`lc_submission`, `lc_run`, `lc_submit`, and `lc_operation_status` require the
+matching regional account credentials. Sign in with the local authentication
+CLI:
+
+```bash
+pi-leetcode auth login --region cn --profile personal-cn
+```
+
+Pi keeps package executables in its managed npm prefix, which is not always on
+the shell `PATH`. If `pi-leetcode` is not found, run it through that prefix.
+
+macOS/Linux:
+
+```bash
+npm exec --prefix "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/npm" -- \
+  pi-leetcode auth login --region cn --profile personal-cn
+```
+
+Windows PowerShell:
+
+```powershell
+$agentDir = if ($env:PI_CODING_AGENT_DIR) { $env:PI_CODING_AGENT_DIR } else { "$HOME\.pi\agent" }
+npm exec --prefix "$agentDir\npm" -- pi-leetcode auth login --region cn --profile personal-cn
+```
+
+Use `auth import` instead of `auth login` when the isolated browser cannot pass
+the site challenge and you need the system default browser. After logging in or
+switching profiles, start a new Pi session. `lc_submit` is available only in an
+interactive session and always requires a fresh Pi-owned UI confirmation. See
+[Credentials and profiles](#credentials-and-profiles) for the complete flow.
+
+If an installed resource is disabled, run `pi config`, enable it, and start a
+new Pi session.
+
 ## Verification
 
 `pi-leetcode-tools@0.1.3` implements all 24 pinned reference interfaces as 16
