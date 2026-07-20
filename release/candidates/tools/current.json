@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "packageName": "pi-leetcode-tools",
-  "packageVersion": "0.1.3",
-  "recordId": "pi-leetcode-tools@0.1.3/sha256:f753a7ec8f3363d6d0079d584996f83bdec3641fff88668c9ced2dcef0153d1a",
-  "recordFile": "pi-leetcode-tools-0.1.3-f753a7ec8f3363d6.json",
-  "recordDigest": "sha256:454240d9f3ceaf3e3778caafd6e60688c2a6417f5f4be309a480b8f8adac79a8"
+  "packageVersion": "0.1.4",
+  "recordId": "pi-leetcode-tools@0.1.4/sha256:c988d35751d1eae8d532b2ee0ec408a04358ee6875a729375c9594ac5329555b",
+  "recordFile": "pi-leetcode-tools-0.1.4-c988d35751d1eae8.json",
+  "recordDigest": "sha256:09e4524ec12f0d2685d7e74f46f13a9629edcfa350df8678518029807a39705b"
 }

@@ -4,7 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/pi-leetcode-tools?style=flat-square&logo=npm&logoColor=white)](https://www.npmjs.com/package/pi-leetcode-tools)
 [![CI](https://img.shields.io/github/actions/workflow/status/Li7777777/pi-leetcode-tools/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/Li7777777/pi-leetcode-tools/actions/workflows/ci.yml)
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22.19.0-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-279%20passing-2ea44f?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-283%20passing-2ea44f?style=flat-square)
 [![MCP parity](https://img.shields.io/badge/MCP%20parity-24%2F24-7c3aed?style=flat-square)](#参考-mcp-接口对齐)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Li7777777/pi-leetcode-tools?style=flat-square&logo=github)](https://github.com/Li7777777/pi-leetcode-tools/stargazers)
@@ -83,11 +83,11 @@ npm exec --prefix "$agentDir\npm" -- pi-leetcode auth login --region cn --profil
 
 ## 验证状态
 
-`pi-leetcode-tools@0.1.3` 已达到严格的上游接口对齐：固定参考面上的 24 个接口均已实现并验证，具体由 16 个原生工具映射、5 个 Gateway 能力和 3 个静态契约资源组成，不存在 `missing`、`partial`、`superseded` 或 `explicitly_unsupported` 映射。
+`pi-leetcode-tools@0.1.4` 已达到严格的上游接口对齐：固定参考面上的 24 个接口均已实现并验证，具体由 16 个原生工具映射、5 个 Gateway 能力和 3 个静态契约资源组成，不存在 `missing`、`partial`、`superseded` 或 `explicitly_unsupported` 映射。
 
 | 检查项 | 当前证据 |
 | --- | --- |
-| 自动化测试 | 29 个测试文件 / 279 项测试通过 |
+| 自动化测试 | 29 个测试文件 / 283 项测试通过 |
 | 上游契约完整性 | 源码 344/344、打包产物 344/344 均通过 |
 | 打包目标解析 | 24/24 通过 |
 | 独立适配器、Gateway 与资源夹具 | 24/24 通过 |
@@ -117,7 +117,7 @@ npm run verify:tools:upstream-completeness
 
 - Node.js `>=22.19.0`。
 - 当前验证过的 Pi 运行时为 `@earendil-works/pi-coding-agent@0.80.7`。
-- 版本 `0.1.3` 携带契约版本 `1.1.0` 和 RPC 协议版本 `1.0.0`。
+- 版本 `0.1.4` 携带契约版本 `1.1.0` 和 RPC 协议版本 `1.0.0`。
 - 公开 JavaScript 子路径仅包括 `pi-leetcode-tools/embedded`、`pi-leetcode-tools/types` 和 `pi-leetcode-tools/contract`；包根路径和 `dist/` 深层导入会被阻止。
 
 调用方必须先发现当前 provider，再比较包版本、契约版本、协议版本、schema digest 和 capability-manifest digest。任何不匹配都应视为不兼容，不能猜测兼容。并存多个 provider 实例会以 `PROVIDER_CONFLICT` 失败关闭，直到只保留一个实例。
@@ -127,7 +127,7 @@ npm run verify:tools:upstream-completeness
 为 Pi 安装精确版本：
 
 ```bash
-pi install npm:pi-leetcode-tools@0.1.3
+pi install npm:pi-leetcode-tools@0.1.4
 pi list
 ```
 

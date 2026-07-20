@@ -1,6 +1,6 @@
 {
   "name": "pi-leetcode-tools",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Unofficial native Pi tool calls for LeetCode Global and CN",
   "type": "module",
   "license": "MIT",

@@ -4,7 +4,7 @@ All notable changes to this repository are documented here. Package versions
 follow Semantic Versioning independently from the versioned Tool contract and
 event protocol.
 
-## Unreleased
+## 0.1.4 - 2026-07-20
 
 - Fixed installed-package Gateway activation when `PI_CODING_AGENT_DIR` is not
   explicitly set by resolving durable state through Pi's standard agent

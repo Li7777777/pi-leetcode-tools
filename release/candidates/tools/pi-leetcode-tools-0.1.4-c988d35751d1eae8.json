@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "recordType": "release-candidate",
+  "recordId": "pi-leetcode-tools@0.1.4/sha256:c988d35751d1eae8d532b2ee0ec408a04358ee6875a729375c9594ac5329555b",
+  "evidenceClass": "engineering-candidate/non-release-evidence",
+  "sourceMode": "candidate",
+  "subject": {
+    "packageName": "pi-leetcode-tools",
+    "packageVersion": "0.1.4"
+  },
+  "artifact": {
+    "file": "pi-leetcode-tools-0.1.4.tgz",
+    "bytes": 323586,
+    "sha256": "sha256:b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e",
+    "sha512": "sha512:e8aaadb14675e5819830729b48fc45d6e747bb08cc1a673b59193937d2e5869cf34c745b50d07705e023709c41bafea04682c89325a087fb63cf40768148db6a",
+    "distIntegrity": "sha512-6KqtsUZ15YGYMHKbSPxF1udHuwjMGmc7WRk5N9LlhpzzTHRbUNB3BeAjcJxBuv6gRoLIkyWgh/tjz0B2gUjbag==",
+    "unpackedContentDigest": "sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765",
+    "fileCount": 162
+  },
+  "lockfile": {
+    "path": "package-lock.json",
+    "workspacePath": "packages/pi-leetcode-tools",
+    "sha256": "sha256:b5830251f347444e6ac93f2a93cb9e8ceffbfd3c63b2391640d05b8b6977a859",
+    "packageCount": 272
+  },
+  "compatibilityManifest": null,
+  "dependencyRecords": null,
+  "sourceClosure": {
+    "digest": "sha256:2a9b99807eb91ce4e06c6f8dc07489c8fd8d07d46b6485fa65da22868a4903e7",
+    "fileCount": 107
+  },
+  "workspacePublishedView": {
+    "digest": "sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765",
+    "fileCount": 162,
+    "matchesArtifact": true
+  },
+  "contractTuple": {
+    "packageName": "pi-leetcode-tools",
+    "packageVersion": "0.1.4",
+    "contractVersion": "1.1.0",
+    "protocolVersion": "1.0.0",
+    "schemaDigest": "sha256:ae800dec293e2218fa67c068e272e1ba304877853c66f4b22e88f8dbc7499114",
+    "behaviorManifestDigest": "sha256:81650b24c55be375ef82b78ce119e4f15d6e0b78fb032b5aecc696313d134e35",
+    "capabilityManifestDigest": "sha256:ca75af95a1d84f44e8206804ab863bf33f155a04df20a7e5d3e8608fb62b4a12",
+    "resourceCatalogDigest": "sha256:43c1996245bfdaa6aab82657349b6de5f000c29d00a31874a0cbb2b9f5fc49ef",
+    "upstreamReferenceId": "@jinzcdev/leetcode-mcp-server@1.4.0",
+    "upstreamSurfaceDigest": "sha256:9a89de5f253c3e9c7e4ef476690d477ed8aa4c6ca43399150a16b0d09b1ca4b2",
+    "upstreamSemanticSurfaceDigest": "sha256:12ccc10040cc1b9e907065c1120c991baddc490d24310ecf8defe71e9351f3e0",
+    "upstreamQueryDependency": {
+      "package": "leetcode-query",
+      "version": "2.0.1",
+      "tarballSha256": "281fbaa950bf82e0b72a7273c2e7f5502ea6eb1dd593079ab5b89f8048b3eff0",
+      "graphqlCatalogDigest": "sha256:ae9297343794201583bbc6c33eede8a2f1e1e5bd5a4631a345e3a4adac291967"
+    },
+    "upstreamParityDefinitionDigest": "sha256:bba4d42a2172370247fc7c0e22c726ea53c05a09c019f09d26320d552480ef3e",
+    "upstreamCompleteness": {
+      "policy": "all_interfaces_implemented_with_execution_receipts",
+      "totalUpstream": 24,
+      "implemented": 24,
+      "semanticSurfaceDigest": "sha256:12ccc10040cc1b9e907065c1120c991baddc490d24310ecf8defe71e9351f3e0",
+      "receiptDigest": "sha256:cd58d52d0d840681af9d3c6a58960c1b53be1d724f221571760987e493d1ebf9",
+      "runnerDigest": "sha256:0baf480c02f71ff76d97795df04f01a6c070a877cb51312c65040f4b217d102a",
+      "bindingDigest": "sha256:f5d37da80251b2cc5fc3272b4afd6cf1dcc7b7649a258cbc6eb8813efb43c900",
+      "passedCases": 344,
+      "packedJsProbeDigest": "sha256:1d18d693a1ec1787b006d78d99cea341c5d4b8793f2c3f4400de0110b9fd640d",
+      "packedJsProbeChecks": 24,
+      "artifactSha256": "sha256:b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e",
+      "unpackedContentDigest": "sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765"
+    }
+  },
+  "driftPolicy": {
+    "allowed": false,
+    "reasons": []
+  },
+  "algorithms": {
+    "jsonCanonicalization": "RFC8785/JCS",
+    "artifactHash": "SHA-512",
+    "fileHash": "SHA-256",
+    "fileSetDigest": "RFC8785/JCS+UTF-8+SHA-256"
+  },
+  "formalReleaseEligible": false
+}

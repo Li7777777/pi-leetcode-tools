@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-20T00:33:33Z",
+  "updatedAt": "2026-07-20T02:51:47Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -16,9 +16,9 @@
       "sourceMode": "independent_repository_candidate",
       "status": "passed",
       "currentRecord": {
-        "recordId": "pi-leetcode-tools@0.1.3/sha256:f753a7ec8f3363d6d0079d584996f83bdec3641fff88668c9ced2dcef0153d1a",
-        "recordDigest": "sha256:454240d9f3ceaf3e3778caafd6e60688c2a6417f5f4be309a480b8f8adac79a8",
-        "artifactSha256": "sha256:911bee92100bb33f5fdb68d91a1e8f47ab3373be9af43560fcccbfa3c78d160a"
+        "recordId": "pi-leetcode-tools@0.1.4/sha256:c988d35751d1eae8d532b2ee0ec408a04358ee6875a729375c9594ac5329555b",
+        "recordDigest": "sha256:09e4524ec12f0d2685d7e74f46f13a9629edcfa350df8678518029807a39705b",
+        "artifactSha256": "sha256:b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e"
       },
       "requiredEvidence": [
         {
@@ -29,27 +29,27 @@
         {
           "evidenceId": "TOOLS-ENG-CURRENT-NODE",
           "status": "passed",
-          "evidence": "The independent repository passed typecheck, 29 files / 279 tests, reproducible build, 24/24 upstream completeness and adapter fixtures, source/packed 344/344, packed install, 14-Tool Pi activation, local publish-path regression and supply-chain verification for pi-leetcode-tools@0.1.3."
+          "evidence": "The exact pi-leetcode-tools@0.1.4 candidate passed typecheck, 29 files / 283 tests, reproducible build, 24/24 upstream completeness and adapter fixtures, source/packed 344/344, packed install, 14-Tool Pi activation, local publish-path regression, a 162-file secret scan with zero findings, and supply-chain verification on Node 24.18.0."
         },
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
           "status": "passed",
-          "evidence": "GitHub Actions push run 29695525569 and pull-request run 29695553418 passed the complete release pipeline for record f753a7ec... on Windows and Ubuntu with Node 22.19.0 and Node 24, including the corrected bootstrap and regular protected local-tgz publish boundaries."
+          "evidence": "GitHub Actions push run 29712517900 passed the complete runtime-fix pipeline at commit 9056a38130225b1007ad920c1534b645e02cdfad on Windows and Ubuntu with Node 22.19.0 and Node 24. The exact 0.1.4 candidate then passed the complete local Node 24.18.0 release pipeline; immutable-tag CI remains a formal release prerequisite."
         },
         {
           "evidenceId": "TOOLS-ENG-LOCAL-TGZ-PUBLISH",
           "status": "passed",
-          "evidence": "Both protected workflows now publish explicit ./ local tgz paths. The static gate validates bootstrap and regular publish jobs, includes 12 negative checks, and a real npm --dry-run regression passed for the downloaded bootstrap-bundle and release-bundle layouts."
+          "evidence": "Both protected workflows publish explicit ./ local tgz paths. The static gate validates bootstrap and regular publish jobs, includes 14 negative checks, and a real npm --dry-run regression passed for the downloaded bootstrap-bundle and release-bundle layouts."
         },
         {
-          "evidenceId": "TOOLS-ENG-LIVE-REBIND",
+          "evidenceId": "TOOLS-ENG-RUNTIME-COMPATIBILITY",
           "status": "passed",
-          "evidence": "The controlled 0.1.2 to 0.1.3 rebind changes packageVersion values, generated version metadata, package documentation and release-only workflow verification. Schema, behavior, capability and resource digests; contract/protocol versions; the 14-Tool surface; upstream semantics; runtime logic and all regional adapters remain unchanged. The sole runtime-source difference is the PACKAGE_VERSION constant. The new exact artifact passed 29/279 tests and packed activation with packageVersion 0.1.3, so the prior public reads 6/6, Global full-safe 19 passed / 0 failed / 0 blocked / 7 skipped, and CN full-safe 21 passed / 0 failed / 0 blocked / 5 skipped remain cross-version remote-behavior evidence rather than exact-artifact live evidence."
+          "evidence": "Version 0.1.4 resolves installed Gateway durable state through Pi's standard agent directory when PI_CODING_AGENT_DIR is absent, projects cpa-facing combined root schemas into plain objects while preserving complete Gateway validation, and adds packed ready-event and real Pi activation regressions. The runtime fix passed CI run 29712517900, a Pi 0.80.10 plus cpa probe returned OK, and the exact 0.1.4 tgz activated all 14 tools. Contract 1.1.0, protocol 1.0.0, schema/behavior/capability/resource digests, the 24-interface upstream surface, and regional adapter semantics remain unchanged."
         },
         {
           "evidenceId": "TOOLS-ENG-AUTHORIZED-WRITES",
           "status": "passed",
-          "evidence": "The separately authorized CN interactive Pi UI flow passed 8/8 with lc_run Accepted, operation recovery Accepted, revision-bound Notes write, and lc_submit Accepted. Preserved evidence SHA-256 f82937d8... stores no credentials, raw code or Notes text, raw slug, or raw operation IDs; sensitive values are represented by hashes, byte counts and normalized outcomes alongside non-sensitive version, environment, tool and count metadata. The controlled version-only rebind is accepted because the write adapters, confirmation semantics and behavior/capability/resource digests are unchanged; the sole runtime-source difference is the PACKAGE_VERSION constant, and the new packed artifact independently passed the complete automated write-adapter and Pi activation suites."
+          "evidence": "The separately authorized historical CN interactive Pi UI flow passed 8/8 with lc_run Accepted, operation recovery Accepted, revision-bound Notes write, and lc_submit Accepted. Preserved evidence SHA-256 f82937d8... stores no credentials, raw code or Notes text, raw slug, or raw operation IDs. This remains cross-version remote-behavior evidence only: no live Notes write or lc_submit was repeated with 0.1.4. The exact 0.1.4 candidate independently passed the complete automated write-adapter, confirmation, duplicate/recovery, cancellation, credential-redaction, packed-install, and Pi activation suites."
         }
       ],
       "invalidationConditions": [
@@ -63,31 +63,37 @@
       "packageName": "pi-leetcode-tools",
       "gateClass": "release",
       "sourceMode": "formal_registry",
-      "status": "passed",
+      "status": "externally_blocked",
       "prerequisiteGates": [
         "TOOLS-ENG"
       ],
-      "blockers": [],
+      "blockers": [
+        "pi-leetcode-tools-v0.1.4 immutable tag and tag CI are not yet complete",
+        "the committed 0.1.4 candidate has not yet passed the release dry-run",
+        "the OIDC publish-next workflow has not yet written pi-leetcode-tools@0.1.4 to npm",
+        "formal registry, provenance, dist-tag, clean-install and Pi activation verification are pending",
+        "the pi-leetcode-tools-v0.1.4 GitHub Release and checksummed evidence assets do not yet exist"
+      ],
       "requiredEvidence": [
         {
           "evidenceId": "TOOLS-REL-IMMUTABLE-SOURCE",
-          "status": "passed",
-          "evidence": "main and immutable tag pi-leetcode-tools-v0.1.3 identify commit b9f597b589ff986c55671d52616e455e52d0d288. Tag CI run 29696017014 and release dry-run 29696151085 passed. Active ruleset 19161906 protects refs/tags/pi-leetcode-tools-v* against deletion and non-fast-forward updates."
+          "status": "pending",
+          "evidence": "The exact 0.1.4 CandidateRecord is committed only after this matrix update. The immutable pi-leetcode-tools-v0.1.4 tag, its Windows/Ubuntu Node 22.19/24 CI, and the release dry-run must pass before publication. Active ruleset 19161906 protects refs/tags/pi-leetcode-tools-v* against deletion and non-fast-forward updates."
         },
         {
           "evidenceId": "TOOLS-REL-NPM-REGISTRY",
-          "status": "passed",
-          "evidence": "https://www.npmjs.com/package/pi-leetcode-tools/v/0.1.3 exposes the exact approved 320579-byte / 162-file tgz. SHA-256 is 911bee92100bb33f5fdb68d91a1e8f47ab3373be9af43560fcccbfa3c78d160a and npm integrity is sha512-vbNQWPVImKQ4sxQnKg4G5d5Y2CzFYGhZAl3Fz0/4ims19xMuyMXiHDchGXY4IjxHGmdsBqJ8t2Y4MK5gshSKrg==. Both next and npm-initialized latest point to 0.1.3."
+          "status": "pending",
+          "evidence": "pi-leetcode-tools@0.1.4 is not yet published. The approved candidate is a 323586-byte / 162-file tgz with SHA-256 b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e and npm integrity sha512-6KqtsUZ15YGYMHKbSPxF1udHuwjMGmc7WRk5N9LlhpzzTHRbUNB3BeAjcJxBuv6gRoLIkyWgh/tjz0B2gUjbag==. Before publication, next and latest both remain 0.1.3; the required postcondition is next=0.1.4 while latest remains 0.1.3."
         },
         {
           "evidenceId": "TOOLS-REL-PROVENANCE",
-          "status": "passed",
-          "evidence": "npm SLSA provenance binds refs/tags/pi-leetcode-tools-v0.1.3, commit b9f597b589ff986c55671d52616e455e52d0d288, bootstrap-tools.yml and the exact registry tarball. Sigstore transparency-log index is 2202596094; npm audit signatures passed with no invalid or missing entries."
+          "status": "pending",
+          "evidence": "The regular OIDC-only release-tools.yml workflow must publish the exact 0.1.4 tgz with npm provenance bound to refs/tags/pi-leetcode-tools-v0.1.4 and its immutable commit. The one-time bootstrap workflow is not authorized for this release."
         },
         {
           "evidenceId": "TOOLS-REL-INDEPENDENT-VERIFICATION",
-          "status": "passed",
-          "evidence": "The corrected credential-free verifier re-downloaded byte-identical registry content, performed a lifecycle-disabled clean install, matched all 162 installed files to CandidateRecord content digest sha256:7db3cb3fd4a76c3b2e76daa7f07c0aeba5f097f4321d0e26ff2fdce58b1ca04b, and activated 14/14 Pi tools through a closed allowlist registry. PR 4 push run 29697570847 and pull-request run 29697573175 passed Windows and Ubuntu on Node 22.19.0 and Node 24."
+          "status": "pending",
+          "evidence": "After publication, the credential-free verifier must re-download byte-identical registry content, verify signature and provenance, perform a lifecycle-disabled clean install, match all 162 installed files to CandidateRecord content digest sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765, activate 14/14 Pi tools through a closed allowlist registry, and prove that next moved while latest did not."
         },
         {
           "evidenceId": "TOOLS-REL-TRUSTED-PUBLISHER",
@@ -101,8 +107,8 @@
         },
         {
           "evidenceId": "TOOLS-REL-GITHUB-RELEASE",
-          "status": "passed",
-          "evidence": "GitHub Release https://github.com/Li7777777/pi-leetcode-tools/releases/tag/pi-leetcode-tools-v0.1.3 publishes the exact tgz together with SHA256SUMS, CycloneDX SBOM, supply-chain evidence, bootstrap registry verification and Pi activation evidence."
+          "status": "pending",
+          "evidence": "GitHub Release pi-leetcode-tools-v0.1.4 must publish the exact tgz together with SHA256SUMS, CycloneDX SBOM, supply-chain evidence, formal registry and dist-tag verification, and Pi activation evidence."
         }
       ],
       "attemptHistory": [
@@ -144,7 +150,7 @@
         }
       ],
       "invalidationConditions": [
-        "pi-leetcode-tools@0.1.3 is deprecated, unpublished or its dist-tags move away from the recorded release state",
+        "pi-leetcode-tools@0.1.4 is deprecated, unpublished or its dist-tags move away from the required next=0.1.4 and latest=0.1.3 state",
         "the immutable source tag, CandidateRecord, registry bytes, npm provenance or GitHub Release assets no longer agree",
         "the npm Trusted Publisher or protected npm-tools-next environment is removed or broadened"
       ]
