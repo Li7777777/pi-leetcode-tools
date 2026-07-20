@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-20T02:51:47Z",
+  "updatedAt": "2026-07-20T03:19:51Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -34,7 +34,7 @@
         {
           "evidenceId": "TOOLS-ENG-NODE22-MATRIX",
           "status": "passed",
-          "evidence": "GitHub Actions push run 29712517900 passed the complete runtime-fix pipeline at commit 9056a38130225b1007ad920c1534b645e02cdfad on Windows and Ubuntu with Node 22.19.0 and Node 24. The exact 0.1.4 candidate then passed the complete local Node 24.18.0 release pipeline; immutable-tag CI remains a formal release prerequisite."
+          "evidence": "GitHub Actions main push run 29713477233 and immutable-tag run 29713609886 passed the exact 0.1.4 release pipeline on Windows and Ubuntu with Node 22.19.0 and Node 24. Both runs rebuilt and verified CandidateRecord 09e4524e..., the 323586-byte tgz, production audit, packed install, 14-Tool Pi activation and supply-chain evidence."
         },
         {
           "evidenceId": "TOOLS-ENG-LOCAL-TGZ-PUBLISH",
@@ -63,37 +63,31 @@
       "packageName": "pi-leetcode-tools",
       "gateClass": "release",
       "sourceMode": "formal_registry",
-      "status": "externally_blocked",
+      "status": "passed",
       "prerequisiteGates": [
         "TOOLS-ENG"
       ],
-      "blockers": [
-        "pi-leetcode-tools-v0.1.4 immutable tag and tag CI are not yet complete",
-        "the committed 0.1.4 candidate has not yet passed the release dry-run",
-        "the OIDC publish-next workflow has not yet written pi-leetcode-tools@0.1.4 to npm",
-        "formal registry, provenance, dist-tag, clean-install and Pi activation verification are pending",
-        "the pi-leetcode-tools-v0.1.4 GitHub Release and checksummed evidence assets do not yet exist"
-      ],
+      "blockers": [],
       "requiredEvidence": [
         {
           "evidenceId": "TOOLS-REL-IMMUTABLE-SOURCE",
-          "status": "pending",
-          "evidence": "The exact 0.1.4 CandidateRecord is committed only after this matrix update. The immutable pi-leetcode-tools-v0.1.4 tag, its Windows/Ubuntu Node 22.19/24 CI, and the release dry-run must pass before publication. Active ruleset 19161906 protects refs/tags/pi-leetcode-tools-v* against deletion and non-fast-forward updates."
+          "status": "passed",
+          "evidence": "Immutable annotated tag pi-leetcode-tools-v0.1.4 identifies release commit d72f60e741246d918c9f866c905815befcc62390, which is an ancestor of main. Main CI run 29713477233, tag CI run 29713609886 and release dry-run 29713783088 passed. Active ruleset 19161906 protects refs/tags/pi-leetcode-tools-v* against deletion and non-fast-forward updates."
         },
         {
           "evidenceId": "TOOLS-REL-NPM-REGISTRY",
-          "status": "pending",
-          "evidence": "pi-leetcode-tools@0.1.4 is not yet published. The approved candidate is a 323586-byte / 162-file tgz with SHA-256 b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e and npm integrity sha512-6KqtsUZ15YGYMHKbSPxF1udHuwjMGmc7WRk5N9LlhpzzTHRbUNB3BeAjcJxBuv6gRoLIkyWgh/tjz0B2gUjbag==. Before publication, next and latest both remain 0.1.3; the required postcondition is next=0.1.4 while latest remains 0.1.3."
+          "status": "passed",
+          "evidence": "https://www.npmjs.com/package/pi-leetcode-tools/v/0.1.4 exposes the exact approved 323586-byte / 162-file tgz. SHA-256 is b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e, npm integrity is sha512-6KqtsUZ15YGYMHKbSPxF1udHuwjMGmc7WRk5N9LlhpzzTHRbUNB3BeAjcJxBuv6gRoLIkyWgh/tjz0B2gUjbag==, and shasum is e667adc1be4a00105435b36ab42b2a374a867834. next points to 0.1.4 while latest remains 0.1.3."
         },
         {
           "evidenceId": "TOOLS-REL-PROVENANCE",
-          "status": "pending",
-          "evidence": "The regular OIDC-only release-tools.yml workflow must publish the exact 0.1.4 tgz with npm provenance bound to refs/tags/pi-leetcode-tools-v0.1.4 and its immutable commit. The one-time bootstrap workflow is not authorized for this release."
+          "status": "passed",
+          "evidence": "OIDC release run 29713903406 published the exact tgz through release-tools.yml and npm SLSA provenance binds refs/tags/pi-leetcode-tools-v0.1.4, commit d72f60e741246d918c9f866c905815befcc62390 and the registry subject SHA-512. Attestation digest is sha256:ffd515fafdbe6de651879e927980474eda461e19640639890f3c26deffcf1b37; npm audit signatures passed with one signature and zero invalid or missing entries."
         },
         {
           "evidenceId": "TOOLS-REL-INDEPENDENT-VERIFICATION",
-          "status": "pending",
-          "evidence": "After publication, the credential-free verifier must re-download byte-identical registry content, verify signature and provenance, perform a lifecycle-disabled clean install, match all 162 installed files to CandidateRecord content digest sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765, activate 14/14 Pi tools through a closed allowlist registry, and prove that next moved while latest did not."
+          "status": "passed",
+          "evidence": "Release run 29713903406 re-downloaded byte-identical registry content, verified signature and provenance, performed a lifecycle-disabled clean install, matched all 162 installed files to CandidateRecord content digest sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765, activated 14/14 Pi tools through a closed allowlist registry, passed production audit and secret scan, and proved next=0.1.4 while latest remained 0.1.3."
         },
         {
           "evidenceId": "TOOLS-REL-TRUSTED-PUBLISHER",
@@ -107,8 +101,8 @@
         },
         {
           "evidenceId": "TOOLS-REL-GITHUB-RELEASE",
-          "status": "pending",
-          "evidence": "GitHub Release pi-leetcode-tools-v0.1.4 must publish the exact tgz together with SHA256SUMS, CycloneDX SBOM, supply-chain evidence, formal registry and dist-tag verification, and Pi activation evidence."
+          "status": "passed",
+          "evidence": "GitHub Release https://github.com/Li7777777/pi-leetcode-tools/releases/tag/pi-leetcode-tools-v0.1.4 publishes the exact tgz together with SHA256SUMS, CycloneDX SBOM, supply-chain evidence, formal registry verification, dist-tag evidence and Pi activation evidence. All seven uploaded asset digests match the locally verified release set."
         }
       ],
       "attemptHistory": [
@@ -147,6 +141,15 @@
           "status": "published_post_verification_recovered",
           "reason": "The protected publish job succeeded and emitted provenance index 2202596094. The original post-publish job failed because direct Node invocation omitted npm_execpath; the corrected npm-script verifier subsequently passed exact bytes, provenance, clean install, signature audit, Pi activation and initial dist-tags.",
           "registryState": "next_and_latest_equal_0.1.3"
+        },
+        {
+          "version": "0.1.4",
+          "tag": "pi-leetcode-tools-v0.1.4",
+          "commit": "d72f60e741246d918c9f866c905815befcc62390",
+          "workflowRun": "https://github.com/Li7777777/pi-leetcode-tools/actions/runs/29713903406",
+          "status": "published_and_verified",
+          "reason": "The protected OIDC publish-next job published the exact committed tgz, and the credential-free verifier passed registry bytes, SLSA provenance, signature audit, lifecycle-disabled clean install, Pi activation, supply-chain checks and the protected latest dist-tag invariant.",
+          "registryState": "next_0.1.4_latest_0.1.3"
         }
       ],
       "invalidationConditions": [
