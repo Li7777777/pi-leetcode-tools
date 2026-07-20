@@ -20,7 +20,7 @@
 ## 安装
 
 ```sh
-pi install npm:pi-leetcode-tools@0.1.4
+pi install npm:pi-leetcode-tools@latest
 pi list
 ```
 

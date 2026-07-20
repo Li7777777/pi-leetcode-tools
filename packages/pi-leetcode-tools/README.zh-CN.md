@@ -124,10 +124,10 @@ npm run verify:tools:upstream-completeness
 
 ## 安装、更新与移除
 
-为 Pi 安装精确版本：
+为 Pi 安装 npm `latest` 版本：
 
 ```bash
-pi install npm:pi-leetcode-tools@0.1.4
+pi install npm:pi-leetcode-tools@latest
 pi list
 ```
 

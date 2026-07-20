@@ -299,10 +299,10 @@ guessed around. Loading more than one provider instance is also rejected with
 
 ## Install, update, and remove
 
-Install the exact version for Pi:
+Install the npm `latest` release for Pi:
 
 ```bash
-pi install npm:pi-leetcode-tools@0.1.4
+pi install npm:pi-leetcode-tools@latest
 pi list
 ```
 
