@@ -19,9 +19,13 @@ the following controls:
 3. An isolated empty npm user/global config. The exact approved tgz is the only
    publish input; the bootstrap must not rebuild or generate a CandidateRecord.
 4. `npm publish <exact-tgz> --tag next --provenance --access public
-   --ignore-scripts`. Bootstrap must not create or move `latest`.
+   --ignore-scripts`. The workflow must not issue a separate `latest` dist-tag
+   mutation. npm may initialize `latest` to the same audited version when the
+   package is created for the first time; any other value is a hard failure.
 5. Exact registry metadata, tarball, integrity, provenance, clean-install, Pi
-   activation, and `latest`-unchanged verification before bootstrap is accepted.
+   activation, and initial dist-tag verification before bootstrap is accepted.
+   Evidence must distinguish an absent `latest` tag from npm initializing it to
+   the exact bootstrap version.
 6. Immediate revocation of the granular token and removal/disablement of the
    temporary bootstrap workflow.
 7. Configure the npm trusted publisher for

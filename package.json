@@ -41,6 +41,7 @@
     "snapshot:tools:release-record": "node ./release/scripts/snapshot-tools-release-record.mjs",
     "snapshot:tools:registry-tags": "node ./release/scripts/tools-registry-tags.mjs snapshot",
     "assert:tools:registry-tags": "node ./release/scripts/tools-registry-tags.mjs assert",
+    "verify:tools:bootstrap-registry": "node ./release/scripts/verify-tools-bootstrap-registry.mjs",
     "verify:tools:registry-release": "node ./release/scripts/verify-tools-registry-release.mjs",
     "verify:tools:release-workflow": "node ./release/scripts/verify-tools-release-workflow.mjs"
   },

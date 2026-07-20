@@ -251,7 +251,7 @@ jobs:
         run: npm ci
       - name: Verify exact bytes, integrity, provenance, clean install, Pi activation, and dist-tags
         run: >-
-          node release/scripts/verify-tools-bootstrap-registry.mjs verify
+          npm run verify:tools:bootstrap-registry -- verify
           --version "$RELEASE_VERSION"
           --expected-sha256 "$RELEASE_EXPECTED_SHA256"
           --expected-record-digest "$RELEASE_EXPECTED_RECORD_DIGEST"

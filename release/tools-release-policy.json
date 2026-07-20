@@ -9,9 +9,9 @@
   "trustedPublisher": {
     "workflow": ".github/workflows/release-tools.yml",
     "environment": "npm-tools-next",
-    "configured": false,
-    "evidenceGate": "external_required",
-    "evidenceReference": null
+    "configured": true,
+    "evidenceGate": "passed",
+    "evidenceReference": "https://www.npmjs.com/package/pi-leetcode-tools/access"
   },
   "bootstrap": {
     "mode": "external_required",
@@ -22,7 +22,7 @@
   },
   "source": {
     "mainlineRef": "refs/remotes/origin/main",
-    "requireMainlineAncestor": false,
-    "tagProtectionEvidenceGate": "external_required"
+    "requireMainlineAncestor": true,
+    "tagProtectionEvidenceGate": "https://github.com/Li7777777/pi-leetcode-tools/rules/19161906"
   }
 }
