@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-19T16:52:06Z",
+  "updatedAt": "2026-07-20T00:33:33Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -63,14 +63,47 @@
       "packageName": "pi-leetcode-tools",
       "gateClass": "release",
       "sourceMode": "formal_registry",
-      "status": "externally_blocked",
+      "status": "passed",
       "prerequisiteGates": [
         "TOOLS-ENG"
       ],
-      "blockers": [
-        "the immutable pi-leetcode-tools-v0.1.3 tag and tag-bound CI are pending",
-        "npm package bootstrap and trusted publisher evidence are incomplete",
-        "formal npm registry verification is missing"
+      "blockers": [],
+      "requiredEvidence": [
+        {
+          "evidenceId": "TOOLS-REL-IMMUTABLE-SOURCE",
+          "status": "passed",
+          "evidence": "main and immutable tag pi-leetcode-tools-v0.1.3 identify commit b9f597b589ff986c55671d52616e455e52d0d288. Tag CI run 29696017014 and release dry-run 29696151085 passed. Active ruleset 19161906 protects refs/tags/pi-leetcode-tools-v* against deletion and non-fast-forward updates."
+        },
+        {
+          "evidenceId": "TOOLS-REL-NPM-REGISTRY",
+          "status": "passed",
+          "evidence": "https://www.npmjs.com/package/pi-leetcode-tools/v/0.1.3 exposes the exact approved 320579-byte / 162-file tgz. SHA-256 is 911bee92100bb33f5fdb68d91a1e8f47ab3373be9af43560fcccbfa3c78d160a and npm integrity is sha512-vbNQWPVImKQ4sxQnKg4G5d5Y2CzFYGhZAl3Fz0/4ims19xMuyMXiHDchGXY4IjxHGmdsBqJ8t2Y4MK5gshSKrg==. Both next and npm-initialized latest point to 0.1.3."
+        },
+        {
+          "evidenceId": "TOOLS-REL-PROVENANCE",
+          "status": "passed",
+          "evidence": "npm SLSA provenance binds refs/tags/pi-leetcode-tools-v0.1.3, commit b9f597b589ff986c55671d52616e455e52d0d288, bootstrap-tools.yml and the exact registry tarball. Sigstore transparency-log index is 2202596094; npm audit signatures passed with no invalid or missing entries."
+        },
+        {
+          "evidenceId": "TOOLS-REL-INDEPENDENT-VERIFICATION",
+          "status": "passed",
+          "evidence": "The corrected credential-free verifier re-downloaded byte-identical registry content, performed a lifecycle-disabled clean install, matched all 162 installed files to CandidateRecord content digest sha256:7db3cb3fd4a76c3b2e76daa7f07c0aeba5f097f4321d0e26ff2fdce58b1ca04b, and activated 14/14 Pi tools through a closed allowlist registry. PR 4 push run 29697570847 and pull-request run 29697573175 passed Windows and Ubuntu on Node 22.19.0 and Node 24."
+        },
+        {
+          "evidenceId": "TOOLS-REL-TRUSTED-PUBLISHER",
+          "status": "passed",
+          "evidence": "npm trust relationship 14250bf8-aa81-4b65-9c1b-015f716a7c5f is type github, repository Li7777777/pi-leetcode-tools, file release-tools.yml, environment npm-tools-next, with createPackage permission. The committed regular release workflow remains OIDC-only and rejects NPM_TOKEN."
+        },
+        {
+          "evidenceId": "TOOLS-REL-CREDENTIAL-RETIREMENT",
+          "status": "passed",
+          "evidence": "GitHub environment secret NPM_TOKEN was deleted, bootstrap-tools.yml was disabled after the one-time publication, and temporary npm tokens leet and leet2fa were revoked. The final leet2fa whoami probe returned unauthorized after revocation."
+        },
+        {
+          "evidenceId": "TOOLS-REL-GITHUB-RELEASE",
+          "status": "passed",
+          "evidence": "GitHub Release https://github.com/Li7777777/pi-leetcode-tools/releases/tag/pi-leetcode-tools-v0.1.3 publishes the exact tgz together with SHA256SUMS, CycloneDX SBOM, supply-chain evidence, bootstrap registry verification and Pi activation evidence."
+        }
       ],
       "attemptHistory": [
         {
@@ -81,7 +114,39 @@
           "status": "failed_before_registry_write",
           "reason": "npm interpreted bootstrap-bundle/pi-leetcode-tools-0.1.2.tgz as a Git locator because the protected publish input lacked an explicit ./ local path prefix",
           "registryState": "package_absent_http_404"
+        },
+        {
+          "version": "0.1.3",
+          "tag": "pi-leetcode-tools-v0.1.3",
+          "commit": "b9f597b589ff986c55671d52616e455e52d0d288",
+          "workflowRun": "https://github.com/Li7777777/pi-leetcode-tools/actions/runs/29696235126",
+          "status": "failed_before_registry_write",
+          "reason": "The first 0.1.3 bootstrap secret write included a trailing newline, so npm rejected an illegal HTTP header after emitting provenance at transparency-log index 2202522560",
+          "registryState": "package_absent_http_404"
+        },
+        {
+          "version": "0.1.3",
+          "tag": "pi-leetcode-tools-v0.1.3",
+          "commit": "b9f597b589ff986c55671d52616e455e52d0d288",
+          "workflowRun": "https://github.com/Li7777777/pi-leetcode-tools/actions/runs/29696462445",
+          "status": "failed_before_registry_write",
+          "reason": "Windows PowerShell Process.StandardInput.Write prefixed the replacement secret with UTF-8 BOM EFBBBF, so npm again rejected an illegal HTTP header after provenance index 2202577511",
+          "registryState": "package_absent_http_404"
+        },
+        {
+          "version": "0.1.3",
+          "tag": "pi-leetcode-tools-v0.1.3",
+          "commit": "b9f597b589ff986c55671d52616e455e52d0d288",
+          "workflowRun": "https://github.com/Li7777777/pi-leetcode-tools/actions/runs/29696686517",
+          "status": "published_post_verification_recovered",
+          "reason": "The protected publish job succeeded and emitted provenance index 2202596094. The original post-publish job failed because direct Node invocation omitted npm_execpath; the corrected npm-script verifier subsequently passed exact bytes, provenance, clean install, signature audit, Pi activation and initial dist-tags.",
+          "registryState": "next_and_latest_equal_0.1.3"
         }
+      ],
+      "invalidationConditions": [
+        "pi-leetcode-tools@0.1.3 is deprecated, unpublished or its dist-tags move away from the recorded release state",
+        "the immutable source tag, CandidateRecord, registry bytes, npm provenance or GitHub Release assets no longer agree",
+        "the npm Trusted Publisher or protected npm-tools-next environment is removed or broadened"
       ]
     }
   ]
