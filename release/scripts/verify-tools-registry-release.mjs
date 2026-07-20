@@ -19,6 +19,7 @@ import {
   sha256Jcs,
   withExtractedPackage
 } from "../../packages/pi-leetcode-tools/scripts/release-utils.mjs";
+import { parseStableVersion } from "./dist-tag-policy.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const packageName = "pi-leetcode-tools";
@@ -106,6 +107,45 @@ function assertRegistryUrl(value, label) {
   return url;
 }
 
+async function assertGitHubReleaseContext(version, policy) {
+  const expectedTag = `${policy.releaseTagPrefix}${version}`;
+  assert(process.env.GITHUB_ACTIONS === "true", "Formal registry verification must run in GitHub Actions");
+  assert(process.env.GITHUB_EVENT_NAME === "workflow_dispatch", "Formal registry verification must run from workflow_dispatch");
+  assert(process.env.GITHUB_REF_TYPE === "tag", "Formal registry verification requires a Git tag ref");
+  assert(process.env.GITHUB_REF_NAME === expectedTag, `Formal registry verification requires tag ${expectedTag}`);
+  assert(process.env.GITHUB_REF === `refs/tags/${expectedTag}`, `GITHUB_REF must be refs/tags/${expectedTag}`);
+  assert(/^[0-9a-f]{40}$/u.test(process.env.GITHUB_SHA ?? ""), "Formal registry verification requires an exact Git commit SHA");
+  assert(
+    (process.env.GITHUB_WORKFLOW_REF ?? "").endsWith(
+      `/.github/workflows/release-tools.yml@refs/tags/${expectedTag}`
+    ),
+    "Formal registry verification must run from release-tools.yml at the exact release tag"
+  );
+  const [{ stdout: headOutput }, { stdout: tagOutput }] = await Promise.all([
+    runCommand("git", ["rev-parse", "HEAD"], { cwd: repositoryRoot }),
+    runCommand("git", ["rev-parse", `refs/tags/${expectedTag}^{commit}`], {
+      cwd: repositoryRoot
+    })
+  ]);
+  const expectedCommit = process.env.GITHUB_SHA;
+  assert(headOutput.trim().toLowerCase() === expectedCommit, "Checked-out HEAD differs from GITHUB_SHA");
+  assert(tagOutput.trim().toLowerCase() === expectedCommit, `Tag ${expectedTag} does not peel to GITHUB_SHA`);
+  return expectedTag;
+}
+
+async function fetchPackumentAtLatest(version) {
+  const packumentUrl = `${registryOrigin}/${encodedPackage(packageName)}`;
+  let packument;
+  for (let attempt = 1; attempt <= 12; attempt += 1) {
+    const response = await fetchWithRetry(packumentUrl, { redirect: "error" }, 1);
+    packument = await response.json();
+    assert(packument.name === packageName, "Registry packument has the wrong package identity");
+    if (packument["dist-tags"]?.latest === version) return { packumentUrl, packument };
+    if (attempt < 12) await new Promise((resolvePromise) => setTimeout(resolvePromise, 5_000));
+  }
+  throw new Error(`Registry latest tag does not point to ${version}; found ${packument?.["dist-tags"]?.latest ?? "<missing>"}`);
+}
+
 function decodeProvenance(attestations, version, tarballSha512) {
   assert(Array.isArray(attestations.attestations), "npm attestation response has no attestations array");
   const matches = attestations.attestations.filter(
@@ -187,23 +227,38 @@ async function verifyRegistryCleanInstall({
   const temporaryDirectory = await mkdtemp(join(tmpdir(), "pi-leetcode-tools-registry-install-"));
   const npmCache = join(temporaryDirectory, "npm-cache");
   const npmUserConfig = join(temporaryDirectory, "user.npmrc");
+  const npmGlobalConfig = join(temporaryDirectory, "global.npmrc");
   const packageJsonPath = join(temporaryDirectory, "package.json");
-  const isolatedEnvironment = {
-    ...process.env,
+  const isolatedEnvironment = { ...process.env };
+  for (const name of Object.keys(isolatedEnvironment)) {
+    const upperName = name.toUpperCase();
+    if (
+      upperName === "NPM_TOKEN" ||
+      upperName === "NODE_AUTH_TOKEN" ||
+      (upperName.startsWith("NPM_CONFIG_") &&
+        /(?:AUTH|TOKEN|PASSWORD|USERNAME)/u.test(upperName))
+    ) {
+      delete isolatedEnvironment[name];
+    }
+  }
+  Object.assign(isolatedEnvironment, {
+    HOME: temporaryDirectory,
     NODE_PATH: "",
     NPM_CONFIG_AUDIT: "false",
     NPM_CONFIG_CACHE: npmCache,
     NPM_CONFIG_FUND: "false",
+    NPM_CONFIG_GLOBALCONFIG: npmGlobalConfig,
     NPM_CONFIG_IGNORE_SCRIPTS: "true",
     NPM_CONFIG_REGISTRY: registryOrigin,
     NPM_CONFIG_UPDATE_NOTIFIER: "false",
     NPM_CONFIG_USERCONFIG: npmUserConfig
-  };
+  });
 
   try {
     await Promise.all([
       mkdir(npmCache, { recursive: true }),
       writeFile(npmUserConfig, `registry=${registryOrigin}/\naudit=false\nfund=false\nignore-scripts=true\n`, "utf8"),
+      writeFile(npmGlobalConfig, "", "utf8"),
       writeFile(
         packageJsonPath,
         `${JSON.stringify({ name: "pi-leetcode-tools-registry-probe", version: "0.0.0", private: true }, null, 2)}\n`,
@@ -226,7 +281,7 @@ async function verifyRegistryCleanInstall({
         "--ignore-scripts",
         "--no-audit",
         "--no-fund",
-        `${packageName}@${version}`
+        `${packageName}@latest`
       ],
       {
         cwd: temporaryDirectory,
@@ -278,7 +333,8 @@ async function verifyRegistryCleanInstall({
 
     return {
       npmVersion: npmVersionOutput.trim(),
-      requested: `${packageName}@${version}`,
+      requested: `${packageName}@latest`,
+      resolvedVersion: lockEntry.version,
       resolved: lockEntry.resolved,
       integrity: lockEntry.integrity,
       installedContentDigest: installedContent.digest,
@@ -329,10 +385,9 @@ const version = args.version;
 const expectedShaMatch = sha256Pattern.exec(args["expected-sha256"] ?? "");
 const expectedRecordDigest = args["expected-record-digest"];
 assert(typeof version === "string" && semverPattern.test(version), "--version must be an exact semantic version");
+parseStableVersion(version, "--version");
 assert(expectedShaMatch !== null, "--expected-sha256 must be an exact lowercase SHA-256 digest");
 assert(/^sha256:[0-9a-f]{64}$/u.test(expectedRecordDigest ?? ""), "--expected-record-digest must be an exact SHA-256 digest");
-assert(process.env.GITHUB_ACTIONS === "true", "Formal registry verification must run in GitHub Actions");
-assert(process.env.GITHUB_EVENT_NAME === "workflow_dispatch", "Formal registry verification must run from workflow_dispatch");
 
 const artifactsDirectory = resolve(args.artifacts ?? join(repositoryRoot, ".artifacts", "tools"));
 const recordsDirectory = resolve(args.records ?? join(repositoryRoot, "release", "candidates", "tools"));
@@ -340,7 +395,18 @@ const evidencePath = resolve(
   args.evidence ?? join(artifactsDirectory, `${packageName}-${version}-formal-registry-evidence.json`)
 );
 const policy = await readJson(join(repositoryRoot, "release", "tools-release-policy.json"));
-assert(policy.packageName === packageName && policy.registry === registryOrigin, "Committed release policy has the wrong registry identity");
+assert(
+  policy.schemaVersion === 2 &&
+    policy.packageName === packageName &&
+    policy.registry === registryOrigin,
+  "Committed release policy has the wrong schema or registry identity"
+);
+assert(policy.releaseTagPrefix === "pi-leetcode-tools-v", "Committed release tag prefix is invalid");
+assert(
+  policy.publishDistTag === "latest" && policy.preserveOtherDistTags === true,
+  "Committed regular release policy must publish latest and preserve every other dist-tag"
+);
+await assertGitHubReleaseContext(version, policy);
 const expectedOwner = policy.expectedNpmOwner;
 assert(/^[a-z0-9](?:[a-z0-9._-]{0,62})$/u.test(expectedOwner ?? ""), "Committed release policy has no reviewed npm owner");
 assert(
@@ -363,6 +429,10 @@ const candidateBytes = await readFile(candidateTarball);
 const expectedSha256 = expectedShaMatch[1];
 assert(sha256(candidateBytes) === expectedSha256, "Local candidate tarball does not match --expected-sha256");
 assert(record.artifact.sha256 === `sha256:${expectedSha256}`, "CandidateRecord does not match --expected-sha256");
+
+const { packumentUrl, packument } = await fetchPackumentAtLatest(version);
+assert(Object.hasOwn(packument.versions ?? {}, version), "Registry packument does not contain the published version");
+const registryLatest = packument["dist-tags"].latest;
 
 const metadataUrl = `${registryOrigin}/${encodedPackage(packageName)}/${encodeURIComponent(version)}`;
 const metadataResponse = await fetchWithRetry(metadataUrl, { redirect: "error" });
@@ -457,7 +527,7 @@ const [activationBytes, supplyChainBytes, sbomBytes] = await Promise.all([
 ]);
 
 const evidence = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   evidenceType: "formal-registry-release",
   generatedAt: new Date().toISOString(),
   sourceMode: "formal_registry",
@@ -465,6 +535,7 @@ const evidence = {
     package: packageName,
     version,
     recordId: current.recordId,
+    recordDigest: current.recordDigest,
     bytes: registryBytes.length,
     sha256: `sha256:${registrySha256}`,
     sha512: `sha512:${registrySha512}`,
@@ -472,9 +543,12 @@ const evidence = {
   },
   registry: {
     origin: registryOrigin,
+    packumentUrl,
     metadataUrl,
     tarballUrl: tarballUrl.href,
     owner: expectedOwner,
+    publishDistTag: policy.publishDistTag,
+    latest: registryLatest,
     releasePolicyDigest: sha256Jcs(policy),
     shasum: metadata.dist.shasum,
     signatures: metadata.dist.signatures.length,

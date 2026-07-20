@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "matrixType": "release-gate-matrix",
   "repository": "pi-leetcode-tools",
-  "updatedAt": "2026-07-20T03:19:51Z",
+  "updatedAt": "2026-07-20T04:25:22Z",
   "evidencePolicy": {
     "engineeringEvidenceMayUseWorkspaceSnapshot": true,
     "workspaceSnapshotIsFormalProvenance": false,
@@ -77,7 +77,7 @@
         {
           "evidenceId": "TOOLS-REL-NPM-REGISTRY",
           "status": "passed",
-          "evidence": "https://www.npmjs.com/package/pi-leetcode-tools/v/0.1.4 exposes the exact approved 323586-byte / 162-file tgz. SHA-256 is b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e, npm integrity is sha512-6KqtsUZ15YGYMHKbSPxF1udHuwjMGmc7WRk5N9LlhpzzTHRbUNB3BeAjcJxBuv6gRoLIkyWgh/tjz0B2gUjbag==, and shasum is e667adc1be4a00105435b36ab42b2a374a867834. next points to 0.1.4 while latest remains 0.1.3."
+          "evidence": "https://www.npmjs.com/package/pi-leetcode-tools/v/0.1.4 exposes the exact approved 323586-byte / 162-file tgz. SHA-256 is b0b01ce931d692db960ac6626687288c999a3f7de81599488bff4df4440d9f7e, npm integrity is sha512-6KqtsUZ15YGYMHKbSPxF1udHuwjMGmc7WRk5N9LlhpzzTHRbUNB3BeAjcJxBuv6gRoLIkyWgh/tjz0B2gUjbag==, and shasum is e667adc1be4a00105435b36ab42b2a374a867834. The public npm packument currently reports latest=0.1.4 and next=0.1.4, with time.modified=2026-07-20T03:43:50.517Z. This current dist-tag state does not rewrite the immutable publication-completion evidence attached to the 0.1.4 GitHub Release."
         },
         {
           "evidenceId": "TOOLS-REL-PROVENANCE",
@@ -87,12 +87,22 @@
         {
           "evidenceId": "TOOLS-REL-INDEPENDENT-VERIFICATION",
           "status": "passed",
-          "evidence": "Release run 29713903406 re-downloaded byte-identical registry content, verified signature and provenance, performed a lifecycle-disabled clean install, matched all 162 installed files to CandidateRecord content digest sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765, activated 14/14 Pi tools through a closed allowlist registry, passed production audit and secret scan, and proved next=0.1.4 while latest remained 0.1.3."
+          "evidence": "Release run 29713903406 re-downloaded byte-identical registry content, verified signature and provenance, performed a lifecycle-disabled clean install, matched all 162 installed files to CandidateRecord content digest sha256:dd945209f96cfcb6014a39ea9160cabb5cd99b1bfcf025db881976d22dedd765, activated 14/14 Pi tools through a closed allowlist registry, passed production audit and secret scan, and proved that at publication completion next=0.1.4 while latest remained 0.1.3. That result is the historical publication-instant invariant, not the current registry state after promotion."
+        },
+        {
+          "evidenceId": "TOOLS-REL-MANUAL-LATEST-PROMOTION",
+          "status": "passed",
+          "evidence": "After the exact 0.1.4 registry artifact, provenance, clean install and GitHub Release assets were verified, an npm owner-authorized manual `npm dist-tag add pi-leetcode-tools@0.1.4 latest` promotion moved latest from 0.1.3 to 0.1.4 without changing the immutable version bytes. A subsequent credential-free public registry read reports latest=0.1.4 and next=0.1.4; the packument modification time is 2026-07-20T03:43:50.517Z."
         },
         {
           "evidenceId": "TOOLS-REL-TRUSTED-PUBLISHER",
           "status": "passed",
           "evidence": "npm trust relationship 14250bf8-aa81-4b65-9c1b-015f716a7c5f is type github, repository Li7777777/pi-leetcode-tools, file release-tools.yml, environment npm-tools-next, with createPackage permission. The committed regular release workflow remains OIDC-only and rejects NPM_TOKEN."
+        },
+        {
+          "evidenceId": "TOOLS-REL-REGULAR-PUBLISH-LATEST-POLICY",
+          "status": "passed",
+          "evidence": "The forward schema-2 regular release policy uses the publish-latest mode for stable versions that are strictly newer than the existing npm latest. The protected OIDC job publishes the one exact approved tgz directly with --tag latest, preserves every non-target dist-tag including next, and the credential-free verifier records the latest transition. The manual 0.1.4 promotion is historical remediation and is not the steady-state path for future regular releases."
         },
         {
           "evidenceId": "TOOLS-REL-CREDENTIAL-RETIREMENT",
@@ -102,7 +112,7 @@
         {
           "evidenceId": "TOOLS-REL-GITHUB-RELEASE",
           "status": "passed",
-          "evidence": "GitHub Release https://github.com/Li7777777/pi-leetcode-tools/releases/tag/pi-leetcode-tools-v0.1.4 publishes the exact tgz together with SHA256SUMS, CycloneDX SBOM, supply-chain evidence, formal registry verification, dist-tag evidence and Pi activation evidence. All seven uploaded asset digests match the locally verified release set."
+          "evidence": "GitHub Release https://github.com/Li7777777/pi-leetcode-tools/releases/tag/pi-leetcode-tools-v0.1.4 publishes the exact tgz together with SHA256SUMS, CycloneDX SBOM, supply-chain evidence, formal registry verification, dist-tag evidence and Pi activation evidence. All seven uploaded asset digests match the locally verified release set. The attached pi-leetcode-tools-0.1.4-dist-tag-evidence.json intentionally records the publication-completion state next=0.1.4 and latest=0.1.3; it remains immutable historical evidence and must not be interpreted as the current post-promotion registry state."
         }
       ],
       "attemptHistory": [
@@ -148,14 +158,15 @@
           "commit": "d72f60e741246d918c9f866c905815befcc62390",
           "workflowRun": "https://github.com/Li7777777/pi-leetcode-tools/actions/runs/29713903406",
           "status": "published_and_verified",
-          "reason": "The protected OIDC publish-next job published the exact committed tgz, and the credential-free verifier passed registry bytes, SLSA provenance, signature audit, lifecycle-disabled clean install, Pi activation, supply-chain checks and the protected latest dist-tag invariant.",
-          "registryState": "next_0.1.4_latest_0.1.3"
+          "reason": "The protected OIDC publish-next job published the exact committed tgz, and the credential-free verifier passed registry bytes, SLSA provenance, signature audit, lifecycle-disabled clean install, Pi activation, supply-chain checks and the publication-completion latest dist-tag invariant. The later owner-authorized manual latest promotion is recorded separately by TOOLS-REL-MANUAL-LATEST-PROMOTION.",
+          "registryState": "publication_completion_next_0.1.4_latest_0.1.3"
         }
       ],
       "invalidationConditions": [
-        "pi-leetcode-tools@0.1.4 is deprecated, unpublished or its dist-tags move away from the required next=0.1.4 and latest=0.1.3 state",
+        "pi-leetcode-tools@0.1.4 is deprecated, unpublished or its current dist-tags move away from the required next=0.1.4 and latest=0.1.4 state",
         "the immutable source tag, CandidateRecord, registry bytes, npm provenance or GitHub Release assets no longer agree",
-        "the npm Trusted Publisher or protected npm-tools-next environment is removed or broadened"
+        "the npm Trusted Publisher or protected npm-tools-next environment is removed or broadened",
+        "the forward regular workflow no longer publishes an exact stable version directly to latest while preserving every non-target dist-tag"
       ]
     }
   ]

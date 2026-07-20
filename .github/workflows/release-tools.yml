@@ -1,16 +1,16 @@
-name: release-tools-next
+name: release-tools-latest
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Validate only, or publish the committed candidate to next
+        description: Validate only, or publish the committed candidate to latest
         required: true
         type: choice
         default: dry-run
         options:
           - dry-run
-          - publish-next
+          - publish-latest
       version:
         description: Exact committed pi-leetcode-tools semantic version
         required: true
@@ -24,7 +24,7 @@ on:
         required: true
         type: string
       confirmation:
-        description: For publishing, type "publish pi-leetcode-tools@VERSION to next"
+        description: For publishing, type "publish pi-leetcode-tools@VERSION to latest"
         required: false
         type: string
         default: ""
@@ -33,7 +33,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-pi-leetcode-tools-next
+  group: release-pi-leetcode-tools-latest
   cancel-in-progress: false
 
 env:
@@ -94,7 +94,7 @@ jobs:
         run: >-
           npm publish "./.artifacts/release-bundle/tools/pi-leetcode-tools-${RELEASE_VERSION}.tgz"
           --dry-run
-          --tag next
+          --tag latest
           --ignore-scripts
       - name: Upload exact approved release bundle
         if: ${{ hashFiles('.artifacts/release-bundle/tools/approval.json') != '' }}
@@ -106,9 +106,9 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  publish-next:
-    name: Protected minimal OIDC publish
-    if: ${{ inputs.mode == 'publish-next' }}
+  publish-latest:
+    name: Protected minimal OIDC publish to latest
+    if: ${{ inputs.mode == 'publish-latest' }}
     needs: validate-build
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -126,7 +126,7 @@ jobs:
         with:
           name: tools-release-bundle-${{ github.run_id }}
           path: release-bundle
-      - name: Verify committed approval and publish one exact tgz to next
+      - name: Verify committed approval and publish one exact tgz to latest
         shell: bash
         run: |
           set -euo pipefail
@@ -139,6 +139,32 @@ jobs:
           const fail = (message) => { throw new Error(message); };
           const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
           const integrity = (bytes) => `sha512-${createHash("sha512").update(bytes).digest("base64")}`;
+          const stableVersion = (value, label) => {
+            const match = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/u.exec(value ?? "");
+            if (match === null) fail(`${label} must be a stable semantic version`);
+            return match.slice(1).map((part) => BigInt(part));
+          };
+          const compareVersions = (left, right) => {
+            for (let index = 0; index < 3; index += 1) {
+              if (left[index] < right[index]) return -1;
+              if (left[index] > right[index]) return 1;
+            }
+            return 0;
+          };
+          const normalizeDistTags = (value, label) => {
+            if (value === null || typeof value !== "object" || Array.isArray(value)) fail(`${label} must be an object`);
+            const entries = Object.entries(value).map(([tag, tagVersion]) => {
+              if (tag.length === 0 || /\s/u.test(tag) || typeof tagVersion !== "string" || tagVersion.length === 0) fail(`${label} contains an invalid dist-tag`);
+              return [tag, tagVersion];
+            });
+            entries.sort(([left], [right]) => left.localeCompare(right));
+            return Object.fromEntries(entries);
+          };
+          const registryStateDigest = (state) => {
+            if (typeof state?.packageExists !== "boolean") fail("Registry snapshot packageExists is invalid");
+            const normalized = { packageExists: state.packageExists, distTags: normalizeDistTags(state.distTags, "Registry snapshot distTags") };
+            return `sha256:${sha256(Buffer.from(JSON.stringify(normalized), "utf8"))}`;
+          };
           const canonical = (value) => {
             if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
             if (value !== null && typeof value === "object") {
@@ -170,11 +196,12 @@ jobs:
             if (!metadata.isFile() || metadata.isSymbolicLink()) fail(`Unsafe release-bundle entry: ${entry}`);
           }
 
-          const [approval, current, recordText, policy, tarball] = await Promise.all([
+          const [approval, current, recordText, policy, snapshot, tarball] = await Promise.all([
             readFile(join(directory, "approval.json"), "utf8").then(JSON.parse),
             readFile(join(directory, "current.json"), "utf8").then(JSON.parse),
             readFile(join(directory, "record.json"), "utf8"),
             readFile(join(directory, "policy.json"), "utf8").then(JSON.parse),
+            readFile(join(directory, "pre-publish-dist-tags.json"), "utf8").then(JSON.parse),
             readFile(join(directory, tarballName))
           ]);
           const record = JSON.parse(recordText);
@@ -182,12 +209,13 @@ jobs:
           const expectedSha256 = (process.env.RELEASE_EXPECTED_SHA256 ?? "").replace(/^sha256:/u, "");
           const expectedRecordDigest = process.env.RELEASE_EXPECTED_RECORD_DIGEST;
           const expectedTag = `pi-leetcode-tools-v${version}`;
+          const requestedVersion = stableVersion(version, "Requested version");
           if (!/^[0-9a-f]{64}$/u.test(expectedSha256)) fail("Expected tarball SHA-256 is invalid");
           if (!/^sha256:[0-9a-f]{64}$/u.test(expectedRecordDigest ?? "")) fail("Expected record digest is invalid");
           if (process.env.GITHUB_REF_TYPE !== "tag" || process.env.GITHUB_REF_NAME !== expectedTag) fail("Publish job is not running at the exact release tag");
           if (process.env.GITHUB_EVENT_NAME !== "workflow_dispatch") fail("Publish job was not manually dispatched");
-          if (process.env.RELEASE_CONFIRMATION !== `publish pi-leetcode-tools@${version} to next`) fail("Manual publish confirmation is invalid");
-          if (approval.mode !== "publish-next") fail("Approval bundle is not authorized for publishing");
+          if (process.env.RELEASE_CONFIRMATION !== `publish pi-leetcode-tools@${version} to latest`) fail("Manual publish confirmation is invalid");
+          if (approval.mode !== "publish-latest") fail("Approval bundle is not authorized for publishing");
           if (approval.source?.commit !== (process.env.GITHUB_SHA ?? "").toLowerCase()) fail("Approval commit differs from GITHUB_SHA");
           if (approval.source?.tag !== expectedTag || approval.source?.tagPeeledToHead !== true) fail("Approval is not bound to the peeled release tag");
           if (approval.subject?.package !== "pi-leetcode-tools" || approval.subject?.version !== version) fail("Approval subject is invalid");
@@ -200,15 +228,39 @@ jobs:
           if (record.artifact?.file !== tarballName || record.artifact?.sha256 !== `sha256:${expectedSha256}`) fail("CandidateRecord artifact identity is invalid");
           if (record.artifact?.bytes !== tarball.length || sha256(tarball) !== expectedSha256) fail("Downloaded tarball differs from the approved bytes");
           if (record.artifact?.distIntegrity !== integrity(tarball)) fail("Downloaded tarball integrity differs from the CandidateRecord");
-          if (policy.packageName !== "pi-leetcode-tools" || policy.registry !== "https://registry.npmjs.org" || policy.releaseTagPrefix !== "pi-leetcode-tools-v") fail("Release policy registry or tag identity is invalid");
-          if (policy.publishDistTag !== "next" || policy.protectedDistTag !== "latest") fail("Release policy dist-tags are invalid");
+          if (policy.schemaVersion !== 2 || policy.packageName !== "pi-leetcode-tools" || policy.registry !== "https://registry.npmjs.org" || policy.releaseTagPrefix !== "pi-leetcode-tools-v") fail("Release policy registry or tag identity is invalid");
+          if (policy.publishDistTag !== "latest" || policy.preserveOtherDistTags !== true) fail("Release policy dist-tags are invalid");
           if (approval.policy?.digest !== jcsDigest(policy)) fail("Approval is not bound to the reviewed release policy");
+          if (approval.policy?.publishDistTag !== "latest" || approval.policy?.preserveOtherDistTags !== true) fail("Approval is not bound to the stable-only dist-tag policy");
+          if (snapshot.schemaVersion !== 2 || snapshot.evidenceType !== "npm-dist-tag-snapshot" || snapshot.registry !== "https://registry.npmjs.org" || snapshot.package !== "pi-leetcode-tools") fail("Pre-publish dist-tag snapshot identity is invalid");
+          if (snapshot.publishTag !== "latest" || snapshot.preserveOtherDistTags !== true || snapshot.state?.packageExists !== true) fail("Pre-publish dist-tag snapshot policy is invalid");
+          const snapshotTags = normalizeDistTags(snapshot.state.distTags, "Pre-publish snapshot distTags");
+          if (snapshot.stateDigest !== registryStateDigest({ packageExists: true, distTags: snapshotTags })) fail("Pre-publish dist-tag snapshot digest is invalid");
+          if (approval.registryPreflight?.packageExists !== snapshot.state.packageExists || JSON.stringify(normalizeDistTags(approval.registryPreflight?.distTags, "Approval registry distTags")) !== JSON.stringify(snapshotTags)) fail("Approval registry preflight is not bound to the dist-tag snapshot");
           if (typeof policy.expectedNpmOwner !== "string" || !approval.registryPreflight?.maintainers?.includes(policy.expectedNpmOwner)) fail("Reviewed npm owner was not verified before approval");
           if (approval.registryPreflight?.packageExists !== true || approval.registryPreflight?.versionExists !== false) fail("Regular OIDC workflow cannot bootstrap or overwrite an npm version");
+          const latestVersion = stableVersion(approval.registryPreflight?.distTags?.latest, "Existing npm latest");
+          if (compareVersions(requestedVersion, latestVersion) <= 0) fail("Requested version must be strictly newer than existing npm latest");
           if (policy.trustedPublisher?.configured !== true || policy.trustedPublisher?.workflow !== ".github/workflows/release-tools.yml" || policy.trustedPublisher?.environment !== "npm-tools-next" || typeof policy.trustedPublisher?.evidenceReference !== "string" || policy.trustedPublisher.evidenceReference.length === 0) fail("Trusted-publisher external evidence gate is not committed as configured");
           for (const blocker of ["bootstrap_required", "expected_npm_owner_unconfigured", "trusted_publisher_external_gate_unconfirmed"]) {
             if (approval.releaseBlockers?.includes(blocker)) fail(`Release approval retains blocking gate: ${blocker}`);
           }
+
+          const liveResponse = await fetch("https://registry.npmjs.org/pi-leetcode-tools", {
+            headers: { accept: "application/json", "user-agent": "pi-leetcode-tools-pre-publish-recheck/1" },
+            redirect: "error",
+            cache: "no-store"
+          });
+          if (!liveResponse.ok) fail(`Live npm pre-publish recheck failed with HTTP ${liveResponse.status}`);
+          const livePackument = await liveResponse.json();
+          if (livePackument.name !== "pi-leetcode-tools") fail("Live npm pre-publish recheck returned the wrong package");
+          if (Object.hasOwn(livePackument.versions ?? {}, version)) fail("Requested npm version appeared after validation and is immutable");
+          const liveMaintainers = (livePackument.maintainers ?? []).map((entry) => entry?.name).filter((name) => typeof name === "string").sort();
+          if (!liveMaintainers.includes(policy.expectedNpmOwner)) fail("Expected npm owner disappeared after validation");
+          const liveTags = normalizeDistTags(livePackument["dist-tags"] ?? {}, "Live npm distTags");
+          if (JSON.stringify(liveTags) !== JSON.stringify(snapshotTags)) fail("npm dist-tags changed after validation");
+          const liveLatestVersion = stableVersion(liveTags.latest, "Live npm latest");
+          if (compareVersions(requestedVersion, liveLatestVersion) <= 0) fail("Requested version is no longer newer than live npm latest");
 
           const forbiddenEnvironment = new Set(["NODE_AUTH_TOKEN", "NPM_TOKEN"]);
           for (const [name, value] of Object.entries(process.env)) {
@@ -264,15 +316,15 @@ jobs:
           NPM_CONFIG_CACHE="$isolated_cache" \
           npm publish "./release-bundle/pi-leetcode-tools-${RELEASE_VERSION}.tgz" \
             --registry https://registry.npmjs.org/ \
-            --tag next \
+            --tag latest \
             --provenance \
             --access public \
             --ignore-scripts
 
   verify-registry:
     name: Verify registry release without OIDC
-    if: ${{ inputs.mode == 'publish-next' }}
-    needs: publish-next
+    if: ${{ inputs.mode == 'publish-latest' }}
+    needs: publish-latest
     runs-on: ubuntu-latest
     timeout-minutes: 75
     permissions:
@@ -308,12 +360,31 @@ jobs:
           --artifacts .artifacts/tools
           --records release/candidates/tools
           --evidence ".artifacts/tools/pi-leetcode-tools-${RELEASE_VERSION}-formal-registry-evidence.json"
-      - name: Prove next moved and latest did not
+      - name: Prove latest moved and every non-target dist-tag did not
         run: >-
           npm run assert:tools:registry-tags --
           --snapshot release-bundle/pre-publish-dist-tags.json
           --version "$RELEASE_VERSION"
           --output ".artifacts/tools/pi-leetcode-tools-${RELEASE_VERSION}-dist-tag-evidence.json"
+      - name: Prepare exact seven-asset GitHub Release bundle
+        run: >-
+          node ./release/scripts/prepare-tools-github-release.mjs
+          --version "$RELEASE_VERSION"
+          --expected-sha256 "$RELEASE_EXPECTED_SHA256"
+          --expected-record-digest "$RELEASE_EXPECTED_RECORD_DIGEST"
+          --artifacts .artifacts/tools
+          --output .artifacts/github-release-bundle/tools
+          --repository "$GITHUB_REPOSITORY"
+          --ref "$GITHUB_REF"
+          --commit "$GITHUB_SHA"
+      - name: Upload exact GitHub Release data bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tools-github-release-bundle-${{ github.run_id }}
+          path: .artifacts/github-release-bundle/tools/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
       - name: Retain formal registry evidence
         if: ${{ always() && hashFiles('.artifacts/tools/pi-leetcode-tools-*.tgz') != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -323,3 +394,316 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 90
+
+  publish-github-release:
+    name: Publish exact latest GitHub Release without npm authority
+    if: ${{ inputs.mode == 'publish-latest' }}
+    needs: verify-registry
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Set up fixed GitHub Release runtime
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: 24.18.0
+      - name: Download exact verified GitHub Release data bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: tools-github-release-bundle-${{ github.run_id }}
+          path: github-release-bundle
+      - name: Create or resume one exact draft and publish it as latest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node --input-type=module <<'NODE'
+          import { createHash } from "node:crypto";
+          import { lstat, readFile, readdir } from "node:fs/promises";
+          import { basename, join, resolve } from "node:path";
+
+          const apiOrigin = "https://api.github.com";
+          const apiVersion = "2022-11-28";
+          const packageName = "pi-leetcode-tools";
+          const fail = (message) => { throw new Error(message); };
+          const assert = (condition, message) => { if (!condition) fail(message); };
+          const sha256 = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+          const stableVersion = (value, label) => {
+            const match = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/u.exec(value ?? "");
+            assert(match !== null, `${label} must be a stable semantic version`);
+            return match.slice(1).map((part) => BigInt(part));
+          };
+          const compareVersions = (left, right) => {
+            const leftParts = stableVersion(left, "Left version");
+            const rightParts = stableVersion(right, "Right version");
+            for (let index = 0; index < 3; index += 1) {
+              if (leftParts[index] < rightParts[index]) return -1;
+              if (leftParts[index] > rightParts[index]) return 1;
+            }
+            return 0;
+          };
+          const token = process.env.GITHUB_TOKEN;
+          const repository = process.env.GITHUB_REPOSITORY;
+          const directory = resolve("github-release-bundle");
+          assert(typeof token === "string" && token.length > 0, "GITHUB_TOKEN is unavailable");
+          assert(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(repository ?? ""), "GITHUB_REPOSITORY is invalid");
+          assert(!process.env.ACTIONS_ID_TOKEN_REQUEST_URL && !process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN, "GitHub Release job must not receive OIDC authority");
+          for (const [name, value] of Object.entries(process.env)) {
+            if (typeof value !== "string" || value.length === 0) continue;
+            const upper = name.toUpperCase();
+            if (["NPM_TOKEN", "NODE_AUTH_TOKEN"].includes(upper)) fail(`${name} is forbidden in the GitHub Release job`);
+            if (upper.startsWith("NPM_CONFIG_") && /(?:AUTH|TOKEN|PASSWORD|USERNAME)/u.test(upper)) fail(`${name} is forbidden in the GitHub Release job`);
+          }
+
+          const regularFile = async (path, label) => {
+            const metadata = await lstat(path);
+            assert(metadata.isFile() && !metadata.isSymbolicLink(), `${label} is not a regular file`);
+            return readFile(path);
+          };
+          const manifestBytes = await regularFile(join(directory, "manifest.json"), "manifest.json");
+          const manifest = JSON.parse(manifestBytes.toString("utf8"));
+          assert(manifest.schemaVersion === 1 && manifest.bundleType === "pi-leetcode-tools-github-release", "Manifest schema or type is invalid");
+          assert(manifest.package === packageName && /^\d+\.\d+\.\d+$/u.test(manifest.version ?? ""), "Manifest package or stable version is invalid");
+          const expectedTag = `${packageName}-v${manifest.version}`;
+          assert(manifest.release?.tag === expectedTag, "Manifest release tag is invalid");
+          assert(manifest.release.title === `${packageName} ${manifest.version}`, "Manifest release title is invalid");
+          stableVersion(manifest.release.previousVersion, "Previous release version");
+          assert(compareVersions(manifest.version, manifest.release.previousVersion) > 0, "Manifest would move repository latest backwards");
+          assert(manifest.release.previousTag === `${packageName}-v${manifest.release.previousVersion}`, "Manifest previous release tag is invalid");
+          assert(manifest.release.bodyFile === "release-notes.md" && /^sha256:[0-9a-f]{64}$/u.test(manifest.release.bodySha256 ?? ""), "Manifest release body identity is invalid");
+          assert(manifest.release.draftFirst === true && manifest.release.prerelease === false && manifest.release.makeLatest === true, "Manifest release state is invalid");
+          assert(manifest.source?.repository === repository, "Manifest repository differs from GITHUB_REPOSITORY");
+          assert(manifest.source.ref === process.env.GITHUB_REF && manifest.source.ref === `refs/tags/${expectedTag}`, "Manifest ref differs from the exact release tag");
+          assert(manifest.source.commit === (process.env.GITHUB_SHA ?? "").toLowerCase() && /^[0-9a-f]{40}$/u.test(manifest.source.commit), "Manifest commit differs from GITHUB_SHA");
+          assert(manifest.source.workflow === ".github/workflows/release-tools.yml", "Manifest workflow is invalid");
+          assert((process.env.GITHUB_WORKFLOW_REF ?? "").includes(`/${manifest.source.workflow}@${manifest.source.ref}`), "GITHUB_WORKFLOW_REF differs from the manifest");
+          assert(manifest.npm?.registry === "https://registry.npmjs.org" && manifest.npm.distTag === "latest", "Manifest npm identity is invalid");
+          assert(/^sha256:[0-9a-f]{64}$/u.test(manifest.npm.tarballSha256 ?? "") && /^sha256:[0-9a-f]{64}$/u.test(manifest.npm.candidateRecordDigest ?? ""), "Manifest npm digests are invalid");
+          assert(Array.isArray(manifest.assets) && manifest.assets.length === 7, "Manifest must contain exactly seven public assets");
+
+          const requiredNames = new Set([
+            `${packageName}-${manifest.version}.tgz`,
+            `${packageName}-${manifest.version}-formal-registry-evidence.json`,
+            `${packageName}-${manifest.version}-dist-tag-evidence.json`,
+            `${packageName}-${manifest.version}-pi-activation.json`,
+            `${packageName}-${manifest.version}-release-evidence.json`,
+            `${packageName}-${manifest.version}-sbom.cdx.json`,
+            "SHA256SUMS.txt"
+          ]);
+          const expectedAssets = new Map();
+          for (const asset of manifest.assets) {
+            assert(typeof asset?.name === "string" && basename(asset.name) === asset.name && requiredNames.has(asset.name), `Unsafe or unexpected manifest asset ${asset?.name ?? "<unnamed>"}`);
+            assert(!expectedAssets.has(asset.name), `Manifest repeats asset ${asset.name}`);
+            assert(Number.isSafeInteger(asset.size) && asset.size > 0 && /^sha256:[0-9a-f]{64}$/u.test(asset.sha256 ?? "") && typeof asset.contentType === "string", `Manifest identity is invalid for ${asset.name}`);
+            const bytes = await regularFile(join(directory, asset.name), asset.name);
+            assert(bytes.length === asset.size && sha256(bytes) === asset.sha256, `Bundle asset differs from manifest: ${asset.name}`);
+            expectedAssets.set(asset.name, { ...asset, bytes });
+          }
+          assert(expectedAssets.size === requiredNames.size, "Manifest asset inventory is incomplete");
+          const bodyBytes = await regularFile(join(directory, manifest.release.bodyFile), manifest.release.bodyFile);
+          assert(sha256(bodyBytes) === manifest.release.bodySha256, "Release notes differ from the manifest");
+          const body = bodyBytes.toString("utf8");
+          const entries = await readdir(directory, { withFileTypes: true });
+          const allowedEntries = new Set(["manifest.json", manifest.release.bodyFile, ...expectedAssets.keys()]);
+          assert(entries.length === allowedEntries.size, "GitHub Release bundle contains unexpected files");
+          for (const entry of entries) assert(entry.isFile() && !entry.isSymbolicLink() && allowedEntries.has(entry.name), `Unsafe GitHub Release bundle entry ${entry.name}`);
+          const checksumLines = expectedAssets.get("SHA256SUMS.txt").bytes.toString("utf8").trimEnd().split("\n");
+          const wantedChecksumLines = [...expectedAssets.values()]
+            .filter((asset) => asset.name !== "SHA256SUMS.txt")
+            .sort((left, right) => left.name.localeCompare(right.name))
+            .map((asset) => `${asset.sha256.slice(7)}  ${asset.name}`);
+          assert(JSON.stringify(checksumLines) === JSON.stringify(wantedChecksumLines), "SHA256SUMS is incomplete or out of order");
+
+          const headers = (accept = "application/vnd.github+json") => ({
+            accept,
+            authorization: `Bearer ${token}`,
+            "user-agent": "pi-leetcode-tools-github-release-publisher/1",
+            "x-github-api-version": apiVersion
+          });
+          const request = async (url, { method = "GET", body: requestBody, accept, contentType, allowed = [200] } = {}) => {
+            const target = typeof url === "string" && url.startsWith("/") ? new URL(url, apiOrigin) : new URL(url);
+            assert(target.protocol === "https:" && ["api.github.com", "uploads.github.com"].includes(target.hostname), "Unsafe GitHub API URL");
+            const binary = Buffer.isBuffer(requestBody);
+            const response = await fetch(target, {
+              method,
+              redirect: "error",
+              headers: {
+                ...headers(accept),
+                ...(requestBody === undefined ? {} : { "content-type": binary ? (contentType ?? "application/octet-stream") : "application/json" })
+              },
+              body: requestBody === undefined ? undefined : binary ? requestBody : JSON.stringify(requestBody)
+            });
+            if (!allowed.includes(response.status)) fail(`GitHub API ${method} ${target.pathname} failed with HTTP ${response.status}: ${await response.text()}`);
+            return response;
+          };
+          const json = async (response, label) => {
+            try { return await response.json(); }
+            catch (error) { throw new Error(`${label} returned invalid JSON: ${error.message}`); }
+          };
+          const releaseByTag = async () => {
+            const response = await request(`/repos/${repository}/releases/tags/${encodeURIComponent(expectedTag)}`, { allowed: [200, 404] });
+            return response.status === 404 ? null : json(response, "Release lookup");
+          };
+          const latestRelease = async () => {
+            const response = await request(`/repos/${repository}/releases/latest`, { allowed: [200, 404] });
+            return response.status === 404 ? null : json(response, "Latest release lookup");
+          };
+          const verifyReleaseTagCommit = async () => {
+            const response = await request(`/repos/${repository}/git/ref/tags/${encodeURIComponent(expectedTag)}`);
+            const reference = await json(response, "Git tag reference lookup");
+            assert(reference.ref === `refs/tags/${expectedTag}`, "Git tag lookup returned the wrong ref");
+            let object = reference.object;
+            const seen = new Set();
+            for (let depth = 0; depth < 8; depth += 1) {
+              assert(typeof object?.type === "string" && /^[0-9a-f]{40}$/u.test(object?.sha ?? ""), "Git tag target object is invalid");
+              if (object.type === "commit") {
+                assert(object.sha === manifest.source.commit, "Git release tag no longer peels to the manifest commit");
+                return;
+              }
+              assert(object.type === "tag" && !seen.has(object.sha), "Annotated Git tag chain is invalid");
+              seen.add(object.sha);
+              const tagResponse = await request(`/repos/${repository}/git/tags/${object.sha}`);
+              const tagObject = await json(tagResponse, "Annotated Git tag lookup");
+              assert(tagObject.sha === object.sha && tagObject.object !== undefined, "Annotated Git tag response is invalid");
+              object = tagObject.object;
+            }
+            fail("Annotated Git tag chain is too deep");
+          };
+          const apiAssets = async (releaseId) => {
+            const response = await request(`/repos/${repository}/releases/${releaseId}/assets?per_page=100`);
+            const assets = await json(response, "Release asset listing");
+            assert(Array.isArray(assets) && assets.length < 100, "Release asset listing is invalid or paginated");
+            return assets;
+          };
+          const safeDownload = (value) => {
+            const url = new URL(value);
+            assert(url.protocol === "https:" && (url.hostname === "github.com" || url.hostname.endsWith(".github.com") || url.hostname === "githubusercontent.com" || url.hostname.endsWith(".githubusercontent.com")), `Unsafe release asset host ${url.hostname}`);
+            return url;
+          };
+          const downloadAsset = async (asset) => {
+            assert(typeof asset.url === "string" && asset.url.startsWith(`${apiOrigin}/`), `Unsafe asset API URL for ${asset.name}`);
+            let response = await fetch(asset.url, { redirect: "manual", headers: headers("application/octet-stream") });
+            if ([301, 302, 303, 307, 308].includes(response.status)) {
+              const location = response.headers.get("location");
+              assert(location !== null, `Asset ${asset.name} redirect has no location`);
+              response = await fetch(safeDownload(location), { redirect: "follow", headers: { "user-agent": "pi-leetcode-tools-github-release-publisher/1" } });
+              safeDownload(response.url);
+            }
+            assert(response.ok, `Asset ${asset.name} download failed with HTTP ${response.status}`);
+            return Buffer.from(await response.arrayBuffer());
+          };
+          const exactExistingAssets = async (releaseId) => {
+            const listed = await apiAssets(releaseId);
+            const seen = new Set();
+            return Promise.all(listed.map(async (asset) => {
+              assert(expectedAssets.has(asset?.name), `Existing release contains unexpected asset ${asset?.name ?? "<unnamed>"}`);
+              assert(!seen.has(asset.name), `Existing release repeats asset ${asset.name}`);
+              seen.add(asset.name);
+              assert(asset.state === "uploaded", `Existing asset ${asset.name} is not fully uploaded`);
+              const bytes = await downloadAsset(asset);
+              assert(bytes.length === asset.size, `Existing asset ${asset.name} size metadata is invalid`);
+              const expected = expectedAssets.get(asset.name);
+              assert(bytes.length === expected.size && sha256(bytes) === expected.sha256, `Existing asset ${asset.name} differs from the manifest`);
+              return { name: asset.name };
+            }));
+          };
+          const assertMetadata = (release) => {
+            assert(Number.isSafeInteger(release?.id) && release.id > 0, "Existing release has no numeric id");
+            assert(release.tag_name === expectedTag, "Existing release tag differs from the manifest");
+            assert(release.name === manifest.release.title, "Existing release title differs from the manifest");
+            assert((release.body ?? "") === body, "Existing release body differs from the manifest");
+            assert(release.prerelease === false && typeof release.draft === "boolean", "Existing release state differs from the manifest");
+          };
+          const assertExpectedPredecessor = (repositoryLatest) => {
+            assert(repositoryLatest !== null, `Repository latest release must be ${manifest.release.previousTag}`);
+            assert(repositoryLatest.tag_name === manifest.release.previousTag, "Repository latest release differs from the expected predecessor");
+            assert(repositoryLatest.draft === false && repositoryLatest.prerelease === false, "Repository latest predecessor is not a stable published release");
+          };
+          const inspect = async (release, repositoryLatest) => {
+            assertMetadata(release);
+            const existing = await exactExistingAssets(release.id);
+            const present = new Set(existing.map((asset) => asset.name));
+            const missing = [...expectedAssets.keys()].filter((name) => !present.has(name)).sort();
+            if (!release.draft) {
+              assert(missing.length === 0, `Published release is missing assets: ${missing.join(", ")}`);
+              assert(repositoryLatest?.id === release.id, "Published release is not the repository latest release");
+              return { action: "no-op", missing };
+            }
+            assertExpectedPredecessor(repositoryLatest);
+            return { action: "resume-draft", missing };
+          };
+
+          await verifyReleaseTagCommit();
+          const initialRepositoryLatest = await latestRelease();
+          let release = await releaseByTag();
+          if (release === null) {
+            assertExpectedPredecessor(initialRepositoryLatest);
+            const response = await request(`/repos/${repository}/releases`, {
+              method: "POST",
+              allowed: [201, 422],
+              body: {
+                tag_name: expectedTag,
+                target_commitish: manifest.source.commit,
+                name: manifest.release.title,
+                body,
+                draft: true,
+                prerelease: false,
+                generate_release_notes: false,
+                make_latest: "false"
+              }
+            });
+            release = response.status === 201 ? await json(response, "Draft creation") : await releaseByTag();
+            assert(release !== null, "Concurrent draft creation did not yield a retrievable release");
+          }
+
+          let state = await inspect(release, initialRepositoryLatest);
+          if (state.action === "no-op") {
+            console.log(JSON.stringify({ action: "no-op", releaseId: release.id, tag: expectedTag }, null, 2));
+            process.exit(0);
+          }
+          assert(release.draft === true && state.action === "resume-draft", "Only an exact matching draft may be resumed");
+          for (const name of state.missing) {
+            const asset = expectedAssets.get(name);
+            const upload = new URL(release.upload_url.replace("{?name,label}", ""));
+            assert(upload.protocol === "https:" && upload.hostname === "uploads.github.com", "Release upload URL is unsafe");
+            upload.searchParams.set("name", asset.name);
+            await request(upload.href, { method: "POST", body: asset.bytes, contentType: asset.contentType, allowed: [201] });
+          }
+
+          release = await releaseByTag();
+          assert(release?.draft === true, "Release draft disappeared before publication");
+          await verifyReleaseTagCommit();
+          const prePublishRepositoryLatest = await latestRelease();
+          state = await inspect(release, prePublishRepositoryLatest);
+          assert(state.action === "resume-draft" && state.missing.length === 0, "Release draft assets are not complete and exact");
+          await request(`/repos/${repository}/releases/${release.id}`, {
+            method: "PATCH",
+            body: {
+              tag_name: expectedTag,
+              name: manifest.release.title,
+              body,
+              draft: false,
+              prerelease: false,
+              make_latest: "true"
+            }
+          });
+
+          let finalRelease;
+          for (let attempt = 1; attempt <= 6; attempt += 1) {
+            finalRelease = await releaseByTag();
+            if (finalRelease?.draft === false) {
+              try {
+                const finalState = await inspect(finalRelease, await latestRelease());
+                if (finalState.action === "no-op") break;
+              } catch (error) {
+                if (attempt === 6) throw error;
+              }
+            }
+            if (attempt < 6) await new Promise((resolvePromise) => setTimeout(resolvePromise, 2_000));
+          }
+          assert(finalRelease?.draft === false, "Published release did not become visible");
+          console.log(JSON.stringify({ action: "published", releaseId: finalRelease.id, tag: expectedTag }, null, 2));
+          NODE

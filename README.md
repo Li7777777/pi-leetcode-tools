@@ -81,7 +81,9 @@ Run `npm run pack:tools` to create and verify the publishable package artifact.
 
 The release workflow is fail-closed. Publishing requires reviewed policy data,
 an immutable version tag, the configured npm trusted publisher, and successful
-registry verification. See `release/TOOLS-BOOTSTRAP.md` and
+registry verification. A successful tagged release publishes the same semantic
+version to npm `latest` and then creates the matching latest GitHub Release from
+the verified evidence bundle. See `release/TOOLS-BOOTSTRAP.md` and
 `release/tools-release-policy.json` for the complete process.
 
 Package-specific usage, tool inventory, and security behavior are documented

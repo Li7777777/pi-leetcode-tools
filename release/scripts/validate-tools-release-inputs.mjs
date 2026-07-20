@@ -14,6 +14,11 @@ import {
   runCommand,
   sha256Jcs
 } from "../../packages/pi-leetcode-tools/scripts/release-utils.mjs";
+import {
+  assertRegularPublishVersion,
+  createDistTagSnapshot,
+  parseStableVersion
+} from "./dist-tag-policy.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const packageName = "pi-leetcode-tools";
@@ -32,8 +37,7 @@ const allowedSnapshotDirectory = join(
   "committed-release",
   "tools"
 );
-const allowedModes = new Set(["dry-run", "publish-next"]);
-const semverPattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
+const allowedModes = new Set(["dry-run", "publish-latest"]);
 const sha256Pattern = /^(?:sha256:)?([0-9a-f]{64})$/u;
 const digestPattern = /^sha256:[0-9a-f]{64}$/u;
 const ownerPattern = /^[a-z0-9](?:[a-z0-9._-]{0,62})$/u;
@@ -55,10 +59,6 @@ function parseArgs(args) {
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
-}
-
-function snapshotDigest(value) {
-  return `sha256:${sha256(JSON.stringify(value))}`;
 }
 
 async function readJson(path) {
@@ -125,7 +125,7 @@ const expectedRecordDigest = args["expected-record-digest"];
 const bundleDirectory = resolve(args.bundle ?? allowedBundleDirectory);
 const snapshotDirectory = resolve(args.snapshot ?? allowedSnapshotDirectory);
 assert(allowedModes.has(mode), `--mode must be one of: ${[...allowedModes].join(", ")}`);
-assert(typeof version === "string" && semverPattern.test(version), "--version must be an exact semantic version");
+parseStableVersion(version, "--version");
 assert(expectedShaMatch !== null, "--expected-sha256 must be an exact lowercase SHA-256 digest");
 assert(digestPattern.test(expectedRecordDigest ?? ""), "--expected-record-digest must be an exact SHA-256 digest");
 assert(bundleDirectory === allowedBundleDirectory, `--bundle must be ${allowedBundleDirectory}`);
@@ -133,9 +133,17 @@ assert(snapshotDirectory === allowedSnapshotDirectory, `--snapshot must be ${all
 
 const committedPolicyText = await committedText(policyPath);
 const policy = JSON.parse(committedPolicyText);
-assert(policy.schemaVersion === 1 && policy.packageName === packageName, "Committed Tools release policy is invalid");
+assert(policy.schemaVersion === 2 && policy.packageName === packageName, "Committed Tools release policy is invalid");
 assert(policy.registry === "https://registry.npmjs.org", "Tools release policy must use the public npm registry");
-assert(policy.publishDistTag === "next" && policy.protectedDistTag === "latest", "Tools release policy dist-tags are invalid");
+assert(
+  policy.publishDistTag === "latest" && policy.preserveOtherDistTags === true,
+  "Tools regular release policy must publish latest and preserve every other dist-tag"
+);
+assert(
+  policy.bootstrap?.publishDistTag === "next" &&
+    policy.bootstrap?.protectedDistTag === "latest",
+  "Tools bootstrap release policy dist-tags are invalid"
+);
 assert(policy.bootstrap?.packageMustAlreadyExist === true, "Regular OIDC release must require an existing npm package");
 
 const expectedTag = `${policy.releaseTagPrefix}${version}`;
@@ -235,14 +243,21 @@ const trustedPublisherConfigured =
   typeof policy.trustedPublisher?.evidenceReference === "string" &&
   policy.trustedPublisher.evidenceReference.length > 0;
 
-if (mode === "publish-next") {
-  const expectedConfirmation = `publish ${packageName}@${version} to next`;
+if (registry.packageExists) {
+  assertRegularPublishVersion({
+    requestedVersion: version,
+    versionExists: registry.versionExists,
+    latestVersion: registry.distTags.latest
+  });
+}
+
+if (mode === "publish-latest") {
+  const expectedConfirmation = `publish ${packageName}@${version} to latest`;
   assert(args.confirmation === expectedConfirmation, `--confirmation must equal: ${expectedConfirmation}`);
   assert(
     registry.packageExists,
     `[bootstrap_required] ${packageName} does not exist in npm. The regular OIDC workflow cannot perform first-package bootstrap; follow the committed external bootstrap policy first.`
   );
-  assert(!registry.versionExists, `${packageName}@${version} already exists and is immutable`);
   assert(ownerConfigured, "Committed release policy has no reviewed expectedNpmOwner");
   assert(registry.maintainers.includes(configuredOwner), `Registry maintainers do not include committed owner ${configuredOwner}`);
   assert(
@@ -280,15 +295,13 @@ const distTagState = {
   packageExists: registry.packageExists,
   distTags: registry.distTags
 };
-const distTagSnapshot = {
-  schemaVersion: 1,
-  evidenceType: "npm-dist-tag-snapshot",
+const distTagSnapshot = createDistTagSnapshot({
   registry: policy.registry,
-  package: packageName,
-  protectedTag: policy.protectedDistTag,
-  state: distTagState,
-  stateDigest: snapshotDigest(distTagState)
-};
+  packageName,
+  publishTag: policy.publishDistTag,
+  preserveOtherDistTags: policy.preserveOtherDistTags,
+  state: distTagState
+});
 await writeFile(
   join(bundleDirectory, "pre-publish-dist-tags.json"),
   `${JSON.stringify(distTagSnapshot, null, 2)}\n`,
@@ -320,6 +333,8 @@ const approval = {
   policy: {
     digest: sha256Jcs(policy),
     expectedNpmOwner: configuredOwner,
+    publishDistTag: policy.publishDistTag,
+    preserveOtherDistTags: policy.preserveOtherDistTags,
     trustedPublisher: policy.trustedPublisher,
     bootstrap: policy.bootstrap
   },
@@ -347,7 +362,7 @@ console.log(
       bundle: bundleDirectory,
       registryPackageExists: registry.packageExists,
       releaseBlockers,
-      publishAuthorized: mode === "publish-next"
+      publishAuthorized: mode === "publish-latest"
     },
     null,
     2

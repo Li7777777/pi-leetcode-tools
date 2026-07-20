@@ -31,6 +31,8 @@ the following controls:
 7. Configure the npm trusted publisher for
    `.github/workflows/release-tools.yml` and environment `npm-tools-next`, then
    commit the reviewed npm owner, `configured: true`, and an auditable evidence
-   reference to `release/tools-release-policy.json`.
+   reference to `release/tools-release-policy.json`. The environment name is a
+   retained external trust-boundary identifier; regular releases subsequently
+   publish verified stable versions directly to npm `latest`.
 
 Until every step is complete, the regular OIDC workflow remains fail-closed.

@@ -95,6 +95,28 @@ function assertGitHubBootstrapContext(version) {
   return expectedTag;
 }
 
+function readBootstrapTagPolicy(policy) {
+  assert(
+    policy.schemaVersion === 2 &&
+      policy.packageName === packageName &&
+      policy.registry === registryOrigin,
+    "Committed release policy has the wrong schema or registry identity"
+  );
+  assert(
+    policy.publishDistTag === "latest" && policy.preserveOtherDistTags === true,
+    "Committed regular release policy must publish latest and preserve every other dist-tag"
+  );
+  assert(
+    policy.bootstrap?.publishDistTag === "next" &&
+      policy.bootstrap?.protectedDistTag === "latest",
+    "Committed bootstrap dist-tag policy must publish next and protect latest"
+  );
+  return {
+    publishDistTag: policy.bootstrap.publishDistTag,
+    protectedDistTag: policy.bootstrap.protectedDistTag
+  };
+}
+
 async function fetchWithRetry(url, options = {}, attempts = 12) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
@@ -217,7 +239,6 @@ async function prepareBundle(args) {
   assert(expectedSha !== null, "--expected-sha256 must be an exact lowercase SHA-256");
   assert(recordDigestPattern.test(expectedRecordDigest ?? ""), "--expected-record-digest is invalid");
   assert(ownerPattern.test(expectedOwner ?? ""), "--expected-owner is not a valid npm owner");
-  assert(args.confirmation === `bootstrap ${packageName}@${version} to next`, "Bootstrap confirmation is invalid");
   const expectedTag = assertGitHubBootstrapContext(version);
 
   const [head, tagCommit, policyText, packageText, currentText] = await Promise.all([
@@ -232,11 +253,14 @@ async function prepareBundle(args) {
   assert(commit === process.env.GITHUB_SHA, "GITHUB_SHA differs from the tagged commit");
 
   const policy = JSON.parse(policyText);
+  const bootstrapTags = readBootstrapTagPolicy(policy);
   const packageJson = JSON.parse(packageText);
   const current = JSON.parse(currentText);
-  assert(policy.packageName === packageName && policy.registry === registryOrigin, "Committed release policy has the wrong registry identity");
+  assert(
+    args.confirmation === `bootstrap ${packageName}@${version} to ${bootstrapTags.publishDistTag}`,
+    "Bootstrap confirmation is invalid"
+  );
   assert(policy.releaseTagPrefix === "pi-leetcode-tools-v", "Committed release tag prefix is invalid");
-  assert(policy.publishDistTag === "next" && policy.protectedDistTag === "latest", "Committed release dist-tags are invalid");
   assert(packageJson.name === packageName && packageJson.version === version, "Committed package.json does not match the requested version");
   assert(current.packageName === packageName && current.packageVersion === version, "Committed current.json does not match the requested version");
   assert(current.recordDigest === expectedRecordDigest, "Committed current.json differs from --expected-record-digest");
@@ -276,7 +300,7 @@ async function prepareBundle(args) {
     evidenceType: "npm-dist-tag-snapshot",
     registry: registryOrigin,
     package: packageName,
-    protectedTag: "latest",
+    protectedTag: bootstrapTags.protectedDistTag,
     state: prePublishState,
     stateDigest: stateDigest(prePublishState)
   };
@@ -303,8 +327,8 @@ async function prepareBundle(args) {
     registry: {
       origin: registryOrigin,
       expectedOwner,
-      publishDistTag: "next",
-      protectedDistTag: "latest",
+      publishDistTag: bootstrapTags.publishDistTag,
+      protectedDistTag: bootstrapTags.protectedDistTag,
       packageAbsent: true,
       prePublishStateDigest: distTagSnapshot.stateDigest
     },
@@ -441,6 +465,7 @@ async function verifyRegistry(args) {
     readFile(join(bundleDirectory, "record.json")),
     readFile(join(bundleDirectory, tarballName))
   ]);
+  const bootstrapTags = readBootstrapTagPolicy(policy);
   const record = JSON.parse(recordBytes.toString("utf8"));
   assert(approval.evidenceType === "one-time-npm-bootstrap-approval", "Bootstrap approval has the wrong type");
   assert(approval.source?.commit === process.env.GITHUB_SHA && approval.source?.tag === expectedTag, "Bootstrap approval is not bound to this tag and commit");
@@ -449,6 +474,11 @@ async function verifyRegistry(args) {
   assert(approval.subject?.sha256 === `sha256:${expectedSha[1]}`, "Bootstrap approval SHA-256 differs from the input");
   assert(approval.subject?.recordDigest === expectedRecordDigest, "Bootstrap approval record digest differs from the input");
   assert(approval.registry?.expectedOwner === expectedOwner, "Bootstrap approval npm owner differs from the input");
+  assert(
+    approval.registry?.publishDistTag === bootstrapTags.publishDistTag &&
+      approval.registry?.protectedDistTag === bootstrapTags.protectedDistTag,
+    "Bootstrap approval dist-tags differ from the nested bootstrap policy"
+  );
   assert(approval.registry?.packageAbsent === true, "Bootstrap approval did not prove the package was absent");
   assert(approval.policyDigest === sha256Jcs(policy), "Bootstrap approval is not bound to the committed release policy");
   assert(current.recordId === record.recordId && current.recordDigest === expectedRecordDigest, "Bootstrap CandidateRecord pointer is inconsistent");
@@ -457,6 +487,7 @@ async function verifyRegistry(args) {
   assert(sha256(candidateBytes) === expectedSha[1], "Bootstrap candidate tgz differs from the approved bytes");
   assert(record.artifact.bytes === candidateBytes.length, "Bootstrap candidate byte count differs from the CandidateRecord");
   assert(snapshot.state?.packageExists === false && Object.keys(snapshot.state?.distTags ?? {}).length === 0, "Pre-bootstrap registry snapshot was not empty");
+  assert(snapshot.protectedTag === bootstrapTags.protectedDistTag, "Pre-bootstrap snapshot protects the wrong dist-tag");
   assert(snapshot.stateDigest === stateDigest(snapshot.state), "Pre-bootstrap dist-tag snapshot digest is invalid");
   assert(approval.registry.prePublishStateDigest === snapshot.stateDigest, "Bootstrap approval is not bound to the pre-publish dist-tags");
 
@@ -513,17 +544,23 @@ async function verifyRegistry(args) {
   let afterState;
   for (let attempt = 1; attempt <= 12; attempt += 1) {
     afterState = await fetchRegistryState();
-    const latest = afterState.distTags.latest;
+    const latest = afterState.distTags[bootstrapTags.protectedDistTag];
     assert(
       latest === undefined || latest === version,
       `Initial npm publication assigned protected latest to unexpected version ${latest}`
     );
-    if (afterState.packageExists && afterState.distTags.next === version) break;
+    if (
+      afterState.packageExists &&
+      afterState.distTags[bootstrapTags.publishDistTag] === version
+    ) break;
     if (attempt < 12) await new Promise((resolvePromise) => setTimeout(resolvePromise, 5_000));
   }
-  assert(afterState.packageExists && afterState.distTags.next === version, `Registry next tag does not point to ${version}`);
-  const latestBefore = snapshot.state.distTags.latest ?? null;
-  const latestAfter = afterState.distTags.latest ?? null;
+  assert(
+    afterState.packageExists && afterState.distTags[bootstrapTags.publishDistTag] === version,
+    `Registry ${bootstrapTags.publishDistTag} tag does not point to ${version}`
+  );
+  const latestBefore = snapshot.state.distTags[bootstrapTags.protectedDistTag] ?? null;
+  const latestAfter = afterState.distTags[bootstrapTags.protectedDistTag] ?? null;
   const latestDisposition = latestAfter === version
     ? "registry_initialized_to_bootstrap_version"
     : "absent";
@@ -563,7 +600,9 @@ async function verifyRegistry(args) {
       evidenceSha256: `sha256:${sha256(activationBytes)}`
     },
     distTags: {
-      next: afterState.distTags.next,
+      publishDistTag: bootstrapTags.publishDistTag,
+      protectedDistTag: bootstrapTags.protectedDistTag,
+      next: afterState.distTags[bootstrapTags.publishDistTag],
       latestBefore,
       latestAfter,
       latestUnchanged: latestAfter === latestBefore,

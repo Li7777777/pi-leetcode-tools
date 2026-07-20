@@ -4,6 +4,18 @@ All notable changes to this repository are documented here. Package versions
 follow Semantic Versioning independently from the versioned Tool contract and
 event protocol.
 
+## Unreleased
+
+- Changed regular trusted publishing from the staged npm `next` channel to a
+  stable-only, monotonic npm `latest` release with verification that every
+  non-target dist-tag remains unchanged.
+- Added post-registry automation for a matching latest GitHub Release built
+  from the exact verified tgz, formal registry evidence, dist-tag transition,
+  Pi activation evidence, supply-chain evidence, CycloneDX SBOM, and checksums.
+- Added release-infrastructure tests and fail-closed checks for version
+  rollback, prerelease promotion, default `@latest` installation, workflow
+  permissions, release ordering, and immutable asset identity.
+
 ## 0.1.4 - 2026-07-20
 
 - Fixed installed-package Gateway activation when `PI_CODING_AGENT_DIR` is not

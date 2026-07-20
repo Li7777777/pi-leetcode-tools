@@ -1,6 +1,13 @@
-import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+
+import {
+  assertNonTargetDistTagsUnchanged,
+  createDistTagSnapshot,
+  createLatestTransitionEvidence,
+  parseStableVersion,
+  verifyDistTagSnapshot
+} from "./dist-tag-policy.mjs";
 
 const packageName = "pi-leetcode-tools";
 const registryOrigin = "https://registry.npmjs.org";
@@ -55,10 +62,6 @@ async function fetchState({ attempts = 1 } = {}) {
   throw lastError;
 }
 
-function digest(value) {
-  return `sha256:${createHash("sha256").update(JSON.stringify(value)).digest("hex")}`;
-}
-
 const args = parseArgs(process.argv.slice(2));
 assert(args.command === "snapshot" || args.command === "assert", "Expected registry-tags command: snapshot | assert");
 assert(args.output, "--output is required");
@@ -66,52 +69,57 @@ const output = resolve(args.output);
 
 if (args.command === "snapshot") {
   const state = await fetchState();
-  const snapshot = {
-    schemaVersion: 1,
-    evidenceType: "npm-dist-tag-snapshot",
+  const snapshot = createDistTagSnapshot({
     registry: registryOrigin,
-    package: packageName,
-    protectedTag: "latest",
-    state,
-    stateDigest: digest(state)
-  };
+    packageName,
+    publishTag: "latest",
+    preserveOtherDistTags: true,
+    state
+  });
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
   console.log(`Recorded pre-publish dist-tags: ${output}`);
 } else {
   assert(args.snapshot, "--snapshot is required for assert");
   assert(args.version, "--version is required for assert");
+  parseStableVersion(args.version, "--version");
   const snapshot = JSON.parse(await readFile(resolve(args.snapshot), "utf8"));
-  assert(snapshot.registry === registryOrigin && snapshot.package === packageName, "Dist-tag snapshot targets the wrong registry package");
-  assert(snapshot.stateDigest === digest(snapshot.state), "Dist-tag snapshot digest is invalid");
+  const beforeState = verifyDistTagSnapshot(snapshot, {
+    registry: registryOrigin,
+    packageName,
+    publishTag: "latest",
+    preserveOtherDistTags: true
+  });
+  assert(beforeState.packageExists, "Regular latest publication requires an existing registry package");
 
   let state;
   for (let attempt = 1; attempt <= 12; attempt += 1) {
     state = await fetchState();
-    assert(state.distTags.latest === snapshot.state.distTags.latest, "Protected latest tag changed during next publication");
-    if (state.packageExists && state.distTags.next === args.version) break;
+    assertNonTargetDistTagsUnchanged(beforeState, state, "latest");
+    if (state.packageExists && state.distTags.latest === args.version) break;
     if (attempt < 12) {
       await new Promise((resolvePromise) => setTimeout(resolvePromise, 5_000));
     }
   }
   assert(state.packageExists, `${packageName}@${args.version} is not visible in the registry`);
-  assert(state.distTags.next === args.version, `Registry next tag does not point to ${args.version}`);
+  const transition = createLatestTransitionEvidence({
+    snapshot,
+    afterState: state,
+    publishedVersion: args.version,
+    registry: registryOrigin,
+    packageName
+  });
 
   const evidence = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     evidenceType: "npm-dist-tag-invariant",
     generatedAt: new Date().toISOString(),
     registry: registryOrigin,
     package: packageName,
-    publishedVersion: args.version,
-    next: state.distTags.next,
-    latestBefore: snapshot.state.distTags.latest ?? null,
-    latestAfter: state.distTags.latest ?? null,
-    latestUnchanged: true,
-    beforeDigest: snapshot.stateDigest,
-    afterDigest: digest(state)
+    preserveOtherDistTags: true,
+    ...transition
   };
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, `${JSON.stringify(evidence, null, 2)}\n`, "utf8");
-  console.log(`Verified next publication without moving latest: ${output}`);
+  console.log(`Verified latest publication without changing other dist-tags: ${output}`);
 }
