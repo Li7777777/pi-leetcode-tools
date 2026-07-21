@@ -268,7 +268,17 @@ async function getReleaseByTag(repository, tag, token) {
     `/repos/${repository}/releases/tags/${encodeURIComponent(tag)}`,
     { token, allowed: [200, 404] }
   );
-  return response.status === 404 ? null : responseJson(response, "GitHub Release lookup");
+  if (response.status === 200) return responseJson(response, "GitHub Release lookup");
+
+  // GitHub's release-by-tag endpoint excludes drafts, including a draft that
+  // this publisher just created. Authenticated release listings include them,
+  // which lets an interrupted or partially uploaded publication resume safely.
+  const listing = await githubRequest(`/repos/${repository}/releases?per_page=100`, { token });
+  const releases = await responseJson(listing, "GitHub Release listing");
+  assert(Array.isArray(releases), "GitHub Release listing is not an array");
+  const matches = releases.filter((release) => release?.tag_name === tag);
+  assert(matches.length <= 1, `GitHub Release listing contains duplicate tag ${tag}`);
+  return matches[0] ?? null;
 }
 
 async function getLatestRelease(repository, token) {
