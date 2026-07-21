@@ -49,7 +49,7 @@ function sha256Hex(bytes) {
 }
 
 function sha512Hex(bytes) {
-  return createHash("sha512").update(bytes).digest("hex");
+  return `sha512:${createHash("sha512").update(bytes).digest("hex")}`;
 }
 
 function sha512Integrity(bytes) {
