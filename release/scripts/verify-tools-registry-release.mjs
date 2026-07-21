@@ -432,6 +432,12 @@ assert(record.artifact.sha256 === `sha256:${expectedSha256}`, "CandidateRecord d
 
 const { packumentUrl, packument } = await fetchPackumentAtLatest(version);
 assert(Object.hasOwn(packument.versions ?? {}, version), "Registry packument does not contain the published version");
+assert(packument.readmeFilename === "README.md", "Registry packument selected the wrong README file");
+assert(
+  typeof packument.readme === "string" &&
+    packument.readme.includes("Unofficial native Pi tool calls for LeetCode Global and LeetCode CN."),
+  "Registry packument has no non-empty English README"
+);
 const registryLatest = packument["dist-tags"].latest;
 
 const metadataUrl = `${registryOrigin}/${encodedPackage(packageName)}/${encodeURIComponent(version)}`;

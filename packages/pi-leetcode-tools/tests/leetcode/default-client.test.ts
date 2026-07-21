@@ -226,7 +226,7 @@ describe("DefaultLeetCodeClient", () => {
     expect(result.ok).toBe(true);
     expect(result.meta).toMatchObject({
       region: "global",
-      packageVersion: "0.1.4",
+      packageVersion: "0.1.5",
       contractVersion: CONTRACT_VERSION
     });
   });

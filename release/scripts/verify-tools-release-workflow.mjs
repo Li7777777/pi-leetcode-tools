@@ -311,6 +311,8 @@ function verifyFormalRegistryVerifier(source) {
   requirePatterns(source, "formal registry verifier", [
     ["default latest install", /`\$\{packageName\}@latest`/u],
     ["resolved latest version evidence", /resolvedVersion: lockEntry\.version/u],
+    ["registry README filename gate", /packument\.readmeFilename === "README\.md"/u],
+    ["registry English README gate", /packument\.readme\.includes\("Unofficial native Pi tool calls/u],
     ["credential environment removal", /upperName === "NPM_TOKEN"[\s\S]*upperName === "NODE_AUTH_TOKEN"/u],
     ["credential-bearing npm config removal", /upperName\.startsWith\("NPM_CONFIG_"\)[\s\S]*AUTH\|TOKEN\|PASSWORD\|USERNAME/u],
     ["isolated home", /HOME: temporaryDirectory/u],

@@ -11,7 +11,7 @@
 [![Last commit](https://img.shields.io/github/last-commit/Li7777777/pi-leetcode-tools?branch=main&style=flat-square&logo=git&logoColor=white)](https://github.com/Li7777777/pi-leetcode-tools/commits/main)
 [![LINUX DO - Where possible begins](https://raw.githubusercontent.com/Li7777777/cpa-key-hub/main/.github/assets/linux-do-community-badge.svg)](https://linux.do)
 
-[简体中文](./README.zh-CN.md)
+[简体中文](./docs/README.zh-CN.md)
 
 Unofficial native Pi tool calls for LeetCode Global and LeetCode CN.
 
@@ -91,7 +91,7 @@ new Pi session.
 
 ## Verification
 
-`pi-leetcode-tools@0.1.4` implements all 24 pinned reference interfaces as 16
+`pi-leetcode-tools@0.1.5` implements all 24 pinned reference interfaces as 16
 native-tool mappings, 5 Gateway capabilities, and 3 static contract resources,
 with no partial, missing, superseded, or explicitly unsupported mapping.
 
@@ -155,7 +155,7 @@ mandatory evidence in addition to those eight dimensions. A test file that
 merely contains some `test`/`it` call is not parity evidence. Missing receipts,
 missing or duplicate cases, non-passed cases, stale runner/target/reference
 digests, and packed JavaScript that cannot resolve all 24 targets fail closed.
-Version `0.1.4` maps all 24 pinned interfaces and passes the strict source and
+Version `0.1.5` maps all 24 pinned interfaces and passes the strict source and
 packed completeness gates: 344/344 conformance cases in each form, 24/24 packed
 JavaScript target resolution, and 24/24 independent actual
 adapter/Gateway/static-resource fixtures.
@@ -286,7 +286,7 @@ SHA-256 digests.
 
 - Node.js `>=22.19.0`.
 - The currently verified Pi runtime is `@earendil-works/pi-coding-agent@0.80.7`.
-- Package `0.1.4` publishes contract `1.1.0` and RPC protocol `1.0.0`.
+- Package `0.1.5` publishes contract `1.1.0` and RPC protocol `1.0.0`.
 - Public JavaScript imports are limited to `pi-leetcode-tools/embedded`,
   `pi-leetcode-tools/types`, and `pi-leetcode-tools/contract`. Package-root and
   `dist/` imports are intentionally blocked.

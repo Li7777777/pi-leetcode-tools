@@ -6,12 +6,12 @@
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22.19.0-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-283%20passing-2ea44f?style=flat-square)
 [![MCP parity](https://img.shields.io/badge/MCP%20parity-24%2F24-7c3aed?style=flat-square)](#参考-mcp-接口对齐)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](../LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Li7777777/pi-leetcode-tools?style=flat-square&logo=github)](https://github.com/Li7777777/pi-leetcode-tools/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/Li7777777/pi-leetcode-tools?branch=main&style=flat-square&logo=git&logoColor=white)](https://github.com/Li7777777/pi-leetcode-tools/commits/main)
 [![LINUX DO - Where possible begins](https://raw.githubusercontent.com/Li7777777/cpa-key-hub/main/.github/assets/linux-do-community-badge.svg)](https://linux.do)
 
-[English](./README.md)
+[English](../README.md)
 
 面向 LeetCode 国际站（Global）和中国站（CN）的非官方 Pi 原生工具包。
 
@@ -83,7 +83,7 @@ npm exec --prefix "$agentDir\npm" -- pi-leetcode auth login --region cn --profil
 
 ## 验证状态
 
-`pi-leetcode-tools@0.1.4` 已达到严格的上游接口对齐：固定参考面上的 24 个接口均已实现并验证，具体由 16 个原生工具映射、5 个 Gateway 能力和 3 个静态契约资源组成，不存在 `missing`、`partial`、`superseded` 或 `explicitly_unsupported` 映射。
+`pi-leetcode-tools@0.1.5` 已达到严格的上游接口对齐：固定参考面上的 24 个接口均已实现并验证，具体由 16 个原生工具映射、5 个 Gateway 能力和 3 个静态契约资源组成，不存在 `missing`、`partial`、`superseded` 或 `explicitly_unsupported` 映射。
 
 | 检查项 | 当前证据 |
 | --- | --- |
@@ -117,7 +117,7 @@ npm run verify:tools:upstream-completeness
 
 - Node.js `>=22.19.0`。
 - 当前验证过的 Pi 运行时为 `@earendil-works/pi-coding-agent@0.80.7`。
-- 版本 `0.1.4` 携带契约版本 `1.1.0` 和 RPC 协议版本 `1.0.0`。
+- 版本 `0.1.5` 携带契约版本 `1.1.0` 和 RPC 协议版本 `1.0.0`。
 - 公开 JavaScript 子路径仅包括 `pi-leetcode-tools/embedded`、`pi-leetcode-tools/types` 和 `pi-leetcode-tools/contract`；包根路径和 `dist/` 深层导入会被阻止。
 
 调用方必须先发现当前 provider，再比较包版本、契约版本、协议版本、schema digest 和 capability-manifest digest。任何不匹配都应视为不兼容，不能猜测兼容。并存多个 provider 实例会以 `PROVIDER_CONFLICT` 失败关闭，直到只保留一个实例。
@@ -353,7 +353,7 @@ await runtime.deactivate();
 - 安全日志路径会遮蔽已知凭据和代码字段，但无法保护用户在该路径之外主动披露的秘密。
 - 发布产物从最终 `.tgz` 检查文件 allowlist、安全声明、内建 secret scan、隔离的生产依赖树、许可证策略、CycloneDX SBOM 和发布证据记录。
 
-威胁模型和私密报告方式见 [SECURITY.md](./SECURITY.md)。
+威胁模型和私密报告方式见 [SECURITY.md](../SECURITY.md)。
 
 ## 本地开发
 

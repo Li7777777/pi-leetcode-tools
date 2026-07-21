@@ -1,4 +1,4 @@
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 
 import {
   BEHAVIOR_MANIFEST,
@@ -167,12 +167,23 @@ for (const relativePath of [
   "../upstream/parity.json",
   "../contract/catalogs.json",
   "../README.md",
-  "../README.zh-CN.md",
+  "../docs/README.zh-CN.md",
   "../SECURITY.md",
   "../LICENSE"
 ]) {
   await access(new URL(relativePath, import.meta.url));
 }
+
+const rootReadmeCandidates = (await readdir(new URL("../", import.meta.url), {
+  withFileTypes: true
+}))
+  .filter((entry) => entry.isFile() && /^README(?:\..*)?$/iu.test(entry.name))
+  .map((entry) => entry.name)
+  .sort();
+assert(
+  JSON.stringify(rootReadmeCandidates) === JSON.stringify(["README.md"]),
+  `Package root must expose only README.md to npm readme normalization; found ${rootReadmeCandidates.join(", ")}`
+);
 
 const upstreamReport = await verifyUpstreamParity();
 

@@ -6,6 +6,14 @@ event protocol.
 
 ## Unreleased
 
+## 0.1.5 - 2026-07-21
+
+- Moved the Simplified Chinese package guide under `docs/` so npm's README
+  normalization selects the root English `README.md` deterministically.
+- Added source and registry release gates that require one root README
+  candidate, `readmeFilename=README.md`, and a non-empty English registry
+  README.
+
 - Changed regular trusted publishing from the staged npm `next` channel to a
   stable-only, monotonic npm `latest` release with verification that every
   non-target dist-tag remains unchanged.

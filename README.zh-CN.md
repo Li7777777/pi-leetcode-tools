@@ -5,7 +5,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Li7777777/pi-leetcode-tools/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/Li7777777/pi-leetcode-tools/actions/workflows/ci.yml)
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22.19.0-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 [![Tests](https://img.shields.io/badge/tests-283%20passing-2ea44f?style=flat-square)](release/gate-matrix.json)
-[![MCP parity](https://img.shields.io/badge/MCP%20parity-24%2F24-7c3aed?style=flat-square)](packages/pi-leetcode-tools/README.zh-CN.md#参考-mcp-接口对齐)
+[![MCP parity](https://img.shields.io/badge/MCP%20parity-24%2F24-7c3aed?style=flat-square)](packages/pi-leetcode-tools/docs/README.zh-CN.md#参考-mcp-接口对齐)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Li7777777/pi-leetcode-tools?style=flat-square&logo=github)](https://github.com/Li7777777/pi-leetcode-tools/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/Li7777777/pi-leetcode-tools?branch=main&style=flat-square&logo=git&logoColor=white)](https://github.com/Li7777777/pi-leetcode-tools/commits/main)
@@ -41,7 +41,7 @@ pi
 使用 lc_progress 汇总我的 CN 账户做题进度。
 ```
 
-题目、公开用户资料、竞赛和社区题解等公开读取不需要登录。账户进度、提交历史、远程运行和正式提交需要登录。登录命令、账号切换以及 Pi 管理的 CLI 路径见[包级使用与认证指南](./packages/pi-leetcode-tools/README.zh-CN.md#快速开始)。`lc_submit` 只能在 Pi 交互会话中使用，并且每次提交都需要新的界面确认。
+题目、公开用户资料、竞赛和社区题解等公开读取不需要登录。账户进度、提交历史、远程运行和正式提交需要登录。登录命令、账号切换以及 Pi 管理的 CLI 路径见[包级使用与认证指南](./packages/pi-leetcode-tools/docs/README.zh-CN.md#快速开始)。`lc_submit` 只能在 Pi 交互会话中使用，并且每次提交都需要新的界面确认。
 
 如果扩展已经安装但被禁用，可运行 `pi config` 启用对应资源，然后重新启动 Pi 会话。
 
@@ -79,7 +79,7 @@ npm run verify:tools:release:no-record
 
 完整流程见 `release/TOOLS-BOOTSTRAP.md` 和 `release/tools-release-policy.json`。
 
-14 个工具清单、Global/CN 差异、认证与安全边界，请参阅[包级中文文档](./packages/pi-leetcode-tools/README.zh-CN.md)。
+14 个工具清单、Global/CN 差异、认证与安全边界，请参阅[包级中文文档](./packages/pi-leetcode-tools/docs/README.zh-CN.md)。
 
 ## 许可证
 

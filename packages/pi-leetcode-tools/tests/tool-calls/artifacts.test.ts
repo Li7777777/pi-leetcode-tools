@@ -37,7 +37,7 @@ describe("published package contract", () => {
       "contract",
       "upstream",
       "README.md",
-      "README.zh-CN.md",
+      "docs/README.zh-CN.md",
       "SECURITY.md",
       "LICENSE",
       "NOTICE"
